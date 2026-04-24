@@ -26,7 +26,8 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 /* ═══════════════════════════════════════════
    SCREEN SYSTEM
 ═══════════════════════════════════════════ */
-.screen{display:none;flex-direction:column;height:100dvh;overflow:hidden;}
+.screen{display:none;flex-direction:column;min-height:100dvh;overflow:hidden;}
+#s-podcast{height:auto;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .screen.active{display:flex;animation:screenIn .3s cubic-bezier(.22,1,.36,1) both;}
 @keyframes screenIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .scrollable{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;}
@@ -972,9 +973,9 @@ function updateSub(idx) {
   document.getElementById('prog-fill').style.width = pct+'%';
   document.getElementById('t-cur').textContent     = fmtT(idx*34);
 
-  // Scroll dialogue item
+  // Auto-scroll only if user is near the active item
   const di = document.getElementById('di-'+idx);
-  if(di) di.scrollIntoView({behavior:'smooth',block:'nearest'});
+  if(di && !window._userScrolled) di.scrollIntoView({behavior:'smooth',block:'nearest'});
 
   // Update arrows
   document.querySelectorAll('.diag-item').forEach((el,i)=>{
@@ -1499,6 +1500,14 @@ function loadFromStorage() {
 ════════════════════════════════════════════════ */
 window.addEventListener('load',()=>{
   loadFromStorage();
+  // Track if user manually scrolled — stops auto-scroll hijacking
+  window._userScrolled = false;
+  let _scrollTimer;
+  document.getElementById('s-podcast').addEventListener('scroll', () => {
+    window._userScrolled = true;
+    clearTimeout(_scrollTimer);
+    _scrollTimer = setTimeout(() => { window._userScrolled = false; }, 3000);
+  });
   speechSynthesis.getVoices();
   speechSynthesis.onvoiceschanged=()=>{voiceCache=null;};
   renderHome();
