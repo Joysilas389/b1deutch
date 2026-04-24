@@ -868,6 +868,7 @@ function finishGen(data, topic, lvl) {
   S.podcasts.unshift(pod);
   S.stats.podcasts++;
   mergeVocab(pod);
+  saveState();
   renderHome();
   openPod(0);
 }
@@ -1175,6 +1176,7 @@ function showFb(ev) {
   const best = Math.max(...S.ch.scores);
   if(best>S.stats.bestScore) S.stats.bestScore=best;
   if(S.activePod) S.activePod.bestScore=Math.max(S.activePod.bestScore||0,best);
+  saveState();
 
   const circ=2*Math.PI*38, filled=(ev.score/100)*circ;
   const ring=document.getElementById('score-ring');
@@ -1368,6 +1370,7 @@ function rateCard(quality) {
 
   const newSR = sm2Update(card, quality);
   card.sr     = newSR;
+  saveState();
 
   // Track session stats
   S.fc.sessionTotal++;
@@ -1465,10 +1468,37 @@ function fmtT(s){const m=Math.floor(s/60),sec=Math.floor(s%60);return `${m}:${se
 let toastTm;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTm);toastTm=setTimeout(()=>el.classList.remove('show'),2800);}
 
+
+/* ════════════════════════════════════════════════
+   PERSISTENCE — localStorage
+════════════════════════════════════════════════ */
+function saveState() {
+  try {
+    localStorage.setItem('sp_podcasts', JSON.stringify(S.podcasts));
+    localStorage.setItem('sp_fc',       JSON.stringify(S.fc.all));
+    localStorage.setItem('sp_stats',    JSON.stringify(S.stats));
+    localStorage.setItem('sp_streak',   JSON.stringify(S.fc.streak));
+  } catch(e) { console.warn('Save failed', e); }
+}
+
+function loadFromStorage() {
+  try {
+    const p  = localStorage.getItem('sp_podcasts');
+    const f  = localStorage.getItem('sp_fc');
+    const st = localStorage.getItem('sp_stats');
+    const sk = localStorage.getItem('sp_streak');
+    if(p)  S.podcasts      = JSON.parse(p);
+    if(f)  S.fc.all        = JSON.parse(f);
+    if(st) S.stats         = JSON.parse(st);
+    if(sk) S.fc.streak     = JSON.parse(sk);
+  } catch(e) { console.warn('Load failed', e); }
+}
+
 /* ════════════════════════════════════════════════
    BOOT
 ════════════════════════════════════════════════ */
 window.addEventListener('load',()=>{
+  loadFromStorage();
   speechSynthesis.getVoices();
   speechSynthesis.onvoiceschanged=()=>{voiceCache=null;};
   renderHome();
