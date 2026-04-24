@@ -1,7 +1,9 @@
 {
   "version": 2,
   "functions": {
-    "api/claude.js": { "runtime": "nodejs18.x" }
+    "api/claude.js": {
+      "runtime": "@vercel/node@3.0.0"
+    }
   },
   "routes": [
     { "src": "/api/claude", "dest": "/api/claude.js" },
