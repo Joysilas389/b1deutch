@@ -975,7 +975,7 @@ function updateSub(idx) {
 
   // Auto-scroll only if user is near the active item
   const di = document.getElementById('di-'+idx);
-  if(di && !window._userScrolled) di.scrollIntoView({behavior:'smooth',block:'nearest'});
+  // auto-scroll disabled — user scrolls freely
 
   // Update arrows
   document.querySelectorAll('.diag-item').forEach((el,i)=>{
