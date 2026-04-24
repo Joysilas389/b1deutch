@@ -128,6 +128,7 @@ textarea.t-input::placeholder{color:var(--txt3);}
 .pod-x-btn{background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:6px 12px;font-size:12px;font-family:var(--font);color:var(--txt3);cursor:pointer;font-weight:600;}
 
 /* ── STUDIO STAGE ── */
+.studio-sticky{position:sticky;top:0;z-index:10;background:var(--bg);padding-bottom:8px;}
 .studio{
   margin:0 14px;border-radius:var(--r-xl);
   background:var(--surf);border:1px solid var(--bdr);
@@ -477,7 +478,8 @@ textarea.t-input::placeholder{color:var(--txt3);}
     <button class="pod-x-btn" onclick="exitPod()">✕ Exit</button>
   </div>
 
-  <!-- Studio Stage -->
+  <!-- Sticky top: studio + controls -->
+  <div class="studio-sticky">
   <div class="studio">
     <div class="studio-bg"></div>
 
@@ -975,7 +977,12 @@ function updateSub(idx) {
 
   // Auto-scroll only if user is near the active item
   const di = document.getElementById('di-'+idx);
-  // auto-scroll disabled — user scrolls freely
+  if(di){
+    // scroll the whole page so active line is visible
+    const rect = di.getBoundingClientRect();
+    const inView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+    if(!inView) di.scrollIntoView({behavior:'smooth', block:'center'});
+  }
 
   // Update arrows
   document.querySelectorAll('.diag-item').forEach((el,i)=>{
