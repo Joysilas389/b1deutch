@@ -352,6 +352,11 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
 .empty-title { font-size: 17px; font-weight: 700; color: var(--txt2); margin-bottom: 7px; }
 .empty-desc { font-size: 14px; color: var(--txt3); line-height: 1.65; }
 
+
+body.light-mode{--bg:#f4f4f8;--surf:#ffffff;--surf2:#eeeef4;--bdr:#d0d0e0;--bdr2:#c0c0d4;--txt:#111120;--txt2:#44445e;--txt3:#8a8aaa;}
+body.light-mode .card{background:#fff!important;}
+body.light-mode #global-nav{background:rgba(244,244,248,.97);}
+body.light-mode .hb-panel{background:#fff;}
 /* ── MISC ── */
 .session-done { text-align: center; padding: 36px 20px; }
 .session-ico { font-size: 50px; margin-bottom: 14px; }
@@ -365,7 +370,7 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
 ════════════════════════════════════════ -->
 <div id="s-home" class="screen active">
   <div class="safe-top px-3 pb-3" style="background:linear-gradient(180deg,#0b0b1a,var(--bg));">
-    <div class="logo">Sprechen</div>
+    <div class="d-flex justify-content-between align-items-center"><div class="logo">Sprechen</div><button onclick="toggleTheme()" id="theme-btn" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:6px 12px;font-size:18px;cursor:pointer;">🌙</button></div>
     <div class="logo-tag">German Exam Prep · TELC &amp; Goethe</div>
   </div>
 
@@ -978,7 +983,7 @@ function go(id) {
 function navTo(id) {
   go(id);
   document.querySelectorAll('#global-nav .nav-tab').forEach(t => t.classList.remove('on'));
-  if (id==='home')  { document.getElementById('nt-home').classList.add('on'); renderHome(); }
+  if (id==='home')  { document.getElementById('nt-home').classList.add('on');const t=localStorage.getItem('sp2_theme');if(t==='light'){document.body.classList.add('light-mode');document.getElementById('theme-btn').textContent='☀️';document.documentElement.setAttribute('data-bs-theme','light');} renderHome(); }
   if (id==='flash') { document.getElementById('nt-flash').classList.add('on'); renderFlash(); }
 }
 
@@ -1700,6 +1705,7 @@ function fmtT(s){const m=Math.floor(s/60),sec=Math.floor(s%60);return`${m}:${sec
 let toastTm;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTm);toastTm=setTimeout(()=>el.classList.remove('show'),2800);}
 
+function toggleTheme(){const l=document.body.classList.toggle("light-mode");document.getElementById("theme-btn").textContent=l?"☀️":"🌙";document.documentElement.setAttribute("data-bs-theme",l?"light":"dark");localStorage.setItem("sp2_theme",l?"light":"dark");}
 /* ══════════════════════════════════════
    BOOT
 ══════════════════════════════════════ */
@@ -1709,7 +1715,7 @@ window.addEventListener('load',()=>{
   speechSynthesis.onvoiceschanged=()=>{vc=null;};
   renderHome();
   document.getElementById('global-nav').style.display='block';
-  document.getElementById('nt-home').classList.add('on');
+  document.getElementById('nt-home').classList.add('on');const t=localStorage.getItem('sp2_theme');if(t==='light'){document.body.classList.add('light-mode');document.getElementById('theme-btn').textContent='☀️';document.documentElement.setAttribute('data-bs-theme','light');}
   // Set default toggles
   setStd('telc'); setLvl('A2'); setDur('medium');
 });
