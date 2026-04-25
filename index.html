@@ -1666,7 +1666,7 @@ function renderFCContent(){
     </div>`;
 }
 function nxtInt(card,q){return sm2(card,q).interval;}
-function flipCard(){S.fc.flipped=!S.fc.flipped;renderFCContent();}
+function flipCard(){S.fc.flipped=!S.fc.flipped;renderFCContent();if(!S.fc.flipped){const c=getQueue()[S.fc.studyIdx];if(c){const u=new SpeechSynthesisUtterance(c.baseForm||c.word);u.lang="de-DE";speechSynthesis.cancel();speechSynthesis.speak(u);}}}
 function rateCard(q){
   const queue=getQueue(),card=queue[S.fc.studyIdx];if(!card)return;
   card.sr=sm2(card,q);S.fc.sessionTotal++;
