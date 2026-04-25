@@ -1,449 +1,543 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Sprechen · German Fluency</title>
+<title>Sprechen · German Exam Prep</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;}
-:root{
-  --font:-apple-system,'SF Pro Display','SF Pro Text','Helvetica Neue',Arial,sans-serif;
-  --mono:'SF Mono','Menlo','Monaco','Courier New',monospace;
-  --bg:#080810;--surf:#0f0f1c;--surf2:#161624;
-  --bdr:#1e1e32;--bdr2:#27273d;
-  --txt:#eeeef6;--txt2:#8a8aaa;--txt3:#44445e;
-  --accent:#6457ff;--accent2:#a79bff;
-  --anna:#ff4f97;--anna2:#ff8fc3;--anna-glow:#ff4f9755;
-  --max:#22d3a4;--max2:#6ee7cc;--max-glow:#22d3a455;
-  --good:#30d158;--warn:#ff9f0a;--danger:#ff3b30;
-  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:26px;
+:root {
+  --font: -apple-system,'SF Pro Display','SF Pro Text','Helvetica Neue',Arial,sans-serif;
+  --mono: 'SF Mono','Menlo','Monaco','Courier New',monospace;
+  --bg: #080810;
+  --surf: #0f0f1c;
+  --surf2: #161624;
+  --bdr: #1e1e32;
+  --bdr2: #27273d;
+  --txt: #eeeef6;
+  --txt2: #8a8aaa;
+  --txt3: #44445e;
+  --accent: #6457ff;
+  --accent2: #a79bff;
+  --anna: #ff4f97;
+  --max: #22d3a4;
+  --good: #30d158;
+  --warn: #ff9f0a;
+  --danger: #ff3b30;
+  --sprechen: #6457ff;
+  --lesen: #22d3a4;
+  --schreiben: #ff9f0a;
+  --horen: #ff4f97;
 }
-html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--font);overflow:hidden;}
+*,*::before,*::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg) !important; color: var(--txt) !important; font-family: var(--font) !important; overflow: hidden; -webkit-font-smoothing: antialiased; }
 
-/* ═══════════════════════════════════════
-   SCREEN SYSTEM
-   Each screen = position:fixed, full viewport, scrolls independently.
-   Only one .active at a time. No screen can bleed into another.
-═══════════════════════════════════════ */
-.screen{
-  display:none;
-  position:fixed;
-  inset:0;
-  overflow-y:auto;
-  overflow-x:hidden;
-  -webkit-overflow-scrolling:touch;
-  background:var(--bg);
-  z-index:1;
+/* ── SCREEN SYSTEM ── */
+.screen { display: none; position: fixed; inset: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; background: var(--bg); z-index: 1; }
+.screen::-webkit-scrollbar { display: none; }
+.screen.active { display: block; animation: fadeUp .28s cubic-bezier(.22,1,.36,1) both; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+#s-generating.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* ── BOOTSTRAP OVERRIDES ── */
+body, .card, .modal-content, .offcanvas { font-family: var(--font) !important; }
+.bg-dark-custom { background: var(--surf) !important; }
+.bg-dark-custom2 { background: var(--surf2) !important; }
+.border-custom { border-color: var(--bdr) !important; }
+.text-muted-custom { color: var(--txt3) !important; }
+.btn-accent { background: linear-gradient(135deg, var(--accent), #8070ff); color: #fff; border: none; font-weight: 700; }
+.btn-accent:hover, .btn-accent:active { background: linear-gradient(135deg, #5448dd, #6e60ee); color: #fff; }
+.card { background: var(--surf) !important; border-color: var(--bdr) !important; }
+.safe-top { padding-top: max(env(safe-area-inset-top, 0px), 52px) !important; }
+
+/* ── BOTTOM NAV ── */
+#global-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: rgba(8,8,16,.97);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-top: 1px solid var(--bdr);
+  padding: 8px 0 max(env(safe-area-inset-bottom,0px), 10px);
+  display: none;
 }
-.screen::-webkit-scrollbar{display:none;}
-.screen.active{display:block;animation:fadeUp .28s cubic-bezier(.22,1,.36,1) both;}
-#s-generating.active{display:flex;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; padding: 4px 0; border: none; background: none; }
+.nav-tab-ico { font-size: 22px; line-height: 1; }
+.nav-tab-lbl { font-size: 10px; font-weight: 600; letter-spacing: .03em; color: var(--txt3); font-family: var(--font); }
+.nav-tab.on .nav-tab-lbl { color: var(--accent2); }
+.nav-tab.on .nav-tab-ico { filter: drop-shadow(0 0 5px var(--accent)); }
 
-/* ═══════════════════════════════════════
-   SHARED
-═══════════════════════════════════════ */
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font);font-weight:600;border:none;cursor:pointer;border-radius:var(--r-md);transition:opacity .15s,transform .12s;}
-.btn:active{opacity:.72;transform:scale(.97);}
-.btn-primary{background:linear-gradient(135deg,var(--accent),#8070ff);color:#fff;padding:15px 22px;font-size:16px;width:100%;box-shadow:0 4px 24px #6457ff38;}
-.btn-secondary{background:var(--surf2);color:var(--txt2);border:1px solid var(--bdr2);padding:14px 20px;font-size:15px;width:100%;}
-.pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.06em;}
-.pill-a2{background:#30d15820;border:1px solid #30d15840;color:var(--good);}
-.pill-b1{background:#6457ff20;border:1px solid #6457ff40;color:var(--accent2);}
-.back-btn{width:36px;height:36px;border-radius:10px;background:var(--surf2);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--txt2);cursor:pointer;flex-shrink:0;}
-.safe-top{padding-top:max(env(safe-area-inset-top,0px),52px);}
+/* ── MODULE COLORS ── */
+.mod-sprechen { --mod-color: var(--sprechen); --mod-glow: #6457ff33; }
+.mod-lesen    { --mod-color: var(--lesen);    --mod-glow: #22d3a433; }
+.mod-schreiben{ --mod-color: var(--schreiben);--mod-glow: #ff9f0a33; }
+.mod-horen    { --mod-color: var(--horen);    --mod-glow: #ff4f9733; }
+.mod-card { background: var(--surf); border: 1px solid var(--bdr); border-radius: 18px; padding: 20px 16px; cursor: pointer; transition: all .2s; }
+.mod-card:active { transform: scale(.97); }
+.mod-card .mod-ico { font-size: 36px; margin-bottom: 10px; }
+.mod-card .mod-name { font-size: 16px; font-weight: 800; color: var(--mod-color); }
+.mod-card .mod-desc { font-size: 12px; color: var(--txt3); margin-top: 3px; line-height: 1.5; }
+.mod-card .mod-bar { height: 3px; border-radius: 2px; background: var(--mod-color); margin-top: 14px; opacity: .5; }
 
-/* ═══════════════════════════════════════
-   BOTTOM NAV
-═══════════════════════════════════════ */
-.nav{display:flex;background:rgba(8,8,16,.96);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--bdr);padding:8px 0 max(env(safe-area-inset-bottom,0px),10px);position:sticky;bottom:0;z-index:10;}
-.nav-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;}
-.nav-tab-ico{font-size:22px;line-height:1;}
-.nav-tab-lbl{font-size:10px;font-weight:600;letter-spacing:.03em;color:var(--txt3);transition:color .2s;}
-.nav-tab.on .nav-tab-lbl{color:var(--accent2);}
-.nav-tab.on .nav-tab-ico{filter:drop-shadow(0 0 5px var(--accent));}
+/* ── LOGO ── */
+.logo { font-size: 30px; font-weight: 800; letter-spacing: -.5px; background: linear-gradient(135deg, #fff 20%, var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.logo-tag { font-size: 12px; color: var(--txt3); font-weight: 500; }
 
-/* ═══════════════════════════════════════
-   HOME
-═══════════════════════════════════════ */
-.home-hdr{background:linear-gradient(180deg,#0b0b1a,var(--bg));padding:0 20px 16px;}
-.logo{font-size:32px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,#fff 20%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.logo-tag{font-size:13px;color:var(--txt3);margin-top:2px;font-weight:500;}
-.stats-row{display:flex;gap:10px;padding:0 16px 18px;}
-.stat-card{flex:1;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r-md);padding:13px 10px;text-align:center;}
-.stat-v{font-size:22px;font-weight:800;letter-spacing:-.5px;}
-.stat-l{font-size:10px;color:var(--txt3);margin-top:3px;font-weight:600;letter-spacing:.06em;}
-.fab{position:fixed;bottom:88px;right:18px;z-index:50;background:linear-gradient(135deg,var(--accent),#8070ff);color:#fff;border:none;border-radius:50px;padding:14px 20px;font-family:var(--font);font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 6px 28px #6457ff50;transition:all .2s;}
-.fab:active{transform:scale(.95);}
-.sec-lbl{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--txt3);text-transform:uppercase;padding:0 20px 10px;}
-.pod-card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r-lg);padding:16px;cursor:pointer;transition:background .15s;margin-bottom:12px;}
-.pod-card:active{background:var(--surf2);}
-.pc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
-.pc-title{font-size:16px;font-weight:700;letter-spacing:-.2px;}
-.pc-topic{font-size:12px;color:var(--txt3);margin-top:2px;}
-.pc-meta{font-size:12px;color:var(--txt2);margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.sp-chips{display:flex;}
-.sp-chip{width:26px;height:26px;border-radius:50%;border:2px solid var(--surf);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;}
-.sp-chip.a{background:linear-gradient(135deg,var(--anna),#c44dde);color:#fff;margin-right:-5px;}
-.sp-chip.m{background:linear-gradient(135deg,var(--max),#06b6d4);color:#fff;}
-.empty-state{text-align:center;padding:60px 30px;color:var(--txt3);}
-.empty-ico{font-size:52px;margin-bottom:16px;}
-.empty-title{font-size:17px;font-weight:700;color:var(--txt2);margin-bottom:8px;}
-.empty-desc{font-size:14px;line-height:1.65;}
+/* ── STAT CARDS ── */
+.stat-card { background: var(--surf); border: 1px solid var(--bdr); border-radius: 14px; padding: 13px 10px; text-align: center; }
+.stat-v { font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
+.stat-l { font-size: 10px; color: var(--txt3); margin-top: 3px; font-weight: 600; letter-spacing: .06em; }
 
-/* ═══════════════════════════════════════
-   GENERATE
-═══════════════════════════════════════ */
-.gen-lbl{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--txt3);padding:18px 20px 8px;text-transform:uppercase;}
-textarea.t-input{width:calc(100% - 40px);margin:0 20px;background:var(--surf);border:1px solid var(--bdr2);border-radius:var(--r-md);padding:14px 16px;color:var(--txt);font-family:var(--font);font-size:15px;line-height:1.6;outline:none;resize:none;transition:border-color .2s;}
-textarea.t-input:focus{border-color:var(--accent);}
-textarea.t-input::placeholder{color:var(--txt3);}
-.chip-row{display:flex;flex-wrap:wrap;gap:8px;padding:0 20px;}
-.chip{background:var(--surf2);border:1px solid var(--bdr);border-radius:20px;padding:7px 14px;font-size:13px;font-family:var(--font);cursor:pointer;color:var(--txt2);transition:all .15s;font-weight:500;}
-.chip:active{background:#6457ff20;border-color:var(--accent);color:var(--accent2);}
-.tgl-row{display:flex;gap:10px;padding:0 20px;}
-.tgl{flex:1;background:var(--surf);border:1px solid var(--bdr2);border-radius:var(--r-sm);padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;font-family:var(--font);font-weight:700;color:var(--txt3);font-size:14px;line-height:1.4;}
-.tgl.on-a2{background:#30d15815;border-color:#30d15850;color:var(--good);}
-.tgl.on-b1{background:#6457ff15;border-color:#6457ff50;color:var(--accent2);}
-.tgl.on-dur{background:#6457ff15;border-color:#6457ff50;color:var(--accent2);}
+/* ── LEVEL BADGES ── */
+.badge-a2 { background: #30d15820; border: 1px solid #30d15840; color: var(--good); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.badge-b1 { background: #6457ff20; border: 1px solid #6457ff40; color: var(--accent2); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.badge-b2 { background: #ff4f9720; border: 1px solid #ff4f9740; color: var(--anna); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
 
-/* ═══════════════════════════════════════
-   GENERATING
-═══════════════════════════════════════ */
-.gen-orbs{width:180px;height:180px;position:relative;margin:0 auto 32px;}
-.orb{position:absolute;border-radius:50%;animation:orbFloat 3s ease-in-out infinite;}
-.orb.a{width:76px;height:76px;left:6px;top:52px;background:radial-gradient(circle at 35% 35%,#ff9dc8,var(--anna),#c44dde);box-shadow:0 0 40px var(--anna-glow);}
-.orb.m{width:76px;height:76px;right:6px;top:52px;background:radial-gradient(circle at 35% 35%,#7ee8cc,var(--max),#06b6d4);box-shadow:0 0 40px var(--max-glow);animation-delay:1.5s;}
-.orb.c{width:36px;height:36px;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#fff4,var(--accent));animation:orbPulse 2s ease-in-out infinite;}
-@keyframes orbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-@keyframes orbPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.6}50%{transform:translate(-50%,-50%) scale(1.35);opacity:1}}
+/* ── SECTION LABEL ── */
+.sec-lbl { font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--txt3); text-transform: uppercase; }
 
-/* ═══════════════════════════════════════
-   PODCAST
-═══════════════════════════════════════ */
-.pod-hdr{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;}
-.pod-topic-lbl{font-size:11px;color:var(--txt3);font-weight:700;letter-spacing:.07em;text-transform:uppercase;flex:1;}
-.pod-hdr-btns{display:flex;gap:8px;}
-.pod-icon-btn{background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:7px 11px;font-size:15px;cursor:pointer;color:var(--txt2);}
-/* Studio */
-.studio{margin:0 14px;border-radius:var(--r-xl);background:var(--surf);border:1px solid var(--bdr);position:relative;overflow:hidden;height:220px;}
-.studio-bg{position:absolute;inset:0;background:radial-gradient(ellipse 120px 120px at 20% 90%,#ff4f9714,transparent),radial-gradient(ellipse 120px 120px at 80% 90%,#22d3a414,transparent),linear-gradient(180deg,#0a0a18,#0f0f1c);}
-.studio-floor{position:absolute;bottom:52px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--bdr2),transparent);}
-.studio-desk{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);width:170px;height:6px;background:linear-gradient(180deg,#2a2a44,#1a1a2e);border-radius:3px;}
-.mic-stand{position:absolute;bottom:48px;display:flex;flex-direction:column;align-items:center;}
-.mic-stand.a{left:56px;}.mic-stand.m{right:56px;}
-.mic-head{width:10px;height:14px;background:var(--bdr2);border-radius:5px;}
-.mic-pole{width:1px;height:16px;background:var(--bdr2);}
-.mic-base{width:10px;height:2px;background:var(--bdr2);border-radius:1px;}
-/* Characters */
-.char-node{position:absolute;bottom:56px;display:flex;flex-direction:column;align-items:center;gap:6px;}
-.char-node.a{left:16px;}.char-node.m{right:16px;}
-.av-circle{width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;position:relative;z-index:2;transition:transform .35s ease;}
-.char-node.a .av-circle{background:linear-gradient(145deg,var(--anna2),var(--anna),#c44dde);color:#fff;}
-.char-node.m .av-circle{background:linear-gradient(145deg,var(--max2),var(--max),#06b6d4);color:#fff;}
-.glow-ring{position:absolute;inset:-5px;border-radius:50%;border:2px solid transparent;transition:all .3s;opacity:0;z-index:1;}
-.char-node.a .glow-ring{border-color:var(--anna);box-shadow:0 0 0 4px var(--anna-glow),0 0 24px var(--anna-glow);}
-.char-node.m .glow-ring{border-color:var(--max);box-shadow:0 0 0 4px var(--max-glow),0 0 24px var(--max-glow);}
-.char-node.speaking .glow-ring{opacity:1;animation:glowA 1.4s ease-in-out infinite;}
-.char-node.m.speaking .glow-ring{animation:glowM 1.4s ease-in-out infinite;}
-.char-node.speaking .av-circle{transform:scale(1.07);}
-@keyframes glowA{0%,100%{box-shadow:0 0 0 4px var(--anna-glow),0 0 24px var(--anna-glow)}50%{box-shadow:0 0 0 8px #ff4f9720,0 0 40px var(--anna-glow)}}
-@keyframes glowM{0%,100%{box-shadow:0 0 0 4px var(--max-glow),0 0 24px var(--max-glow)}50%{box-shadow:0 0 0 8px #22d3a420,0 0 40px var(--max-glow)}}
-.speak-dot{width:8px;height:8px;border-radius:50%;position:absolute;top:2px;right:2px;opacity:0;transition:opacity .3s;}
-.char-node.a .speak-dot{background:var(--anna);}
-.char-node.m .speak-dot{background:var(--max);}
-.char-node.speaking .speak-dot{opacity:1;animation:dotBlink 1s infinite;}
-@keyframes dotBlink{0%,100%{opacity:1}50%{opacity:.3}}
-.mouth-bar{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);width:22px;height:3px;display:flex;gap:2px;}
-.mouth-seg{flex:1;background:#fff8;border-radius:1px;height:3px;}
-.char-node.speaking .mouth-seg:nth-child(1){animation:mth .25s ease-in-out infinite alternate;}
-.char-node.speaking .mouth-seg:nth-child(2){animation:mth .25s ease-in-out infinite alternate .08s;}
-.char-node.speaking .mouth-seg:nth-child(3){animation:mth .25s ease-in-out infinite alternate .16s;}
-@keyframes mth{to{height:7px;}}
-.char-badge{background:rgba(9,9,15,.9);border:1px solid var(--bdr2);border-radius:8px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap;}
-.char-node.a .char-badge{color:var(--anna);}
-.char-node.m .char-badge{color:var(--max);}
-.sw{position:absolute;bottom:78px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:3px;height:36px;}
-.wb{width:3px;border-radius:2px;height:4px;transition:background .4s;}
-.wb.playing{animation:wb .6s ease-in-out infinite;}
-.wb.ca{background:var(--anna);}
-.wb.cm{background:var(--max);}
-@keyframes wb{0%,100%{height:4px}50%{height:var(--wh,22px)}}
-/* Subtitle */
-.sub-box{margin:10px 14px 0;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r-md);padding:13px 15px;min-height:78px;}
-.sub-spk{font-size:11px;font-weight:700;letter-spacing:.07em;margin-bottom:4px;}
-.sub-spk.a{color:var(--anna);}.sub-spk.m{color:var(--max);}
-.sub-txt{font-size:15px;line-height:1.58;font-weight:500;}
-.sub-en{font-size:13px;color:var(--txt3);margin-top:4px;font-style:italic;}
-/* Controls */
-.pod-ctrl{padding:10px 16px 0;}
-.prog-bar{height:4px;background:var(--bdr2);border-radius:2px;cursor:pointer;margin-bottom:5px;}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .3s;}
-.time-row{display:flex;justify-content:space-between;font-size:11px;color:var(--txt3);font-family:var(--mono);}
-.ctrl-row{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:10px;}
-.ctrl-btn{background:none;border:none;color:var(--txt2);font-size:22px;cursor:pointer;padding:6px;border-radius:8px;}
-.ctrl-btn:active{opacity:.45;}
-.play-btn{width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#8070ff);border:none;cursor:pointer;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px #6457ff44;transition:all .2s;}
-.play-btn:active{transform:scale(.92);}
-.speed-chip{font-size:13px;font-weight:700;color:var(--txt3);background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:5px 11px;cursor:pointer;font-family:var(--font);}
-.pod-acts{display:flex;gap:8px;padding:10px 14px 0;}
-.pod-act{flex:1;background:var(--surf2);border:1px solid var(--bdr2);border-radius:var(--r-sm);padding:9px 6px;text-align:center;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:3px;}
-.pod-act:active{background:#6457ff18;border-color:#6457ff55;}
-.pod-act .ai{font-size:16px;}
-.pod-act .al{font-size:11px;color:var(--txt2);font-weight:600;}
-/* Dialogue list */
-.diag-list{padding:8px 14px 60px;}
-.diag-ttl{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--txt3);margin-bottom:12px;padding-left:2px;}
-.diag-item{display:flex;gap:10px;padding:9px;margin:0 -9px 6px;border-radius:var(--r-sm);cursor:pointer;transition:background .12s;}
-.diag-item:active,.diag-item.on{background:var(--surf);}
-.di-av{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;}
-.di-av.a{background:linear-gradient(135deg,var(--anna),#c44dde);color:#fff;}
-.di-av.m{background:linear-gradient(135deg,var(--max),#06b6d4);color:#fff;}
-.di-body{flex:1;}
-.di-name{font-size:11px;font-weight:700;margin-bottom:2px;}
-.di-name.a{color:var(--anna);}.di-name.m{color:var(--max);}
-.di-txt{font-size:13px;color:var(--txt);line-height:1.5;}
-.di-en{font-size:12px;color:var(--txt3);font-style:italic;margin-top:2px;}
-.di-note{font-size:11px;color:var(--txt3);background:var(--surf2);border-radius:6px;padding:4px 8px;margin-top:5px;}
-.di-arr{font-size:13px;color:var(--txt3);align-self:center;width:14px;flex-shrink:0;}
+/* ── BACK BTN ── */
+.back-btn { width: 36px; height: 36px; border-radius: 10px; background: var(--surf2); border: 1px solid var(--bdr); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--txt2); cursor: pointer; flex-shrink: 0; }
 
-/* ═══════════════════════════════════════
-   HAMBURGER BOTTOM SHEET (z-index:200 — above all screens)
-═══════════════════════════════════════ */
-.hb-ov{display:none;position:fixed;inset:0;background:#0009;z-index:200;}
-.hb-ov.open{display:flex;align-items:flex-end;}
-.hb-panel{background:var(--surf);border-top:1px solid var(--bdr);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:20px 20px max(env(safe-area-inset-bottom,0px),32px);width:100%;animation:slideUp .32s cubic-bezier(.22,1,.36,1);}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.hb-handle{width:36px;height:4px;background:var(--bdr2);border-radius:2px;margin:0 auto 16px;}
-.hb-title{font-size:18px;font-weight:800;margin-bottom:4px;}
-.hb-sub{font-size:12px;color:var(--txt3);margin-bottom:20px;}
-.hb-sec{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--txt3);margin-bottom:10px;text-transform:uppercase;}
-.hb-pills{display:flex;gap:8px;margin-bottom:20px;}
-.hb-pill{flex:1;background:var(--surf2);border:1px solid var(--bdr2);border-radius:var(--r-md);padding:12px 6px;text-align:center;cursor:pointer;font-family:var(--font);transition:all .2s;}
-.hb-pill.on{background:#6457ff20;border-color:#6457ff60;}
-.hb-pill-ico{font-size:20px;margin-bottom:4px;}
-.hb-pill-lbl{font-size:11px;font-weight:700;color:var(--txt3);}
-.hb-pill.on .hb-pill-lbl{color:var(--accent2);}
-.hb-sp-row{display:flex;gap:6px;margin-bottom:20px;}
-.hb-sp{flex:1;background:var(--surf2);border:1px solid var(--bdr2);border-radius:var(--r-sm);padding:10px 4px;text-align:center;cursor:pointer;font-family:var(--font);transition:all .2s;}
-.hb-sp.on{background:#6457ff20;border-color:#6457ff60;}
-.hb-sp-val{font-size:15px;font-weight:800;color:var(--txt);}
-.hb-sp-lbl{font-size:9px;color:var(--txt3);margin-top:2px;font-weight:600;}
-.hb-sp.on .hb-sp-val,.hb-sp.on .hb-sp-lbl{color:var(--accent2);}
+/* ── TOGGLE PILLS ── */
+.tgl-row { display: flex; gap: 8px; }
+.tgl { flex: 1; background: var(--surf); border: 1px solid var(--bdr2); border-radius: 10px; padding: 11px 8px; text-align: center; cursor: pointer; font-family: var(--font); font-weight: 700; color: var(--txt3); font-size: 13px; line-height: 1.4; transition: all .2s; }
+.tgl.on { background: #6457ff18; border-color: #6457ff60; color: var(--accent2); }
+.tgl.on-a2 { background: #30d15815; border-color: #30d15850; color: var(--good); }
+.tgl.on-b1 { background: #6457ff15; border-color: #6457ff50; color: var(--accent2); }
+.tgl.on-b2 { background: #ff4f9715; border-color: #ff4f9750; color: var(--anna); }
+.tgl.on-telc { background: #22d3a415; border-color: #22d3a450; color: var(--max); }
+.tgl.on-goethe { background: #ff9f0a15; border-color: #ff9f0a50; color: var(--warn); }
 
-/* ═══════════════════════════════════════
-   CHALLENGE
-═══════════════════════════════════════ */
-.ch-title{font-size:26px;font-weight:800;letter-spacing:-.4px;}
-.ch-sub{font-size:13px;color:var(--txt3);margin-top:3px;}
-.p-dots{display:flex;gap:7px;margin-top:14px;}
-.p-dot{width:9px;height:9px;border-radius:50%;background:var(--bdr2);transition:all .3s;}
-.p-dot.done{background:var(--accent2);}
-.p-dot.cur{background:var(--accent);box-shadow:0 0 8px var(--accent);width:22px;border-radius:5px;}
-.ch-card{margin:0 14px 12px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r-lg);padding:18px;}
-.ch-card-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--txt3);margin-bottom:8px;text-transform:uppercase;}
-.ch-ctx{background:var(--surf2);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px;font-size:14px;color:var(--txt2);line-height:1.6;}
-.ch-cue{font-size:16px;font-weight:600;line-height:1.55;}
-.ch-hint{font-size:13px;color:var(--txt3);font-style:italic;margin-top:5px;}
-.rec-area{display:flex;flex-direction:column;align-items:center;padding:14px 0 6px;gap:10px;}
-.rec-btn{width:88px;height:88px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:32px;position:relative;background:var(--surf2);border:2px solid var(--bdr2);transition:all .3s;}
-.rec-btn.live{background:#ff3b3015;border-color:var(--danger);box-shadow:0 0 0 14px #ff3b3010,0 0 36px #ff3b3030;animation:recPulse 1.6s ease-in-out infinite;}
-@keyframes recPulse{0%,100%{box-shadow:0 0 0 14px #ff3b3010,0 0 36px #ff3b3030}50%{box-shadow:0 0 0 22px #ff3b3008,0 0 56px #ff3b3045}}
-.rec-ripple{position:absolute;inset:-8px;border-radius:50%;border:1px solid var(--danger);animation:ripple 1.5s infinite;opacity:0;pointer-events:none;display:none;}
-.rec-btn.live .rec-ripple{display:block;}
-@keyframes ripple{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.5);opacity:0}}
-.rec-st{font-size:12px;font-weight:700;letter-spacing:.07em;color:var(--txt3);text-transform:uppercase;}
-.rec-st.live{color:var(--danger);}
-.rec-timer{font-family:var(--mono);font-size:20px;font-weight:700;}
-.rec-wave{display:flex;align-items:center;gap:2px;height:34px;}
-.rw-b{width:3px;border-radius:2px;background:var(--danger);height:4px;transition:height .1s;}
-.fb-card{margin:0 14px 12px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r-lg);padding:18px;}
-.fb-sr{display:flex;gap:14px;align-items:center;margin-bottom:16px;}
-.fb-met{flex:1;display:flex;flex-direction:column;gap:8px;}
-.fb-mr{display:flex;justify-content:space-between;align-items:center;}
-.fb-ml{font-size:12px;color:var(--txt3);}
-.fb-mv{font-size:13px;font-weight:700;}
-.fb-mv.good{color:var(--good);}.fb-mv.ok{color:var(--warn);}.fb-mv.bad{color:var(--danger);}
-.fb-err-ttl{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--txt3);text-transform:uppercase;margin-bottom:8px;}
-.fb-err-item{background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:11px 13px;margin-bottom:7px;}
-.fb-err-type{font-size:12px;font-weight:700;color:var(--warn);margin-bottom:3px;}
-.fb-err-ex{font-size:12px;color:var(--txt2);line-height:1.5;}
-.fb-tip{font-size:13px;color:var(--txt2);line-height:1.65;margin-top:12px;background:var(--surf2);border-radius:10px;padding:12px 14px;}
-.ch-acts{display:flex;flex-direction:column;gap:10px;padding:0 14px 32px;}
+/* ── TEXTAREA ── */
+textarea.t-input, input.t-input {
+  width: 100%; background: var(--surf); border: 1px solid var(--bdr2); border-radius: 12px;
+  padding: 13px 15px; color: var(--txt); font-family: var(--font); font-size: 15px;
+  line-height: 1.6; outline: none; resize: none; transition: border-color .2s;
+}
+textarea.t-input:focus, input.t-input:focus { border-color: var(--accent); }
+textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); }
 
-/* ═══════════════════════════════════════
-   FLASHCARDS — completely isolated screen
-═══════════════════════════════════════ */
-.fc-title{font-size:26px;font-weight:800;letter-spacing:-.4px;}
-.fc-sub{font-size:13px;color:var(--txt3);margin-top:3px;}
-.sr-bar{display:flex;margin:0 14px 12px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r-md);overflow:hidden;}
-.sr-stat{flex:1;padding:12px 8px;text-align:center;border-right:1px solid var(--bdr);}
-.sr-stat:last-child{border-right:none;}
-.sr-v{font-size:20px;font-weight:800;letter-spacing:-.3px;}
-.sr-l{font-size:10px;color:var(--txt3);font-weight:600;letter-spacing:.06em;margin-top:2px;}
-.deck-tabs{display:flex;gap:8px;padding:0 14px 10px;overflow-x:auto;}
-.deck-tabs::-webkit-scrollbar{display:none;}
-.deck-tab{background:var(--surf);border:1px solid var(--bdr2);border-radius:20px;padding:7px 14px;font-size:13px;font-weight:600;color:var(--txt3);cursor:pointer;white-space:nowrap;transition:all .2s;font-family:var(--font);}
-.deck-tab.on{background:#6457ff20;border-color:#6457ff60;color:var(--accent2);}
-.fc-mode-tabs{display:flex;gap:8px;padding:0 14px 10px;}
-.fc-mode-tab{flex:1;background:var(--surf);border:1px solid var(--bdr2);border-radius:var(--r-sm);padding:9px;text-align:center;font-size:13px;font-weight:600;color:var(--txt3);cursor:pointer;font-family:var(--font);transition:all .2s;}
-.fc-mode-tab.on{background:#6457ff15;border-color:#6457ff50;color:var(--accent2);}
-.fc-card-wrap{padding:0 14px;margin-bottom:12px;}
-.fc-card-scene{height:220px;perspective:1000px;}
-.fc-card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,.2,.2,1);cursor:pointer;}
-.fc-card-inner.flipped{transform:rotateY(180deg);}
-.fc-face{position:absolute;inset:0;border-radius:var(--r-xl);backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;}
-.fc-front{background:var(--surf);border:1px solid var(--bdr);}
-.fc-back{background:linear-gradient(135deg,#181630,#10102a);border:1px solid #6457ff40;transform:rotateY(180deg);}
-.fc-article{font-size:15px;color:var(--accent2);font-weight:700;margin-bottom:4px;}
-.fc-word{font-size:30px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px;}
-.fc-pos{font-size:12px;color:var(--txt3);font-weight:600;letter-spacing:.06em;}
-.fc-tap-hint{font-size:12px;color:var(--txt3);margin-top:14px;}
-.fc-prog-ring{margin-bottom:10px;}
-.fc-trans{font-size:22px;font-weight:700;margin-bottom:8px;}
-.fc-ctx-lbl{font-size:11px;color:var(--accent2);font-weight:700;background:#6457ff20;border-radius:6px;padding:3px 10px;margin-bottom:10px;}
-.fc-phrase-de{font-size:13px;color:var(--txt2);line-height:1.6;font-style:italic;}
-.fc-phrase-en{font-size:12px;color:var(--txt3);margin-top:4px;}
-.rate-row{display:flex;gap:8px;padding:0 14px;}
-.rate-btn{flex:1;border-radius:var(--r-sm);padding:10px 4px;font-family:var(--font);font-weight:700;font-size:12px;cursor:pointer;border:1px solid var(--bdr2);transition:all .15s;text-align:center;}
-.rate-btn:active{opacity:.7;transform:scale(.95);}
-.ri{font-size:10px;font-weight:400;display:block;opacity:.7;margin-top:2px;}
-.r-again{background:#ff3b3015;border-color:#ff3b3040;color:var(--danger);}
-.r-hard{background:#ff9f0a15;border-color:#ff9f0a40;color:var(--warn);}
-.r-good{background:#30d15815;border-color:#30d15840;color:var(--good);}
-.r-easy{background:#6457ff15;border-color:#6457ff40;color:var(--accent2);}
-.wl-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r-sm);margin-bottom:8px;cursor:pointer;}
-.wl-item:active{background:var(--surf2);}
-.wl-de{font-size:15px;font-weight:700;}
-.wl-en{font-size:13px;color:var(--txt3);}
-.wl-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:8px;}
-.wl-badge.new{background:#6457ff20;color:var(--accent2);}
-.wl-badge.due{background:#ff9f0a20;color:var(--warn);}
-.wl-badge.ok{background:#30d15820;color:var(--good);}
-.wl-badge.mature{background:var(--surf2);color:var(--txt3);}
-.session-done{text-align:center;padding:40px 24px;}
-.session-ico{font-size:56px;margin-bottom:16px;}
-.session-title{font-size:22px;font-weight:800;margin-bottom:8px;}
-.session-sub{font-size:14px;color:var(--txt2);line-height:1.6;}
+/* ── CHIP TAGS ── */
+.chip { background: var(--surf2); border: 1px solid var(--bdr); border-radius: 20px; padding: 6px 13px; font-size: 13px; font-family: var(--font); cursor: pointer; color: var(--txt2); transition: all .15s; font-weight: 500; display: inline-block; margin: 3px; }
+.chip:active { background: #6457ff20; border-color: var(--accent); color: var(--accent2); }
 
-/* ═══════════════════════════════════════
+/* ═══════════════════════════════════
+   EXAM ATMOSPHERE ANIMATION
+═══════════════════════════════════ */
+.exam-room {
+  background: linear-gradient(180deg, #0a0a18 0%, #0d0d1e 100%);
+  border: 1px solid var(--bdr); border-radius: 20px;
+  position: relative; overflow: hidden; height: 200px; margin-bottom: 12px;
+}
+.exam-bg { position: absolute; inset: 0; }
+.exam-bg::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse 200px 80px at 50% 110%, #6457ff10, transparent); }
+.exam-table { position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%); width: 85%; height: 8px; background: linear-gradient(180deg, #2e2e50, #1a1a30); border-radius: 4px; box-shadow: 0 4px 20px #0008; }
+.exam-floor { position: absolute; bottom: 36px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, #27273d, transparent); }
+.exam-char { position: absolute; bottom: 52px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.exam-char.e1 { left: 6%; }
+.exam-char.e2 { left: 26%; }
+.exam-char.s1 { right: 26%; }
+.exam-char.s2 { right: 6%; }
+.exam-av { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; position: relative; transition: transform .3s; }
+.exam-char.e1 .exam-av { background: linear-gradient(145deg, #a79bff, #6457ff); color: #fff; }
+.exam-char.e2 .exam-av { background: linear-gradient(145deg, #8070ff, #4a3fe0); color: #fff; }
+.exam-char.s1 .exam-av { background: linear-gradient(145deg, #ff8fc3, #ff4f97); color: #fff; }
+.exam-char.s2 .exam-av { background: linear-gradient(145deg, #6ee7cc, #22d3a4); color: #fff; }
+.exam-glow { position: absolute; inset: -4px; border-radius: 50%; border: 2px solid transparent; opacity: 0; transition: opacity .3s; }
+.exam-char.e1 .exam-glow { border-color: var(--accent); box-shadow: 0 0 14px #6457ff55; }
+.exam-char.e2 .exam-glow { border-color: #8070ff; box-shadow: 0 0 14px #8070ff55; }
+.exam-char.s1 .exam-glow { border-color: var(--anna); box-shadow: 0 0 14px #ff4f9755; }
+.exam-char.s2 .exam-glow { border-color: var(--max); box-shadow: 0 0 14px #22d3a455; }
+.exam-char.speaking .exam-glow { opacity: 1; animation: examGlow 1.4s ease-in-out infinite; }
+.exam-char.speaking .exam-av { transform: scale(1.08); }
+@keyframes examGlow { 0%,100% { box-shadow: 0 0 14px currentColor } 50% { box-shadow: 0 0 28px currentColor } }
+.exam-badge { font-size: 9px; font-weight: 700; background: rgba(9,9,15,.9); border: 1px solid var(--bdr2); border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
+.exam-char.e1 .exam-badge, .exam-char.e2 .exam-badge { color: var(--accent2); }
+.exam-char.s1 .exam-badge { color: var(--anna); }
+.exam-char.s2 .exam-badge { color: var(--max); }
+.exam-papers { position: absolute; bottom: 55px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }
+.exam-paper { width: 28px; height: 36px; background: linear-gradient(180deg, #f8f8ff, #e8e8f8); border-radius: 3px; opacity: .12; transform: rotate(-3deg); }
+.exam-paper:nth-child(2) { transform: rotate(2deg); opacity: .08; }
+.exam-subtitle { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(9,9,15,.9); border: 1px solid var(--bdr); border-radius: 8px; padding: 5px 14px; font-size: 12px; white-space: nowrap; max-width: 90%; text-align: center; overflow: hidden; text-overflow: ellipsis; }
+.exam-wave { position: absolute; top: 12px; right: 14px; display: flex; align-items: center; gap: 2px; height: 20px; }
+.ew-bar { width: 2px; border-radius: 1px; height: 3px; background: var(--accent2); opacity: .5; }
+.ew-bar.playing { animation: ewb .5s ease-in-out infinite; opacity: 1; }
+@keyframes ewb { 0%,100%{height:3px}50%{height:var(--wh,14px)} }
+
+/* ═══════════════════════════════════
+   SPRECHEN MODULE
+═══════════════════════════════════ */
+.pod-card { background: var(--surf); border: 1px solid var(--bdr); border-radius: 16px; padding: 15px; cursor: pointer; transition: background .15s; margin-bottom: 10px; }
+.pod-card:active { background: var(--surf2); }
+.pc-title { font-size: 15px; font-weight: 700; }
+.pc-meta { font-size: 12px; color: var(--txt2); margin-top: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sp-chips { display: flex; }
+.sp-chip { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--surf); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; }
+.sp-chip.a { background: linear-gradient(135deg, var(--anna), #c44dde); color: #fff; margin-right: -5px; }
+.sp-chip.m { background: linear-gradient(135deg, var(--max), #06b6d4); color: #fff; }
+
+/* Sub box */
+.sub-box { background: var(--surf); border: 1px solid var(--bdr); border-radius: 12px; padding: 12px 14px; min-height: 70px; }
+.sub-spk { font-size: 11px; font-weight: 700; letter-spacing: .07em; margin-bottom: 3px; }
+.sub-spk.a { color: var(--anna); } .sub-spk.m { color: var(--max); }
+.sub-txt { font-size: 14px; line-height: 1.55; font-weight: 500; }
+.sub-en { font-size: 12px; color: var(--txt3); margin-top: 3px; font-style: italic; }
+
+/* Playback */
+.prog-bar { height: 4px; background: var(--bdr2); border-radius: 2px; cursor: pointer; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width .3s; pointer-events: none; }
+.ctrl-btn { background: none; border: none; color: var(--txt2); font-size: 22px; cursor: pointer; padding: 6px; border-radius: 8px; }
+.ctrl-btn:active { opacity: .45; }
+.play-btn { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #8070ff); border: none; cursor: pointer; color: #fff; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 18px #6457ff44; }
+.play-btn:active { transform: scale(.92); }
+.speed-chip { font-size: 13px; font-weight: 700; color: var(--txt3); background: var(--surf2); border: 1px solid var(--bdr); border-radius: 8px; padding: 5px 10px; cursor: pointer; font-family: var(--font); }
+
+/* Dialogue */
+.diag-item { display: flex; gap: 10px; padding: 8px; margin: 0 -8px 4px; border-radius: 10px; cursor: pointer; transition: background .12s; }
+.diag-item:active, .diag-item.on { background: var(--surf); }
+.di-av { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; }
+.di-av.a { background: linear-gradient(135deg, var(--anna), #c44dde); color: #fff; }
+.di-av.m { background: linear-gradient(135deg, var(--max), #06b6d4); color: #fff; }
+.di-name { font-size: 10px; font-weight: 700; margin-bottom: 2px; }
+.di-name.a { color: var(--anna); } .di-name.m { color: var(--max); }
+.di-txt { font-size: 13px; color: var(--txt); line-height: 1.5; }
+.di-en { font-size: 11px; color: var(--txt3); font-style: italic; margin-top: 2px; }
+.di-note { font-size: 10px; color: var(--txt3); background: var(--surf2); border-radius: 5px; padding: 3px 7px; margin-top: 4px; }
+.di-arr { font-size: 12px; color: var(--txt3); align-self: center; width: 12px; flex-shrink: 0; }
+
+/* ═══════════════════════════════════
+   LESEN MODULE
+═══════════════════════════════════ */
+.passage-box { background: var(--surf); border: 1px solid var(--bdr); border-radius: 14px; padding: 18px; font-size: 15px; line-height: 1.85; }
+.passage-box .de-text { color: var(--txt); }
+.passage-box .en-text { color: var(--txt3); font-style: italic; font-size: 13px; margin-top: 2px; }
+.passage-para { margin-bottom: 16px; }
+.q-card { background: var(--surf2); border: 1px solid var(--bdr); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+.q-text { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+.q-opt { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--bdr2); border-radius: 8px; cursor: pointer; margin-bottom: 6px; font-size: 13px; transition: all .2s; }
+.q-opt:active { background: #6457ff15; }
+.q-opt.correct { background: #30d15815; border-color: #30d15860; color: var(--good); }
+.q-opt.wrong { background: #ff3b3015; border-color: #ff3b3040; color: var(--danger); }
+.q-opt.selected { border-color: var(--accent); background: #6457ff18; }
+.vocab-highlight { cursor: pointer; border-bottom: 1px dashed var(--accent2); color: var(--accent2); }
+
+/* ═══════════════════════════════════
+   SCHREIBEN MODULE
+═══════════════════════════════════ */
+.prompt-box { background: linear-gradient(135deg, #0f1028, #13132a); border: 1px solid #6457ff30; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+.prompt-type { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--accent2); text-transform: uppercase; margin-bottom: 6px; }
+.prompt-text { font-size: 15px; line-height: 1.65; }
+.prompt-hints { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.prompt-hint { background: #6457ff15; border: 1px solid #6457ff30; border-radius: 6px; padding: 3px 10px; font-size: 12px; color: var(--accent2); }
+.model-answer { background: var(--surf); border: 1px solid var(--bdr); border-radius: 14px; padding: 16px; }
+.model-lbl { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--max); text-transform: uppercase; margin-bottom: 8px; }
+.writing-feedback { background: var(--surf2); border: 1px solid var(--bdr); border-radius: 12px; padding: 14px; }
+.fb-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--bdr); }
+.fb-row:last-child { border-bottom: none; }
+.fb-label { font-size: 12px; color: var(--txt3); }
+.fb-score { font-size: 13px; font-weight: 700; }
+
+/* ═══════════════════════════════════
+   HOREN MODULE
+═══════════════════════════════════ */
+.horen-player { background: var(--surf); border: 1px solid var(--bdr); border-radius: 16px; padding: 16px; }
+.h-speaker-row { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.h-speaker-av { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; }
+.h-wave { display: flex; align-items: center; gap: 2px; height: 28px; flex: 1; }
+.hw-bar { width: 3px; border-radius: 2px; height: 3px; background: var(--accent2); }
+.hw-bar.playing { animation: hwb .5s ease-in-out infinite; }
+@keyframes hwb { 0%,100%{height:3px}50%{height:var(--wh,18px)} }
+.transcript-box { background: var(--surf2); border: 1px solid var(--bdr); border-radius: 12px; padding: 14px; font-size: 14px; line-height: 1.7; max-height: 200px; overflow-y: auto; }
+.transcript-box::-webkit-scrollbar { display: none; }
+
+/* ═══════════════════════════════════
+   FLASHCARDS
+═══════════════════════════════════ */
+.sr-bar { display: flex; background: var(--surf); border: 1px solid var(--bdr); border-radius: 12px; overflow: hidden; }
+.sr-stat { flex: 1; padding: 11px 8px; text-align: center; border-right: 1px solid var(--bdr); }
+.sr-stat:last-child { border-right: none; }
+.sr-v { font-size: 20px; font-weight: 800; letter-spacing: -.3px; }
+.sr-l { font-size: 9px; color: var(--txt3); font-weight: 600; letter-spacing: .06em; margin-top: 2px; }
+.deck-tab { background: var(--surf); border: 1px solid var(--bdr2); border-radius: 20px; padding: 6px 13px; font-size: 12px; font-weight: 600; color: var(--txt3); cursor: pointer; white-space: nowrap; transition: all .2s; font-family: var(--font); display: inline-block; }
+.deck-tab.on { background: #6457ff20; border-color: #6457ff60; color: var(--accent2); }
+.fc-card-scene { height: 200px; perspective: 1000px; margin-bottom: 10px; }
+.fc-card-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.4,.2,.2,1); cursor: pointer; }
+.fc-card-inner.flipped { transform: rotateY(180deg); }
+.fc-face { position: absolute; inset: 0; border-radius: 20px; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+.fc-front { background: var(--surf); border: 1px solid var(--bdr); }
+.fc-back { background: linear-gradient(135deg, #181630, #10102a); border: 1px solid #6457ff40; transform: rotateY(180deg); }
+.fc-module-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 8px; margin-bottom: 8px; }
+.fc-article { font-size: 14px; color: var(--accent2); font-weight: 700; margin-bottom: 3px; }
+.fc-word { font-size: 28px; font-weight: 800; letter-spacing: -.5px; margin-bottom: 4px; }
+.fc-pos { font-size: 11px; color: var(--txt3); font-weight: 600; }
+.fc-tap-hint { font-size: 11px; color: var(--txt3); margin-top: 12px; }
+.fc-translation { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.fc-synonym { font-size: 12px; color: var(--accent2); margin-bottom: 8px; }
+.fc-phrase-de { font-size: 12px; color: var(--txt2); line-height: 1.6; font-style: italic; }
+.fc-phrase-en { font-size: 11px; color: var(--txt3); margin-top: 3px; }
+.rate-row { display: flex; gap: 6px; }
+.rate-btn { flex: 1; border-radius: 10px; padding: 9px 4px; font-family: var(--font); font-weight: 700; font-size: 12px; cursor: pointer; border: 1px solid var(--bdr2); transition: all .15s; text-align: center; }
+.rate-btn:active { opacity: .7; transform: scale(.95); }
+.ri { font-size: 9px; font-weight: 400; display: block; opacity: .7; margin-top: 1px; }
+.r-again { background: #ff3b3015; border-color: #ff3b3040; color: var(--danger); }
+.r-hard  { background: #ff9f0a15; border-color: #ff9f0a40; color: var(--warn); }
+.r-good  { background: #30d15815; border-color: #30d15840; color: var(--good); }
+.r-easy  { background: #6457ff15; border-color: #6457ff40; color: var(--accent2); }
+.wl-item { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; background: var(--surf); border: 1px solid var(--bdr); border-radius: 10px; margin-bottom: 7px; cursor: pointer; }
+.wl-item:active { background: var(--surf2); }
+.wl-de { font-size: 14px; font-weight: 700; }
+.wl-en { font-size: 12px; color: var(--txt3); }
+.wl-syn { font-size: 11px; color: var(--accent2); margin-top: 2px; }
+.wl-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 7px; flex-shrink: 0; }
+.wl-badge.new    { background: #6457ff20; color: var(--accent2); }
+.wl-badge.due    { background: #ff9f0a20; color: var(--warn); }
+.wl-badge.ok     { background: #30d15820; color: var(--good); }
+.wl-badge.mature { background: var(--surf2); color: var(--txt3); }
+
+/* ═══════════════════════════════════
+   CHALLENGE / SPEAKING TEST
+═══════════════════════════════════ */
+.p-dots { display: flex; gap: 6px; }
+.p-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bdr2); transition: all .3s; }
+.p-dot.done { background: var(--accent2); }
+.p-dot.cur  { background: var(--accent); width: 20px; border-radius: 4px; }
+.rec-btn { width: 80px; height: 80px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 28px; position: relative; background: var(--surf2); border: 2px solid var(--bdr2); transition: all .3s; }
+.rec-btn.live { background: #ff3b3015; border-color: var(--danger); animation: recPulse 1.6s infinite; }
+@keyframes recPulse { 0%,100%{box-shadow:0 0 0 12px #ff3b3010}50%{box-shadow:0 0 0 20px #ff3b3006} }
+.rec-ripple { position: absolute; inset: -8px; border-radius: 50%; border: 1px solid var(--danger); animation: ripple 1.5s infinite; opacity: 0; pointer-events: none; display: none; }
+.rec-btn.live .rec-ripple { display: block; }
+@keyframes ripple { 0%{transform:scale(1);opacity:.5}100%{transform:scale(1.5);opacity:0} }
+.fb-mv.good { color: var(--good); } .fb-mv.ok { color: var(--warn); } .fb-mv.bad { color: var(--danger); }
+
+/* ═══════════════════════════════════
+   GENERATING SCREEN
+═══════════════════════════════════ */
+.gen-orbs { width: 160px; height: 160px; position: relative; margin: 0 auto 28px; }
+.orb { position: absolute; border-radius: 50%; animation: orbFloat 3s ease-in-out infinite; }
+.orb.a { width: 68px; height: 68px; left: 4px; top: 46px; background: radial-gradient(circle at 35% 35%, #ff9dc8, var(--anna), #c44dde); box-shadow: 0 0 36px #ff4f9755; }
+.orb.m { width: 68px; height: 68px; right: 4px; top: 46px; background: radial-gradient(circle at 35% 35%, #7ee8cc, var(--max), #06b6d4); box-shadow: 0 0 36px #22d3a455; animation-delay: 1.5s; }
+.orb.c { width: 32px; height: 32px; left: 50%; top: 50%; transform: translate(-50%,-50%); background: radial-gradient(circle, #fff4, var(--accent)); animation: orbPulse 2s infinite; }
+@keyframes orbFloat { 0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)} }
+@keyframes orbPulse { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.6}50%{transform:translate(-50%,-50%) scale(1.3);opacity:1} }
+
+/* ═══════════════════════════════════
+   HAMBURGER SHEET
+═══════════════════════════════════ */
+.hb-ov { display: none; position: fixed; inset: 0; background: #0009; z-index: 500; }
+.hb-ov.open { display: flex; align-items: flex-end; }
+.hb-panel { background: var(--surf); border-top: 1px solid var(--bdr); border-radius: 24px 24px 0 0; padding: 20px 20px max(env(safe-area-inset-bottom,0px),32px); width: 100%; animation: slideUp .32s cubic-bezier(.22,1,.36,1); }
+@keyframes slideUp { from{transform:translateY(100%)}to{transform:translateY(0)} }
+.hb-handle { width: 36px; height: 4px; background: var(--bdr2); border-radius: 2px; margin: 0 auto 16px; }
+.hb-pill { flex: 1; background: var(--surf2); border: 1px solid var(--bdr2); border-radius: 12px; padding: 11px 6px; text-align: center; cursor: pointer; font-family: var(--font); transition: all .2s; }
+.hb-pill.on { background: #6457ff20; border-color: #6457ff60; }
+.hb-pill-ico { font-size: 18px; margin-bottom: 3px; }
+.hb-pill-lbl { font-size: 10px; font-weight: 700; color: var(--txt3); }
+.hb-pill.on .hb-pill-lbl { color: var(--accent2); }
+.hb-sp { flex: 1; background: var(--surf2); border: 1px solid var(--bdr2); border-radius: 8px; padding: 9px 4px; text-align: center; cursor: pointer; font-family: var(--font); transition: all .2s; }
+.hb-sp.on { background: #6457ff20; border-color: #6457ff60; }
+.hb-sp-val { font-size: 14px; font-weight: 800; color: var(--txt); }
+.hb-sp-lbl { font-size: 9px; color: var(--txt3); margin-top: 1px; }
+.hb-sp.on .hb-sp-val, .hb-sp.on .hb-sp-lbl { color: var(--accent2); }
+
+/* ═══════════════════════════════════
    TOAST
-═══════════════════════════════════════ */
-#toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surf2);border:1px solid var(--bdr2);border-radius:12px;padding:11px 18px;font-size:13px;font-weight:500;white-space:nowrap;pointer-events:none;opacity:0;z-index:300;transition:all .28s cubic-bezier(.22,1,.36,1);}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+═══════════════════════════════════ */
+#toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(16px); background: var(--surf2); border: 1px solid var(--bdr2); border-radius: 12px; padding: 10px 18px; font-size: 13px; font-weight: 500; white-space: nowrap; pointer-events: none; opacity: 0; z-index: 999; transition: all .28s cubic-bezier(.22,1,.36,1); }
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ═══════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════ */
+.empty-state { text-align: center; padding: 50px 24px; }
+.empty-ico { font-size: 48px; margin-bottom: 14px; }
+.empty-title { font-size: 17px; font-weight: 700; color: var(--txt2); margin-bottom: 7px; }
+.empty-desc { font-size: 14px; color: var(--txt3); line-height: 1.65; }
+
+/* ── MISC ── */
+.session-done { text-align: center; padding: 36px 20px; }
+.session-ico { font-size: 50px; margin-bottom: 14px; }
+.section-divider { height: 1px; background: var(--bdr); margin: 16px 0; }
 </style>
 </head>
 <body>
 
-<!-- ══════════ HOME ══════════ -->
+<!-- ════════════════════════════════════════
+     HOME SCREEN
+════════════════════════════════════════ -->
 <div id="s-home" class="screen active">
-  <div class="home-hdr safe-top">
+  <div class="safe-top px-3 pb-3" style="background:linear-gradient(180deg,#0b0b1a,var(--bg));">
     <div class="logo">Sprechen</div>
-    <div class="logo-tag">German Fluency Engine · A2 → B1</div>
+    <div class="logo-tag">German Exam Prep · TELC &amp; Goethe</div>
   </div>
-  <div class="stats-row">
-    <div class="stat-card"><div class="stat-v" id="st-pods">0</div><div class="stat-l">Podcasts</div></div>
-    <div class="stat-card"><div class="stat-v" id="st-cards">0</div><div class="stat-l">Vocab Cards</div></div>
-    <div class="stat-card"><div class="stat-v" id="st-score">—</div><div class="stat-l">Best Score</div></div>
+
+  <!-- Stats -->
+  <div class="px-3 pb-3">
+    <div class="row g-2">
+      <div class="col-4"><div class="stat-card"><div class="stat-v" id="st-pods">0</div><div class="stat-l">Podcasts</div></div></div>
+      <div class="col-4"><div class="stat-card"><div class="stat-v" id="st-cards">0</div><div class="stat-l">Vocab Cards</div></div></div>
+      <div class="col-4"><div class="stat-card"><div class="stat-v" id="st-score">—</div><div class="stat-l">Best Score</div></div></div>
+    </div>
   </div>
-  <div class="sec-lbl">Your Podcasts</div>
-  <div style="padding:0 16px 100px;"><div id="pod-list"></div></div>
-  <button class="fab" onclick="go('generate')">🎙 New Podcast</button>
-  <div style="height:80px"></div>
+
+  <!-- Module Grid -->
+  <div class="px-3 mb-2"><div class="sec-lbl">Choose Your Module</div></div>
+  <div class="px-3 pb-2">
+    <div class="row g-2">
+      <div class="col-6">
+        <div class="mod-card mod-sprechen" onclick="openModule('sprechen')">
+          <div class="mod-ico">🎙</div>
+          <div class="mod-name">Sprechen</div>
+          <div class="mod-desc">AI podcast + speaking test. Anna &amp; Max simulate exam dialogue.</div>
+          <div class="mod-bar"></div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="mod-card mod-lesen" onclick="openModule('lesen')">
+          <div class="mod-ico">📖</div>
+          <div class="mod-name">Lesen</div>
+          <div class="mod-desc">AI reading passages with comprehension questions &amp; vocab.</div>
+          <div class="mod-bar"></div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="mod-card mod-schreiben" onclick="openModule('schreiben')">
+          <div class="mod-ico">✍️</div>
+          <div class="mod-name">Schreiben</div>
+          <div class="mod-desc">Writing prompts with model answers &amp; AI feedback.</div>
+          <div class="mod-bar"></div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="mod-card mod-horen" onclick="openModule('horen')">
+          <div class="mod-ico">🎧</div>
+          <div class="mod-name">Hören</div>
+          <div class="mod-desc">AI listening scripts with TTS &amp; comprehension questions.</div>
+          <div class="mod-bar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Podcasts -->
+  <div class="px-3 mb-1 mt-2"><div class="sec-lbl">Recent Sessions</div></div>
+  <div class="px-3" style="padding-bottom:90px;"><div id="pod-list"></div></div>
 </div>
 
-<!-- ══════════ GENERATE ══════════ -->
+<!-- ════════════════════════════════════════
+     GENERATE SCREEN (shared for all modules)
+════════════════════════════════════════ -->
 <div id="s-generate" class="screen">
-  <div class="safe-top" style="display:flex;align-items:center;gap:14px;padding:0 18px 14px;">
+  <div class="safe-top px-3 pb-3 d-flex align-items-center gap-3">
     <div class="back-btn" onclick="go('home')">←</div>
-    <div style="font-size:20px;font-weight:800;letter-spacing:-.3px;">Create Podcast</div>
-  </div>
-  <div style="padding-bottom:110px;">
-    <div class="gen-lbl">Topic / Scenario</div>
-    <textarea id="topic-in" class="t-input" rows="3" placeholder="e.g. Anna visits the doctor with a headache and fever…"></textarea>
-    <div class="gen-lbl">Quick Scenarios</div>
-    <div class="chip-row">
-      <div class="chip" onclick="setT('Morning Routine — Anna tells Max about her morning habits')">☀️ Morning Routine</div>
-      <div class="chip" onclick="setT('At the Doctor — Anna has a fever and visits the GP')">🏥 Doctor Visit</div>
-      <div class="chip" onclick="setT('At the Supermarket — Max buys dinner ingredients')">🛒 Supermarket</div>
-      <div class="chip" onclick="setT('At the Train Station — Anna misses her train')">🚂 Train Station</div>
-      <div class="chip" onclick="setT('Apartment Viewing — Max looks at a new flat to rent')">🏠 Apartment</div>
-      <div class="chip" onclick="setT('At a Restaurant — Anna and Max have lunch together')">🍽 Restaurant</div>
-      <div class="chip" onclick="setT('Job Interview — Max applies for a web developer role')">💼 Job Interview</div>
-      <div class="chip" onclick="setT('At the Hairdresser — Anna wants a new hairstyle')">✂️ Hairdresser</div>
-      <div class="chip" onclick="setT('Birthday Party — Max is invited to a friends party')">🎂 Birthday Party</div>
-      <div class="chip" onclick="setT('At the Post Office — Anna sends a package abroad')">📦 Post Office</div>
-      <div class="chip" onclick="setT('At the Bank — Max opens a new German bank account')">🏦 Bank</div>
-      <div class="chip" onclick="setT('Planning a Holiday — Anna and Max plan a trip to Berlin')">✈️ Holiday</div>
-    </div>
-    <div class="gen-lbl">Language Level</div>
-    <div class="tgl-row">
-      <div class="tgl on-a2" id="p-a2" onclick="setLvl('A2')">A2<span style="font-size:11px;font-weight:400;display:block;opacity:.7">Basic</span></div>
-      <div class="tgl" id="p-b1" onclick="setLvl('B1')">B1<span style="font-size:11px;font-weight:400;display:block;opacity:.7">Intermediate</span></div>
-    </div>
-    <div class="gen-lbl">Podcast Length</div>
-    <div class="tgl-row">
-      <div class="tgl" id="d-short" onclick="setDur('short')">Short<span style="font-size:10px;font-weight:400;display:block;opacity:.7">12 min</span></div>
-      <div class="tgl on-dur" id="d-medium" onclick="setDur('medium')">Medium<span style="font-size:10px;font-weight:400;display:block;opacity:.7">20 min</span></div>
-      <div class="tgl" id="d-long" onclick="setDur('long')">Long<span style="font-size:10px;font-weight:400;display:block;opacity:.7">30 min</span></div>
+    <div>
+      <div style="font-size:19px;font-weight:800;" id="gen-screen-title">Create Session</div>
+      <div style="font-size:12px;color:var(--txt3);" id="gen-screen-sub">TELC / Goethe standard</div>
     </div>
   </div>
-  <div style="position:sticky;bottom:0;background:var(--bg);padding:14px 20px max(env(safe-area-inset-bottom,0px),24px);">
-    <button class="btn btn-primary" onclick="doGenerate()">🎙 Generate Podcast</button>
+  <div class="px-3" style="padding-bottom:110px;">
+    <!-- Exam Standard -->
+    <div class="sec-lbl mb-2">Exam Standard</div>
+    <div class="tgl-row mb-3">
+      <div class="tgl on-telc" id="std-telc" onclick="setStd('telc')">TELC<span style="font-size:10px;font-weight:400;display:block;opacity:.7">Offiziel</span></div>
+      <div class="tgl" id="std-goethe" onclick="setStd('goethe')">Goethe<span style="font-size:10px;font-weight:400;display:block;opacity:.7">Institut</span></div>
+    </div>
+    <!-- Level -->
+    <div class="sec-lbl mb-2">Language Level</div>
+    <div class="tgl-row mb-3">
+      <div class="tgl on-a2" id="p-a2" onclick="setLvl('A2')">A2<span style="font-size:10px;font-weight:400;display:block;opacity:.7">Basic</span></div>
+      <div class="tgl" id="p-b1" onclick="setLvl('B1')">B1<span style="font-size:10px;font-weight:400;display:block;opacity:.7">Inter.</span></div>
+      <div class="tgl" id="p-b2" onclick="setLvl('B2')">B2<span style="font-size:10px;font-weight:400;display:block;opacity:.7">Upper</span></div>
+    </div>
+    <!-- Topic -->
+    <div class="sec-lbl mb-2">Topic / Scenario</div>
+    <textarea id="topic-in" class="t-input mb-2" rows="3" placeholder="e.g. Anna visits the doctor with a fever…"></textarea>
+    <!-- Quick chips -->
+    <div id="topic-chips" class="mb-3"></div>
+    <!-- Duration (sprechen only) -->
+    <div id="dur-section">
+      <div class="sec-lbl mb-2">Podcast Length</div>
+      <div class="tgl-row mb-3">
+        <div class="tgl" id="d-short" onclick="setDur('short')">Short<span style="font-size:10px;font-weight:400;display:block;opacity:.7">12 min</span></div>
+        <div class="tgl on" id="d-medium" onclick="setDur('medium')">Medium<span style="font-size:10px;font-weight:400;display:block;opacity:.7">20 min</span></div>
+        <div class="tgl" id="d-long" onclick="setDur('long')">Long<span style="font-size:10px;font-weight:400;display:block;opacity:.7">30 min</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="position:sticky;bottom:0;background:var(--bg);padding:12px 16px max(env(safe-area-inset-bottom,0px),20px);">
+    <button class="btn btn-accent w-100 py-3 rounded-3 fs-6" onclick="doGenerate()" id="gen-btn">🚀 Generate</button>
   </div>
 </div>
 
-<!-- ══════════ GENERATING ══════════ -->
-<div id="s-generating" class="screen" style="flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 32px;">
+<!-- ════════════════════════════════════════
+     GENERATING SCREEN
+════════════════════════════════════════ -->
+<div id="s-generating" class="screen" style="text-align:center;padding:40px 28px;">
   <div class="gen-orbs"><div class="orb a"></div><div class="orb m"></div><div class="orb c"></div></div>
-  <div style="font-size:22px;font-weight:800;letter-spacing:-.3px;margin-bottom:8px;">In the Studio…</div>
-  <div style="font-size:14px;color:var(--txt2);margin-bottom:20px;" id="gen-st">Anna and Max are warming up</div>
-  <div style="width:220px;height:3px;background:var(--bdr2);border-radius:2px;margin:0 auto 10px;overflow:hidden;"><div id="gen-bar" style="height:100%;width:4%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .6s ease;"></div></div>
-  <div style="font-size:12px;color:var(--txt3);" id="gen-det">Building your script…</div>
+  <div style="font-size:21px;font-weight:800;letter-spacing:-.3px;margin-bottom:8px;" id="gen-title-txt">In the Studio…</div>
+  <div style="font-size:14px;color:var(--txt2);margin-bottom:20px;" id="gen-st">Preparing your session</div>
+  <div style="width:200px;height:3px;background:var(--bdr2);border-radius:2px;margin:0 auto 10px;overflow:hidden;">
+    <div id="gen-bar" style="height:100%;width:4%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .6s ease;"></div>
+  </div>
+  <div style="font-size:12px;color:var(--txt3);" id="gen-det">Building your content…</div>
 </div>
 
-<!-- ══════════ PODCAST ══════════ -->
+<!-- ════════════════════════════════════════
+     SPRECHEN — PODCAST SCREEN
+════════════════════════════════════════ -->
 <div id="s-podcast" class="screen">
-  <div class="safe-top pod-hdr">
-    <div class="pod-topic-lbl" id="pod-lbl">PODCAST</div>
-    <div class="pod-hdr-btns">
-      <button class="pod-icon-btn" onclick="openHB()">⚙️</button>
-      <button class="pod-icon-btn" onclick="exitPod()">✕</button>
+  <div class="safe-top px-3 d-flex justify-content-between align-items-center pb-2">
+    <div style="font-size:11px;color:var(--txt3);font-weight:700;letter-spacing:.07em;text-transform:uppercase;flex:1;" id="pod-lbl">PODCAST</div>
+    <div class="d-flex gap-2">
+      <button class="back-btn" onclick="openHB()" style="font-size:14px;">⚙️</button>
+      <button class="back-btn" onclick="exitPod()">✕</button>
     </div>
   </div>
 
-  <div class="studio" id="pod-studio">
-    <div class="studio-bg"></div>
-    <div class="char-node a" id="cn-anna">
-      <div class="av-circle"><div class="glow-ring"></div><div class="speak-dot"></div>AN<div class="mouth-bar"><div class="mouth-seg"></div><div class="mouth-seg"></div><div class="mouth-seg"></div></div></div>
-      <div class="char-badge">Anna</div>
+  <!-- Exam atmosphere -->
+  <div class="px-3 mb-2">
+    <div class="exam-room" id="pod-studio">
+      <div class="exam-bg"></div>
+      <div class="exam-char e1 speaking" id="cn-e1">
+        <div class="exam-av"><div class="exam-glow"></div>EX1</div>
+        <div class="exam-badge">Examiner 1</div>
+      </div>
+      <div class="exam-char e2" id="cn-e2">
+        <div class="exam-av"><div class="exam-glow"></div>EX2</div>
+        <div class="exam-badge">Examiner 2</div>
+      </div>
+      <div class="exam-char s1" id="cn-anna">
+        <div class="exam-av"><div class="exam-glow"></div>AN</div>
+        <div class="exam-badge">Anna</div>
+      </div>
+      <div class="exam-char s2" id="cn-max">
+        <div class="exam-av"><div class="exam-glow"></div>MX</div>
+        <div class="exam-badge">Max</div>
+      </div>
+      <div class="exam-table"></div>
+      <div class="exam-floor"></div>
+      <div class="exam-papers"><div class="exam-paper"></div><div class="exam-paper"></div></div>
+      <div class="exam-wave" id="exam-wave">
+        <div class="ew-bar" style="--wh:14px"></div><div class="ew-bar" style="--wh:20px"></div>
+        <div class="ew-bar" style="--wh:10px"></div><div class="ew-bar" style="--wh:18px"></div>
+        <div class="ew-bar" style="--wh:14px"></div>
+      </div>
+      <div class="exam-subtitle" id="sub-txt-mini">Press play to begin…</div>
     </div>
-    <div class="char-node m" id="cn-max">
-      <div class="av-circle"><div class="glow-ring"></div><div class="speak-dot"></div>MX<div class="mouth-bar"><div class="mouth-seg"></div><div class="mouth-seg"></div><div class="mouth-seg"></div></div></div>
-      <div class="char-badge">Max</div>
-    </div>
-    <div class="sw" id="sw">
-      <div class="wb ca" style="--wh:20px"></div><div class="wb ca" style="--wh:32px"></div>
-      <div class="wb ca" style="--wh:16px"></div><div class="wb ca" style="--wh:28px"></div>
-      <div class="wb ca" style="--wh:38px"></div><div class="wb ca" style="--wh:22px"></div>
-      <div class="wb ca" style="--wh:30px"></div><div class="wb ca" style="--wh:18px"></div>
-    </div>
-    <div class="studio-floor"></div>
-    <div class="studio-desk"></div>
-    <div class="mic-stand a"><div class="mic-head"></div><div class="mic-pole"></div><div class="mic-base"></div></div>
-    <div class="mic-stand m"><div class="mic-head"></div><div class="mic-pole"></div><div class="mic-base"></div></div>
   </div>
 
-  <div class="sub-box" id="pod-sub">
-    <div class="sub-spk a" id="sub-spk">ANNA</div>
-    <div class="sub-txt" id="sub-txt">Press play to start the podcast…</div>
-    <div class="sub-en" id="sub-en">Your German conversation is ready.</div>
+  <!-- Subtitle -->
+  <div class="px-3 mb-2" id="pod-sub">
+    <div class="sub-box">
+      <div class="sub-spk a" id="sub-spk">ANNA</div>
+      <div class="sub-txt" id="sub-txt">Press play to start…</div>
+      <div class="sub-en" id="sub-en">Your German conversation is ready.</div>
+    </div>
   </div>
 
-  <div class="pod-ctrl">
-    <div class="prog-bar" id="prog-bar" onclick="seekTo(event)"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-    <div class="time-row"><span id="t-cur">0:00</span><span id="t-tot">0:00</span></div>
-    <div class="ctrl-row">
+  <!-- Controls -->
+  <div class="px-3 mb-2">
+    <div class="prog-bar mb-1" id="prog-bar" onclick="seekTo(event)"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="d-flex justify-content-between" style="font-size:11px;color:var(--txt3);font-family:var(--mono);"><span id="t-cur">0:00</span><span id="t-tot">0:00</span></div>
+    <div class="d-flex align-items-center justify-content-center gap-4 mt-2">
       <button class="ctrl-btn" onclick="prevLine()">⏮</button>
       <button class="ctrl-btn" onclick="repeatLine()">🔁</button>
       <button class="play-btn" id="play-btn" onclick="togglePlay()">▶</button>
@@ -452,307 +546,664 @@ textarea.t-input::placeholder{color:var(--txt3);}
     </div>
   </div>
 
-  <div class="pod-acts">
-    <div class="pod-act" onclick="toggleTrans()"><span class="ai">🇩🇪</span><span class="al" id="trans-lbl">Translation</span></div>
-    <div class="pod-act" onclick="startChallenge()"><span class="ai">🎯</span><span class="al">Speaking Test</span></div>
-    <div class="pod-act" onclick="navTo('flash')"><span class="ai">🃏</span><span class="al">Vocab Cards</span></div>
+  <!-- Actions -->
+  <div class="px-3 mb-2">
+    <div class="row g-2">
+      <div class="col-4"><div class="d-flex flex-column align-items-center justify-content-center p-2 rounded-3 gap-1" style="background:var(--surf2);border:1px solid var(--bdr2);cursor:pointer;" onclick="toggleTrans()"><span style="font-size:18px">🇩🇪</span><span style="font-size:11px;color:var(--txt2);font-weight:600;" id="trans-lbl">Translation</span></div></div>
+      <div class="col-4"><div class="d-flex flex-column align-items-center justify-content-center p-2 rounded-3 gap-1" style="background:var(--surf2);border:1px solid var(--bdr2);cursor:pointer;" onclick="startChallenge()"><span style="font-size:18px">🎯</span><span style="font-size:11px;color:var(--txt2);font-weight:600;">Speaking Test</span></div></div>
+      <div class="col-4"><div class="d-flex flex-column align-items-center justify-content-center p-2 rounded-3 gap-1" style="background:var(--surf2);border:1px solid var(--bdr2);cursor:pointer;" onclick="navTo('flash')"><span style="font-size:18px">🃏</span><span style="font-size:11px;color:var(--txt2);font-weight:600;">Vocab Cards</span></div></div>
+    </div>
   </div>
 
-  <div class="diag-list" id="pod-script">
-    <div class="diag-ttl">FULL SCRIPT</div>
+  <!-- Dialogue Script -->
+  <div class="px-3" id="pod-script" style="padding-bottom:60px;">
+    <div class="sec-lbl mb-2">FULL SCRIPT</div>
     <div id="diag-items"></div>
   </div>
 </div>
 
-<!-- ══════════ CHALLENGE ══════════ -->
-<div id="s-challenge" class="screen">
-  <div class="safe-top" style="padding:0 18px 12px;">
-    <div style="display:flex;align-items:center;gap:14px;">
-      <div class="back-btn" onclick="exitChallenge()">←</div>
-      <div><div class="ch-title">Speaking Test</div><div class="ch-sub" id="ch-sub">—</div></div>
+<!-- ════════════════════════════════════════
+     LESEN SCREEN
+════════════════════════════════════════ -->
+<div id="s-lesen" class="screen">
+  <div class="safe-top px-3 pb-2 d-flex align-items-center gap-3">
+    <div class="back-btn" onclick="openModule('lesen')">←</div>
+    <div>
+      <div style="font-size:19px;font-weight:800;color:var(--lesen);">📖 Lesen</div>
+      <div style="font-size:12px;color:var(--txt3);" id="lesen-meta">Reading Comprehension</div>
     </div>
-    <div class="p-dots" id="ch-dots"></div>
+    <button class="btn btn-sm ms-auto" style="background:var(--surf2);border:1px solid var(--bdr);color:var(--txt2);font-size:12px;" onclick="navTo('flash')">🃏 Cards</button>
   </div>
-  <div style="padding-bottom:32px;">
-    <div class="ch-card">
-      <div class="ch-card-lbl">Situation</div>
-      <div class="ch-ctx" id="ch-ctx"></div>
-      <div class="ch-card-lbl" style="margin-top:10px;">What do you say?</div>
-      <div class="ch-cue" id="ch-cue"></div>
-      <div class="ch-hint" id="ch-hint"></div>
+
+  <!-- Exam room for lesen -->
+  <div class="px-3 mb-2">
+    <div class="exam-room" id="lesen-room" style="height:160px;">
+      <div class="exam-bg"></div>
+      <div class="exam-char e1" id="lr-e1"><div class="exam-av"><div class="exam-glow"></div>EX1</div><div class="exam-badge">Examiner</div></div>
+      <div class="exam-char s1" id="lr-s1"><div class="exam-av"><div class="exam-glow"></div>AN</div><div class="exam-badge">Anna</div></div>
+      <div class="exam-char s2" id="lr-s2"><div class="exam-av"><div class="exam-glow"></div>MX</div><div class="exam-badge">Max</div></div>
+      <div class="exam-table"></div><div class="exam-floor"></div>
+      <div class="exam-papers"><div class="exam-paper"></div><div class="exam-paper"></div><div class="exam-paper"></div></div>
+      <div class="exam-subtitle" id="lesen-room-txt">Reading exam in progress…</div>
     </div>
-    <div class="rec-area">
-      <div class="rec-btn" id="rec-btn" onclick="toggleRec()">
-        <div class="rec-ripple"></div>
-        <span>🎙</span>
-      </div>
-      <div class="rec-st" id="rec-st">Tap to speak</div>
-      <div class="rec-timer" id="rec-timer" style="display:none">0:00</div>
-      <div class="rec-wave" id="rec-wave" style="display:none"></div>
+  </div>
+
+  <div class="px-3" style="padding-bottom:60px;">
+    <!-- Controls -->
+    <div class="d-flex gap-2 mb-3">
+      <button class="btn btn-sm flex-1" style="background:#22d3a415;border:1px solid #22d3a440;color:var(--max);font-weight:700;" onclick="toggleLesenTrans()" id="lesen-trans-btn">🇬🇧 Show English</button>
+      <button class="btn btn-sm flex-1" style="background:var(--surf2);border:1px solid var(--bdr);color:var(--txt2);font-weight:700;" onclick="addLesenVocab()">➕ Add to Flashcards</button>
     </div>
-    <div class="fb-card" id="fb-card" style="display:none">
-      <div class="fb-sr">
-        <svg width="96" height="96" viewBox="0 0 96 96" style="flex-shrink:0">
-          <circle cx="48" cy="48" r="38" fill="none" stroke="var(--bdr2)" stroke-width="6"/>
-          <circle cx="48" cy="48" r="38" fill="none" stroke="var(--accent)" stroke-width="6"
-            stroke-dasharray="0 239" stroke-linecap="round"
-            style="transform:rotate(-90deg);transform-origin:48px 48px;transition:stroke-dasharray 1.1s ease"
-            id="score-ring"/>
-          <text x="48" y="44" text-anchor="middle" fill="var(--txt)" font-size="22" font-family="-apple-system" font-weight="800" id="score-txt">0</text>
-          <text x="48" y="59" text-anchor="middle" fill="var(--txt3)" font-size="10" font-family="-apple-system">Points</text>
-        </svg>
-        <div class="fb-met">
-          <div class="fb-mr"><span class="fb-ml">Pronunciation</span><span class="fb-mv" id="m-pron">—</span></div>
-          <div class="fb-mr"><span class="fb-ml">Fluency</span><span class="fb-mv" id="m-flu">—</span></div>
-          <div class="fb-mr"><span class="fb-ml">Grammar</span><span class="fb-mv" id="m-gram">—</span></div>
-          <div class="fb-mr"><span class="fb-ml">Content</span><span class="fb-mv" id="m-cont">—</span></div>
+    <!-- Passage -->
+    <div id="lesen-passage"></div>
+    <!-- Questions -->
+    <div id="lesen-questions"></div>
+    <!-- Key Vocab -->
+    <div id="lesen-vocab"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SCHREIBEN SCREEN
+════════════════════════════════════════ -->
+<div id="s-schreiben" class="screen">
+  <div class="safe-top px-3 pb-2 d-flex align-items-center gap-3">
+    <div class="back-btn" onclick="openModule('schreiben')">←</div>
+    <div>
+      <div style="font-size:19px;font-weight:800;color:var(--schreiben);">✍️ Schreiben</div>
+      <div style="font-size:12px;color:var(--txt3);" id="schreiben-meta">Writing Practice</div>
+    </div>
+  </div>
+  <div class="px-3" style="padding-bottom:60px;">
+    <!-- Exam room -->
+    <div class="exam-room mb-3" id="schreiben-room" style="height:140px;">
+      <div class="exam-bg"></div>
+      <div class="exam-char e1"><div class="exam-av"><div class="exam-glow"></div>EX</div><div class="exam-badge">Examiner</div></div>
+      <div class="exam-char s1"><div class="exam-av"><div class="exam-glow"></div>AN</div><div class="exam-badge">Anna</div></div>
+      <div class="exam-table"></div><div class="exam-floor"></div>
+      <div class="exam-papers"><div class="exam-paper"></div><div class="exam-paper"></div></div>
+      <div class="exam-subtitle" id="schreiben-room-txt">Writing exam in progress…</div>
+    </div>
+    <!-- Prompt -->
+    <div id="schreiben-prompt"></div>
+    <!-- User writing area -->
+    <div class="sec-lbl mb-2" id="schreiben-write-lbl" style="display:none;">Your Answer</div>
+    <textarea id="user-writing" class="t-input mb-2" rows="6" placeholder="Write your answer in German here…" style="display:none;"></textarea>
+    <button class="btn btn-accent w-100 rounded-3 mb-3" id="submit-writing-btn" onclick="submitWriting()" style="display:none;">📝 Submit for AI Feedback</button>
+    <!-- Model answer -->
+    <div id="schreiben-model"></div>
+    <!-- Feedback -->
+    <div id="schreiben-feedback"></div>
+    <!-- Key vocab -->
+    <div id="schreiben-vocab"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     HOREN SCREEN
+════════════════════════════════════════ -->
+<div id="s-horen" class="screen">
+  <div class="safe-top px-3 pb-2 d-flex align-items-center gap-3">
+    <div class="back-btn" onclick="openModule('horen')">←</div>
+    <div>
+      <div style="font-size:19px;font-weight:800;color:var(--horen);">🎧 Hören</div>
+      <div style="font-size:12px;color:var(--txt3);" id="horen-meta">Listening Comprehension</div>
+    </div>
+  </div>
+  <div class="px-3" style="padding-bottom:60px;">
+    <!-- Exam room -->
+    <div class="exam-room mb-3" id="horen-room" style="height:160px;">
+      <div class="exam-bg"></div>
+      <div class="exam-char e1" id="hr-e1"><div class="exam-av"><div class="exam-glow"></div>EX1</div><div class="exam-badge">Speaker 1</div></div>
+      <div class="exam-char e2" id="hr-e2"><div class="exam-av"><div class="exam-glow"></div>EX2</div><div class="exam-badge">Speaker 2</div></div>
+      <div class="exam-char s1"><div class="exam-av"><div class="exam-glow"></div>AN</div><div class="exam-badge">Anna</div></div>
+      <div class="exam-char s2"><div class="exam-av"><div class="exam-glow"></div>MX</div><div class="exam-badge">Max</div></div>
+      <div class="exam-table"></div><div class="exam-floor"></div>
+      <div class="exam-subtitle" id="horen-room-txt">Listening exam in progress…</div>
+    </div>
+    <!-- Player -->
+    <div class="horen-player mb-3" id="horen-player">
+      <div class="d-flex align-items-center gap-3 mb-2">
+        <button class="play-btn" id="horen-play-btn" onclick="toggleHorenPlay()" style="width:48px;height:48px;font-size:17px;">▶</button>
+        <div class="flex-1">
+          <div class="prog-bar mb-1" id="horen-prog-bar" onclick="seekHoren(event)"><div class="prog-fill" id="horen-prog-fill" style="width:0%"></div></div>
+          <div class="d-flex justify-content-between" style="font-size:11px;color:var(--txt3);font-family:var(--mono);"><span id="h-t-cur">0:00</span><span id="h-t-tot">0:00</span></div>
+        </div>
+        <div class="h-wave" id="horen-wave">
+          <div class="hw-bar" style="--wh:16px"></div><div class="hw-bar" style="--wh:22px"></div>
+          <div class="hw-bar" style="--wh:12px"></div><div class="hw-bar" style="--wh:20px"></div>
+          <div class="hw-bar" style="--wh:16px"></div>
         </div>
       </div>
-      <div id="fb-errs"></div>
-      <div class="fb-tip" id="fb-tip"></div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm" style="background:#ff4f9715;border:1px solid #ff4f9740;color:var(--anna);font-weight:700;" onclick="toggleTranscript()" id="transcript-btn">📜 Show Transcript</button>
+        <button class="btn btn-sm" style="background:var(--surf2);border:1px solid var(--bdr);color:var(--txt2);font-weight:700;" onclick="repeatHoren()">🔁 Repeat</button>
+      </div>
     </div>
-    <div class="ch-acts" id="ch-acts" style="display:none">
-      <button class="btn btn-primary" id="ch-next" onclick="nextCh()">Continue →</button>
-      <button class="btn btn-secondary" onclick="retryCh()">🔁 Try Again</button>
+    <!-- Transcript (hidden by default) -->
+    <div id="horen-transcript-box" style="display:none;" class="mb-3">
+      <div class="sec-lbl mb-2">Transcript</div>
+      <div class="transcript-box" id="horen-transcript"></div>
+    </div>
+    <!-- Questions -->
+    <div id="horen-questions"></div>
+    <!-- Key vocab -->
+    <div id="horen-vocab"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SPEAKING CHALLENGE SCREEN
+════════════════════════════════════════ -->
+<div id="s-challenge" class="screen">
+  <div class="safe-top px-3 pb-2">
+    <div class="d-flex align-items-center gap-3">
+      <div class="back-btn" onclick="exitChallenge()">←</div>
+      <div>
+        <div style="font-size:20px;font-weight:800;">Speaking Test</div>
+        <div style="font-size:12px;color:var(--txt3);" id="ch-sub">—</div>
+      </div>
+    </div>
+    <div class="p-dots mt-3" id="ch-dots"></div>
+  </div>
+  <div class="px-3" style="padding-bottom:32px;">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="sec-lbl mb-2">Situation</div>
+        <div style="background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:12px;font-size:14px;color:var(--txt2);line-height:1.6;" id="ch-ctx"></div>
+        <div class="sec-lbl mb-2">What do you say?</div>
+        <div style="font-size:16px;font-weight:600;line-height:1.55;" id="ch-cue"></div>
+        <div style="font-size:13px;color:var(--txt3);font-style:italic;margin-top:5px;" id="ch-hint"></div>
+      </div>
+    </div>
+    <div class="d-flex flex-column align-items-center gap-3 py-2">
+      <div class="rec-btn" id="rec-btn" onclick="toggleRec()">
+        <div class="rec-ripple"></div>🎙
+      </div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:.07em;color:var(--txt3);text-transform:uppercase;" id="rec-st">Tap to speak</div>
+      <div style="font-family:var(--mono);font-size:20px;font-weight:700;display:none;" id="rec-timer">0:00</div>
+      <div class="d-flex align-items-center gap-1" style="height:34px;display:none!important;" id="rec-wave"></div>
+    </div>
+    <div id="fb-card" style="display:none;" class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex gap-3 align-items-center mb-3">
+          <svg width="88" height="88" viewBox="0 0 96 96" style="flex-shrink:0">
+            <circle cx="48" cy="48" r="38" fill="none" stroke="var(--bdr2)" stroke-width="6"/>
+            <circle cx="48" cy="48" r="38" fill="none" stroke="var(--accent)" stroke-width="6" stroke-dasharray="0 239" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:48px 48px;transition:stroke-dasharray 1.1s ease" id="score-ring"/>
+            <text x="48" y="44" text-anchor="middle" fill="var(--txt)" font-size="22" font-family="-apple-system" font-weight="800" id="score-txt">0</text>
+            <text x="48" y="59" text-anchor="middle" fill="var(--txt3)" font-size="10" font-family="-apple-system">Points</text>
+          </svg>
+          <div class="flex-1">
+            <div class="d-flex justify-content-between mb-1"><span style="font-size:12px;color:var(--txt3);">Pronunciation</span><span class="fb-mv" id="m-pron">—</span></div>
+            <div class="d-flex justify-content-between mb-1"><span style="font-size:12px;color:var(--txt3);">Fluency</span><span class="fb-mv" id="m-flu">—</span></div>
+            <div class="d-flex justify-content-between mb-1"><span style="font-size:12px;color:var(--txt3);">Grammar</span><span class="fb-mv" id="m-gram">—</span></div>
+            <div class="d-flex justify-content-between"><span style="font-size:12px;color:var(--txt3);">Content</span><span class="fb-mv" id="m-cont">—</span></div>
+          </div>
+        </div>
+        <div id="fb-errs"></div>
+        <div style="font-size:13px;color:var(--txt2);line-height:1.65;margin-top:10px;background:var(--surf2);border-radius:10px;padding:12px;" id="fb-tip"></div>
+      </div>
+    </div>
+    <div id="ch-acts" style="display:none;" class="d-flex flex-column gap-2">
+      <button class="btn btn-accent py-3 rounded-3" id="ch-next" onclick="nextCh()">Continue →</button>
+      <button class="btn py-3 rounded-3" style="background:var(--surf2);border:1px solid var(--bdr2);color:var(--txt2);" onclick="retryCh()">🔁 Try Again</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════ FLASHCARDS ══════════ -->
+<!-- ════════════════════════════════════════
+     FLASHCARDS SCREEN
+════════════════════════════════════════ -->
 <div id="s-flash" class="screen">
-  <div class="safe-top" style="padding:0 18px 12px;">
-    <div class="fc-title">Vocabulary</div>
-    <div class="fc-sub">Spaced Repetition · SM-2</div>
+  <div class="safe-top px-3 pb-2">
+    <div class="d-flex align-items-center justify-content-between">
+      <div>
+        <div style="font-size:24px;font-weight:800;">🃏 Vocabulary</div>
+        <div style="font-size:12px;color:var(--txt3);">Spaced Repetition · SM-2</div>
+      </div>
+      <button class="btn btn-sm" style="background:#ff3b3015;border:1px solid #ff3b3040;color:var(--danger);font-size:12px;font-weight:700;" onclick="confirmClearDeck()">🗑 Clear Deck</button>
+    </div>
   </div>
-  <div class="sr-bar">
-    <div class="sr-stat"><div class="sr-v" id="sr-new">0</div><div class="sr-l">New</div></div>
-    <div class="sr-stat"><div class="sr-v" style="color:var(--warn)" id="sr-due">0</div><div class="sr-l">Due Today</div></div>
-    <div class="sr-stat"><div class="sr-v" style="color:var(--good)" id="sr-ok">0</div><div class="sr-l">Learned</div></div>
-    <div class="sr-stat"><div class="sr-v" style="color:var(--accent2)" id="sr-streak">0</div><div class="sr-l">Streak 🔥</div></div>
+
+  <!-- SR Stats -->
+  <div class="px-3 mb-2">
+    <div class="sr-bar">
+      <div class="sr-stat"><div class="sr-v" id="sr-new">0</div><div class="sr-l">New</div></div>
+      <div class="sr-stat"><div class="sr-v" style="color:var(--warn)" id="sr-due">0</div><div class="sr-l">Due</div></div>
+      <div class="sr-stat"><div class="sr-v" style="color:var(--good)" id="sr-ok">0</div><div class="sr-l">Learned</div></div>
+      <div class="sr-stat"><div class="sr-v" style="color:var(--accent2)" id="sr-streak">0</div><div class="sr-l">Streak🔥</div></div>
+    </div>
   </div>
-  <div class="deck-tabs" id="deck-tabs"></div>
-  <div class="fc-mode-tabs">
-    <div class="fc-mode-tab on" id="mode-study" onclick="setFCMode('study')">Study Cards</div>
-    <div class="fc-mode-tab" id="mode-list" onclick="setFCMode('list')">Word List</div>
+
+  <!-- Module filter -->
+  <div class="px-3 mb-2">
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;" class="pb-1" id="mod-filter-tabs"></div>
   </div>
+
+  <!-- Deck tabs -->
+  <div style="display:flex;gap:6px;overflow-x:auto;padding:0 16px 8px;" id="deck-tabs"></div>
+
+  <!-- Mode tabs -->
+  <div class="px-3 mb-2">
+    <div class="d-flex gap-2">
+      <div class="tgl on" id="mode-study" onclick="setFCMode('study')" style="font-size:13px;">Study Cards</div>
+      <div class="tgl" id="mode-list" onclick="setFCMode('list')" style="font-size:13px;">Word List</div>
+    </div>
+  </div>
+
   <div id="fc-content"></div>
-  <div style="height:80px"></div>
+  <div style="height:80px;"></div>
 </div>
 
-<!-- ══════════ GLOBAL FIXED NAV ══════════ -->
-<div id="global-nav" class="nav" style="position:fixed;bottom:0;left:0;right:0;z-index:100;display:none;">
-  <div class="nav-tab" id="nt-home" onclick="navTo('home')"><div class="nav-tab-ico">🏠</div><div class="nav-tab-lbl">Home</div></div>
-  <div class="nav-tab" id="nt-flash" onclick="navTo('flash')"><div class="nav-tab-ico">🃏</div><div class="nav-tab-lbl">Flashcards</div></div>
+<!-- ════════════════════════════════════════
+     MODULE HOME SCREENS (Lesen/Schreiben/Hören entry points)
+════════════════════════════════════════ -->
+<div id="s-mod-home" class="screen">
+  <div class="safe-top px-3 pb-2 d-flex align-items-center gap-3">
+    <div class="back-btn" onclick="navTo('home')">←</div>
+    <div>
+      <div style="font-size:20px;font-weight:800;" id="mh-title">Module</div>
+      <div style="font-size:12px;color:var(--txt3);" id="mh-sub">Select level and topic</div>
+    </div>
+  </div>
+  <!-- Recent sessions for this module -->
+  <div class="px-3 mb-2"><div class="sec-lbl mb-2" id="mh-recent-lbl">Recent Sessions</div><div id="mh-sessions"></div></div>
+  <div style="position:sticky;bottom:0;background:var(--bg);padding:12px 16px max(env(safe-area-inset-bottom,0px),20px);">
+    <button class="btn btn-accent w-100 py-3 rounded-3 fs-6" id="mh-new-btn" onclick="goGenerate()">➕ New Session</button>
+  </div>
+  <div style="height:20px;"></div>
 </div>
 
-<!-- ══════════ HAMBURGER BOTTOM SHEET ══════════ -->
+<!-- ════════════════════════════════════════
+     HAMBURGER BOTTOM SHEET
+════════════════════════════════════════ -->
 <div class="hb-ov" id="hb-ov" onclick="hbOvClick(event)">
   <div class="hb-panel">
     <div class="hb-handle"></div>
-    <div class="hb-title">Podcast Settings</div>
-    <div class="hb-sub">Customise your listening experience</div>
-    <div class="hb-sec">View Mode</div>
-    <div class="hb-pills">
+    <div style="font-size:18px;font-weight:800;margin-bottom:3px;">Podcast Settings</div>
+    <div style="font-size:12px;color:var(--txt3);margin-bottom:18px;">Customise your listening experience</div>
+    <div class="sec-lbl mb-2">View Mode</div>
+    <div class="d-flex gap-2 mb-4">
       <div class="hb-pill on" id="hbm-both" onclick="setVM('both')"><div class="hb-pill-ico">📺</div><div class="hb-pill-lbl">Both</div></div>
       <div class="hb-pill" id="hbm-subtitle" onclick="setVM('subtitle')"><div class="hb-pill-ico">💬</div><div class="hb-pill-lbl">Subtitle</div></div>
       <div class="hb-pill" id="hbm-script" onclick="setVM('script')"><div class="hb-pill-ico">📜</div><div class="hb-pill-lbl">Script</div></div>
     </div>
-    <div class="hb-sec">Playback Speed</div>
-    <div class="hb-sp-row">
-      <div class="hb-sp" id="hbsp-0" onclick="setSpd(0.5)"><div class="hb-sp-val">0.5×</div><div class="hb-sp-lbl">Very Slow</div></div>
+    <div class="sec-lbl mb-2">Playback Speed</div>
+    <div class="d-flex gap-2 mb-4">
+      <div class="hb-sp" id="hbsp-0" onclick="setSpd(0.5)"><div class="hb-sp-val">0.5×</div><div class="hb-sp-lbl">V.Slow</div></div>
       <div class="hb-sp" id="hbsp-1" onclick="setSpd(0.75)"><div class="hb-sp-val">0.75×</div><div class="hb-sp-lbl">Slow</div></div>
       <div class="hb-sp on" id="hbsp-2" onclick="setSpd(1)"><div class="hb-sp-val">1×</div><div class="hb-sp-lbl">Normal</div></div>
       <div class="hb-sp" id="hbsp-3" onclick="setSpd(1.25)"><div class="hb-sp-val">1.25×</div><div class="hb-sp-lbl">Fast</div></div>
       <div class="hb-sp" id="hbsp-4" onclick="setSpd(1.5)"><div class="hb-sp-val">1.5×</div><div class="hb-sp-lbl">Faster</div></div>
     </div>
-    <div class="hb-sec">Translation</div>
-    <div class="hb-pills" style="margin-bottom:24px;">
+    <div class="sec-lbl mb-2">Translation</div>
+    <div class="d-flex gap-2 mb-4">
       <div class="hb-pill on" id="hbt-show" onclick="setTransHB(true)"><div class="hb-pill-ico">🇬🇧</div><div class="hb-pill-lbl">Show English</div></div>
       <div class="hb-pill" id="hbt-hide" onclick="setTransHB(false)"><div class="hb-pill-ico">🇩🇪</div><div class="hb-pill-lbl">German Only</div></div>
     </div>
-    <button class="btn btn-secondary" onclick="closeHB()">Done</button>
+    <button class="btn w-100 py-3 rounded-3" style="background:var(--surf2);border:1px solid var(--bdr2);color:var(--txt2);font-weight:600;" onclick="closeHB()">Done</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     GLOBAL FIXED NAV
+════════════════════════════════════════ -->
+<div id="global-nav" style="position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(8,8,16,.97);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--bdr);padding:8px 0 max(env(safe-area-inset-bottom,0px),10px);display:none;">
+  <div class="d-flex">
+    <button class="nav-tab" id="nt-home" onclick="navTo('home')"><div class="nav-tab-ico">🏠</div><div class="nav-tab-lbl">Home</div></button>
+    <button class="nav-tab" id="nt-flash" onclick="navTo('flash')"><div class="nav-tab-ico">🃏</div><div class="nav-tab-lbl">Flashcards</div></button>
   </div>
 </div>
 
 <div id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <script>
-/* ════════════════════════════════
+/* ══════════════════════════════════════
    CONFIG
-════════════════════════════════ */
-const API='./api/claude', MODEL='claude-sonnet-4-20250514';
-const TURNS={short:22,medium:36,long:54};
-const DUR_LBL={short:'12 min',medium:'20 min',long:'30 min'};
+══════════════════════════════════════ */
+const API   = './api/claude';
+const MODEL = 'claude-sonnet-4-20250514';
+const TURNS = {short:22, medium:36, long:54};
+const DUR_LBL = {short:'12 min', medium:'20 min', long:'30 min'};
 
-/* ════════════════════════════════
-   SM-2
-════════════════════════════════ */
-function sm2(card,q){
-  let{interval,easeFactor,repetitions}=card.sr;
-  if(q<3){repetitions=0;interval=1;}
-  else{
-    if(repetitions===0)interval=1;
-    else if(repetitions===1)interval=6;
-    else interval=Math.round(interval*easeFactor);
-    repetitions++;
-  }
-  easeFactor=Math.max(1.3,easeFactor+0.1-(5-q)*(0.08+(5-q)*0.02));
-  const next=new Date();
-  if(q<3)next.setMinutes(next.getMinutes()+10);
-  else next.setDate(next.getDate()+interval);
-  return{interval,easeFactor,repetitions,nextReview:next.toISOString(),
-    status:repetitions===0?'new':repetitions<3?'learning':'review',
-    lastQuality:q,totalReviews:(card.sr.totalReviews||0)+1};
-}
-function isDue(c){return c.sr.status==='new'||new Date(c.sr.nextReview)<=new Date();}
-
-/* ════════════════════════════════
-   STATE
-════════════════════════════════ */
-let S={
-  level:'A2',duration:'medium',
-  podcasts:[],activePod:null,
-  play:{on:false,idx:0,speed:1,showTrans:true,viewMode:'both'},
-  ch:{turns:[],idx:0,rec:false,iv:null,secs:0,speech:'',recog:null,scores:[]},
-  fc:{all:[],deck:'all',mode:'study',studyIdx:0,flipped:false,streak:0,sessionCorrect:0,sessionTotal:0},
-  stats:{podcasts:0,bestScore:0},
+const MODULE_CHIPS = {
+  sprechen: ['☀️ Morning Routine','🏥 Doctor Visit','🛒 Supermarket','🚂 Train Station','🏠 Apartment','🍽 Restaurant','💼 Job Interview','✂️ Hairdresser','🎂 Birthday Party','📦 Post Office','🏦 Bank','✈️ Holiday'],
+  lesen:    ['📰 Local News Article','🏙 City Guide Text','📋 Job Advertisement','📜 Formal Letter','🏛 Cultural Topic','🌿 Environmental Issue','🧪 Science Article','📖 Short Story Extract'],
+  schreiben:['📧 Formal Email','📝 Informal Letter','📋 Application Form','📣 Opinion Essay','📖 Diary Entry','📊 Report Writing','📑 Complaint Letter','📬 Reply to Advertisement'],
+  horen:    ['📻 Radio Announcement','🎙 Interview Recording','📢 Public Announcement','🏠 Everyday Conversation','📞 Telephone Conversation','🎓 University Lecture','🗺 Travel Information','💬 Discussion / Debate'],
 };
 
-/* ════════════════════════════════
+const MODULE_PROMPTS = {
+  sprechen: (topic,lvl,std,turns) => ({
+    sys: `You are a German ${std.toUpperCase()} exam podcast scriptwriter. Write realistic conversations between Anna and Max at ${lvl} level. Return ONLY valid JSON, no markdown.`,
+    user: `Create a ${turns}-turn German ${std.toUpperCase()} exam-style podcast dialogue about: "${topic}". Full natural conversation. Extract 10-14 vocab words with synonyms. Create 6 speaking challenges.
+JSON: {"title":"German title","dialogue":[{"speaker":"Anna","text":"German...","translation":"English...","notes":"grammar tip or null"}],"vocab":[{"word":"das Rezept","article":"das","baseForm":"Rezept","translation":"prescription","synonyms":["das Medikament","die Verordnung"],"partOfSpeech":"noun","level":"${lvl}","exampleDe":"Hier ist Ihr Rezept.","exampleEn":"Here is your prescription.","podcastContext":"Doctor gives prescription","module":"sprechen"}],"challenges":[{"situation":"Context","cue":"What to say","cueHint":"German hint","targetAnswer":"Full German answer","difficulty":"easy"}]}`
+  }),
+  lesen: (topic,lvl,std) => ({
+    sys: `You are a German ${std.toUpperCase()} exam reading comprehension expert at ${lvl} level. Return ONLY valid JSON, no markdown.`,
+    user: `Create a ${std.toUpperCase()} ${lvl} reading comprehension exercise about: "${topic}".
+JSON: {"title":"Title","passage":[{"de":"German paragraph...","en":"English translation..."}],"questions":[{"question":"Comprehension question in German?","options":["A) option","B) option","C) option","D) option"],"correct":0,"explanation":"Why A is correct"}],"vocab":[{"word":"die Umwelt","article":"die","baseForm":"Umwelt","translation":"environment","synonyms":["die Natur","das Ökosystem"],"partOfSpeech":"noun","level":"${lvl}","exampleDe":"Die Umwelt muss geschützt werden.","exampleEn":"The environment must be protected.","podcastContext":"Found in passage","module":"lesen"}],"examTip":"Key exam strategy tip for this text type"}`
+  }),
+  schreiben: (topic,lvl,std) => ({
+    sys: `You are a German ${std.toUpperCase()} exam writing expert at ${lvl} level. Return ONLY valid JSON, no markdown.`,
+    user: `Create a ${std.toUpperCase()} ${lvl} writing exercise: "${topic}".
+JSON: {"title":"Title","taskType":"Formeller Brief|Informeller Brief|E-Mail|Aufsatz|Bericht","situation":"Full task description in English","keyPoints":["point to cover 1","point to cover 2","point to cover 3"],"wordCount":${lvl==='A2'?80:lvl==='B1'?150:200},"modelAnswer":{"de":"Full model answer in German...","en":"English translation of model answer..."},"vocab":[{"word":"Mit freundlichen Grüßen","article":null,"baseForm":"Mit freundlichen Grüßen","translation":"Yours sincerely","synonyms":["Viele Grüße","Beste Grüße"],"partOfSpeech":"phrase","level":"${lvl}","exampleDe":"Mit freundlichen Grüßen, Anna Schmidt.","exampleEn":"Yours sincerely, Anna Schmidt.","podcastContext":"Formal letter closing","module":"schreiben"}],"examTips":["Tip 1","Tip 2","Tip 3"]}`
+  }),
+  horen: (topic,lvl,std) => ({
+    sys: `You are a German ${std.toUpperCase()} exam listening comprehension expert at ${lvl} level. Return ONLY valid JSON, no markdown.`,
+    user: `Create a ${std.toUpperCase()} ${lvl} listening exercise: "${topic}". Write a realistic dialogue/monologue script meant to be read aloud via TTS.
+JSON: {"title":"Title","scriptType":"Gespräch|Durchsage|Interview|Nachricht","transcript":[{"speaker":"Speaker 1","text":"German text to be read aloud...","translation":"English translation"}],"questions":[{"question":"Listening comprehension question in German?","options":["A) option","B) option","C) option","D) option"],"correct":0,"timeRef":"beginning|middle|end"}],"vocab":[{"word":"die Abfahrt","article":"die","baseForm":"Abfahrt","translation":"departure","synonyms":["das Abfahren","der Abgang"],"partOfSpeech":"noun","level":"${lvl}","exampleDe":"Die Abfahrt ist um 14:30 Uhr.","exampleEn":"Departure is at 2:30 PM.","podcastContext":"Train announcement","module":"horen"}],"examTip":"Key listening strategy tip"}`
+  }),
+};
+
+/* ══════════════════════════════════════
+   SM-2
+══════════════════════════════════════ */
+function sm2(card, q) {
+  let {interval, easeFactor, repetitions} = card.sr;
+  if (q < 3) { repetitions = 0; interval = 1; }
+  else {
+    if (repetitions === 0) interval = 1;
+    else if (repetitions === 1) interval = 6;
+    else interval = Math.round(interval * easeFactor);
+    repetitions++;
+  }
+  easeFactor = Math.max(1.3, easeFactor + 0.1 - (5-q)*(0.08+(5-q)*0.02));
+  const next = new Date();
+  if (q < 3) next.setMinutes(next.getMinutes()+10);
+  else next.setDate(next.getDate()+interval);
+  return {interval, easeFactor, repetitions, nextReview: next.toISOString(),
+    status: repetitions===0?'new':repetitions<3?'learning':'review',
+    lastQuality: q, totalReviews: (card.sr.totalReviews||0)+1};
+}
+function isDue(c) { return c.sr.status==='new' || new Date(c.sr.nextReview) <= new Date(); }
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let S = {
+  level: 'A2', duration: 'medium', standard: 'telc',
+  activeModule: 'sprechen',
+  podcasts: [], lesenSessions: [], schreibenSessions: [], horenSessions: [],
+  activePod: null, activeSession: null,
+  play: {on:false, idx:0, speed:1, showTrans:true, viewMode:'both'},
+  horen: {on:false, idx:0, speed:1, showTranscript:false},
+  ch: {turns:[], idx:0, rec:false, iv:null, secs:0, speech:'', recog:null, scores:[]},
+  fc: {all:[], deck:'all', modFilter:'all', mode:'study', studyIdx:0, flipped:false, streak:0, sessionCorrect:0, sessionTotal:0},
+  stats: {podcasts:0, bestScore:0},
+  lesen: {showTrans:false},
+};
+
+/* ══════════════════════════════════════
    PERSISTENCE
-════════════════════════════════ */
-function save(){
-  try{
-    localStorage.setItem('sp_p',JSON.stringify(S.podcasts));
-    localStorage.setItem('sp_f',JSON.stringify(S.fc.all));
-    localStorage.setItem('sp_s',JSON.stringify(S.stats));
-    localStorage.setItem('sp_k',String(S.fc.streak));
-  }catch(e){}
+══════════════════════════════════════ */
+function save() {
+  try {
+    localStorage.setItem('sp2_pods',  JSON.stringify(S.podcasts));
+    localStorage.setItem('sp2_lesen', JSON.stringify(S.lesenSessions));
+    localStorage.setItem('sp2_schr',  JSON.stringify(S.schreibenSessions));
+    localStorage.setItem('sp2_hor',   JSON.stringify(S.horenSessions));
+    localStorage.setItem('sp2_fc',    JSON.stringify(S.fc.all));
+    localStorage.setItem('sp2_stats', JSON.stringify(S.stats));
+    localStorage.setItem('sp2_streak',String(S.fc.streak));
+  } catch(e) {}
 }
-function load(){
-  try{
-    const p=localStorage.getItem('sp_p'),f=localStorage.getItem('sp_f'),
-          s=localStorage.getItem('sp_s'),k=localStorage.getItem('sp_k');
-    if(p)S.podcasts=JSON.parse(p);
-    if(f)S.fc.all=JSON.parse(f);
-    if(s)S.stats=JSON.parse(s);
-    if(k)S.fc.streak=parseInt(k)||0;
-  }catch(e){}
+function load() {
+  try {
+    const p=localStorage.getItem('sp2_pods'),   l=localStorage.getItem('sp2_lesen'),
+          sc=localStorage.getItem('sp2_schr'),  h=localStorage.getItem('sp2_hor'),
+          f=localStorage.getItem('sp2_fc'),     st=localStorage.getItem('sp2_stats'),
+          sk=localStorage.getItem('sp2_streak');
+    if(p)  S.podcasts           = JSON.parse(p);
+    if(l)  S.lesenSessions      = JSON.parse(l);
+    if(sc) S.schreibenSessions  = JSON.parse(sc);
+    if(h)  S.horenSessions      = JSON.parse(h);
+    if(f)  S.fc.all             = JSON.parse(f);
+    if(st) S.stats              = JSON.parse(st);
+    if(sk) S.fc.streak          = parseInt(sk)||0;
+  } catch(e) {}
 }
 
-/* ════════════════════════════════
+/* ══════════════════════════════════════
    ROUTING
-════════════════════════════════ */
-function go(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el=document.getElementById('s-'+id);
-  el.classList.add('active');
-  el.scrollTop=0;
+══════════════════════════════════════ */
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('s-'+id);
+  if (el) { el.classList.add('active'); el.scrollTop = 0; }
+  const nav = document.getElementById('global-nav');
+  nav.style.display = (id==='home'||id==='flash') ? 'block' : 'none';
 }
-function navTo(id){
+function navTo(id) {
   go(id);
-  const nav=document.getElementById('global-nav');
-  if(id==='home'||id==='flash'){nav.style.display='flex';}else{nav.style.display='none';}
-  document.querySelectorAll('#global-nav .nav-tab').forEach(t=>t.classList.remove('on'));
-  if(id==='home'){document.getElementById('nt-home').classList.add('on');renderHome();}
-  if(id==='flash'){document.getElementById('nt-flash').classList.add('on');renderFlash();}
+  document.querySelectorAll('#global-nav .nav-tab').forEach(t => t.classList.remove('on'));
+  if (id==='home')  { document.getElementById('nt-home').classList.add('on'); renderHome(); }
+  if (id==='flash') { document.getElementById('nt-flash').classList.add('on'); renderFlash(); }
 }
 
-/* ════════════════════════════════
+/* ══════════════════════════════════════
    HOME
-════════════════════════════════ */
-function renderHome(){
-  document.getElementById('st-pods').textContent=S.stats.podcasts;
-  document.getElementById('st-cards').textContent=S.fc.all.length;
-  document.getElementById('st-score').textContent=S.stats.bestScore>0?S.stats.bestScore+'%':'—';
-  const el=document.getElementById('pod-list');
-  if(!S.podcasts.length){
-    el.innerHTML=`<div class="empty-state"><div class="empty-ico">🎙</div>
-      <div class="empty-title">No podcasts yet</div>
-      <div class="empty-desc">Tap <strong>New Podcast</strong> to generate your first conversation between Anna &amp; Max.</div></div>`;
+══════════════════════════════════════ */
+function renderHome() {
+  document.getElementById('st-pods').textContent  = S.podcasts.length + S.lesenSessions.length + S.schreibenSessions.length + S.horenSessions.length;
+  document.getElementById('st-cards').textContent = S.fc.all.length;
+  document.getElementById('st-score').textContent = S.stats.bestScore > 0 ? S.stats.bestScore+'%' : '—';
+  const el = document.getElementById('pod-list');
+  const all = [
+    ...S.podcasts.map(p=>({...p, modIco:'🎙', modColor:'var(--sprechen)'})),
+    ...S.lesenSessions.map(p=>({...p, modIco:'📖', modColor:'var(--lesen)'})),
+    ...S.schreibenSessions.map(p=>({...p, modIco:'✍️', modColor:'var(--schreiben)'})),
+    ...S.horenSessions.map(p=>({...p, modIco:'🎧', modColor:'var(--horen)'})),
+  ].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
+  if (!all.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-ico">📚</div><div class="empty-title">No sessions yet</div><div class="empty-desc">Choose a module above to generate your first exam-prep session.</div></div>`;
     return;
   }
-  el.innerHTML=S.podcasts.map((p,i)=>`
-    <div class="pod-card" onclick="openPod(${i})">
-      <div class="pc-top">
-        <div><div class="pc-title">${p.title}</div><div class="pc-topic">${p.topic}</div></div>
-        <span class="pill pill-${p.level.toLowerCase()}">${p.level}</span>
+  el.innerHTML = all.map(p => `
+    <div class="pod-card" onclick="reopenSession('${p.module||'sprechen'}','${p.id}')">
+      <div class="d-flex justify-content-between align-items-start">
+        <div class="d-flex align-items-center gap-2">
+          <span style="font-size:20px;">${p.modIco||'🎙'}</span>
+          <div><div class="pc-title">${p.title}</div><div style="font-size:11px;color:var(--txt3);">${p.topic||''}</div></div>
+        </div>
+        <span class="badge-${(p.level||'A2').toLowerCase()}">${p.level||'A2'}</span>
       </div>
-      <div class="pc-meta">
-        <div class="sp-chips"><div class="sp-chip a">AN</div><div class="sp-chip m">MX</div></div>
-        <span>${p.dialogue.length} lines · ${p.durLabel}</span>
+      <div class="pc-meta mt-1">
+        <span style="color:${p.modColor||'var(--accent2)'};">${(p.standard||'TELC').toUpperCase()}</span>
         ${p.vocab?.length?`<span>🃏 ${p.vocab.length} cards</span>`:''}
         ${p.bestScore?`<span>⭐ ${p.bestScore}%</span>`:''}
       </div>
     </div>`).join('');
 }
 
-/* ════════════════════════════════
+function reopenSession(mod, id) {
+  if (mod==='sprechen') {
+    const idx = S.podcasts.findIndex(p=>String(p.id)===String(id));
+    if (idx>=0) openPod(idx);
+  } else if (mod==='lesen') {
+    const s = S.lesenSessions.find(p=>String(p.id)===String(id));
+    if (s) { S.activeSession=s; renderLesenScreen(s); go('lesen'); }
+  } else if (mod==='schreiben') {
+    const s = S.schreibenSessions.find(p=>String(p.id)===String(id));
+    if (s) { S.activeSession=s; renderSchreibenScreen(s); go('schreiben'); }
+  } else if (mod==='horen') {
+    const s = S.horenSessions.find(p=>String(p.id)===String(id));
+    if (s) { S.activeSession=s; renderHorenScreen(s); go('horen'); }
+  }
+}
+
+/* ══════════════════════════════════════
+   MODULE ENTRY
+══════════════════════════════════════ */
+function openModule(mod) {
+  S.activeModule = mod;
+  const icons = {sprechen:'🎙',lesen:'📖',schreiben:'✍️',horen:'🎧'};
+  const names = {sprechen:'Sprechen',lesen:'Lesen',schreiben:'Schreiben',horen:'Hören'};
+  const subs  = {sprechen:'Speaking Practice',lesen:'Reading Comprehension',schreiben:'Writing Practice',horen:'Listening Comprehension'};
+  document.getElementById('mh-title').textContent = icons[mod]+' '+names[mod];
+  document.getElementById('mh-sub').textContent   = subs[mod];
+  const sessions = mod==='sprechen'?S.podcasts:mod==='lesen'?S.lesenSessions:mod==='schreiben'?S.schreibenSessions:S.horenSessions;
+  const el = document.getElementById('mh-sessions');
+  if (!sessions.length) {
+    el.innerHTML = `<div class="empty-state" style="padding:30px 0;"><div class="empty-ico" style="font-size:40px;">${icons[mod]}</div><div class="empty-desc">No ${names[mod]} sessions yet. Generate your first!</div></div>`;
+  } else {
+    el.innerHTML = sessions.slice(0,5).map(s=>`
+      <div class="pod-card" onclick="reopenSession('${mod}','${s.id}')">
+        <div class="d-flex justify-content-between align-items-center">
+          <div><div class="pc-title">${s.title}</div><div style="font-size:11px;color:var(--txt3);">${s.topic||''}</div></div>
+          <span class="badge-${(s.level||'A2').toLowerCase()}">${s.level||'A2'}</span>
+        </div>
+      </div>`).join('');
+  }
+  go('mod-home');
+}
+
+function goGenerate() {
+  const mod = S.activeModule;
+  const chips = MODULE_CHIPS[mod]||[];
+  document.getElementById('gen-screen-title').textContent = ({sprechen:'🎙 New Podcast',lesen:'📖 New Reading',schreiben:'✍️ New Writing',horen:'🎧 New Listening'})[mod];
+  document.getElementById('gen-screen-sub').textContent   = 'TELC / Goethe standard';
+  document.getElementById('dur-section').style.display    = mod==='sprechen'?'':'none';
+  document.getElementById('gen-btn').textContent          = '🚀 Generate';
+  document.getElementById('topic-in').value               = '';
+  document.getElementById('topic-chips').innerHTML        = chips.map(c=>`<div class="chip" onclick="document.getElementById('topic-in').value='${c.replace(/['"]/g,'')}';">${c}</div>`).join('');
+  go('generate');
+}
+
+/* ══════════════════════════════════════
+   GENERATE CONTROLS
+══════════════════════════════════════ */
+function setStd(s) {
+  S.standard=s;
+  document.getElementById('std-telc').className   = 'tgl'+(s==='telc'?' on-telc':'');
+  document.getElementById('std-goethe').className = 'tgl'+(s==='goethe'?' on-goethe':'');
+}
+function setLvl(l) {
+  S.level=l;
+  ['a2','b1','b2'].forEach(x=>document.getElementById('p-'+x).className='tgl'+(l===x.toUpperCase()?` on-${x}`:''));
+}
+function setDur(d) {
+  S.duration=d;
+  ['short','medium','long'].forEach(x=>document.getElementById('d-'+x).className='tgl'+(x===d?' on':''));
+}
+
+/* ══════════════════════════════════════
    GENERATE
-════════════════════════════════ */
-function setT(t){document.getElementById('topic-in').value=t;}
-function setLvl(l){S.level=l;document.getElementById('p-a2').className='tgl'+(l==='A2'?' on-a2':'');document.getElementById('p-b1').className='tgl'+(l==='B1'?' on-b1':'');}
-function setDur(d){S.duration=d;['short','medium','long'].forEach(x=>document.getElementById('d-'+x).className='tgl'+(x===d?' on-dur':''));}
-
-async function doGenerate(){
-  const topic=document.getElementById('topic-in').value.trim();
-  if(!topic){toast('Please enter a topic first!');return;}
-  go('generating');runGenAnim();
-  const lvl=S.level,turns=TURNS[S.duration];
-  const sys=`You are a German podcast scriptwriter. Write realistic conversations between Anna (warm woman) and Max (curious man). Level:${lvl}. Return ONLY valid JSON, no markdown.`;
-  const prompt=`Create a ${turns}-turn German podcast about: "${topic}". Full natural conversation with reactions, follow-ups, emotions. Extract 10-14 vocab words. Create 6 speaking challenges.
-JSON: {"title":"German title","dialogue":[{"speaker":"Anna","text":"German...","translation":"English...","notes":"tip or null"}],"vocab":[{"word":"das X","article":"das","baseForm":"X","translation":"English","partOfSpeech":"noun","level":"${lvl}","exampleDe":"Sentence.","exampleEn":"Sentence.","podcastContext":"context"}],"challenges":[{"situation":"Context","cue":"What to say","cueHint":"German hint","targetAnswer":"Full German answer","difficulty":"easy"}]}`;
-  try{
-    const res=await callAPI(sys,prompt,6000);
-    const raw=res.content[0].text.trim().replace(/```json|```/g,'').trim();
-    finishGen(JSON.parse(raw),topic,lvl);
-  }catch(e){console.error(e);toast('Generation failed — loading demo');finishGen(demoData(topic,lvl),topic,lvl);}
-}
-function finishGen(data,topic,lvl){
-  const pod={id:Date.now(),title:data.title||topic,topic,level:lvl,durLabel:DUR_LBL[S.duration],
-    dialogue:data.dialogue||[],vocab:data.vocab||[],challenges:data.challenges||[],
-    bestScore:0,createdAt:new Date().toISOString()};
-  S.podcasts.unshift(pod);S.stats.podcasts++;
-  mergeVocab(pod);save();renderHome();openPod(0);
-}
-function runGenAnim(){
-  const steps=[[6,'Writing the script…','Setting the scene…'],[25,'Building dialogue…','Writing natural German…'],
-    [50,'Adding reactions…','Making it feel real…'],[70,'Extracting vocabulary…','Pulling key words…'],
-    [85,'Creating challenges…','Building speaking prompts…'],[95,'Almost ready…','Final polish…']];
-  steps.forEach(([p,s,d],i)=>setTimeout(()=>{
-    document.getElementById('gen-bar').style.width=p+'%';
-    document.getElementById('gen-st').textContent=s;
-    document.getElementById('gen-det').textContent=d;
-  },i*1100));
+══════════════════════════════════════ */
+async function doGenerate() {
+  const topic = document.getElementById('topic-in').value.trim();
+  if (!topic) { toast('Please enter a topic first!'); return; }
+  const mod=S.activeModule, lvl=S.level, std=S.standard;
+  go('generating');
+  document.getElementById('gen-title-txt').textContent = {sprechen:'In the Studio…',lesen:'Reading Room…',schreiben:'Writing Desk…',horen:'Listening Lab…'}[mod];
+  runGenAnim(mod);
+  const {sys, user} = MODULE_PROMPTS[mod](topic, lvl, std, TURNS[S.duration]);
+  try {
+    const res  = await callAPI(sys, user, 7000);
+    const raw  = res.content[0].text.trim().replace(/```json|```/g,'').trim();
+    const data = JSON.parse(raw);
+    finishGen(mod, data, topic, lvl, std);
+  } catch(e) {
+    console.error(e);
+    toast('Generation failed — please try again');
+    navTo('home');
+  }
 }
 
-/* ════════════════════════════════
+function finishGen(mod, data, topic, lvl, std) {
+  const session = {
+    id: Date.now(), title: data.title||topic, topic, level: lvl, standard: std,
+    module: mod, durLabel: DUR_LBL[S.duration],
+    vocab: data.vocab||[], createdAt: new Date().toISOString(), bestScore: 0,
+  };
+  if (mod==='sprechen') {
+    session.dialogue   = data.dialogue||[];
+    session.challenges = data.challenges||[];
+    S.podcasts.unshift(session);
+    S.stats.podcasts++;
+  } else if (mod==='lesen') {
+    session.passage   = data.passage||[];
+    session.questions = data.questions||[];
+    session.examTip   = data.examTip||'';
+    S.lesenSessions.unshift(session);
+  } else if (mod==='schreiben') {
+    session.taskType    = data.taskType||'';
+    session.situation   = data.situation||'';
+    session.keyPoints   = data.keyPoints||[];
+    session.wordCount   = data.wordCount||150;
+    session.modelAnswer = data.modelAnswer||{};
+    session.examTips    = data.examTips||[];
+    S.schreibenSessions.unshift(session);
+  } else if (mod==='horen') {
+    session.scriptType = data.scriptType||'';
+    session.transcript = data.transcript||[];
+    session.questions  = data.questions||[];
+    session.examTip    = data.examTip||'';
+    S.horenSessions.unshift(session);
+  }
+  mergeVocab(session);
+  save();
+  S.activeSession = session;
+  if (mod==='sprechen') { openPod(0); }
+  else if (mod==='lesen') { renderLesenScreen(session); go('lesen'); }
+  else if (mod==='schreiben') { renderSchreibenScreen(session); go('schreiben'); }
+  else if (mod==='horen') { renderHorenScreen(session); go('horen'); }
+}
+
+function runGenAnim(mod) {
+  const steps = mod==='sprechen'
+    ? [[6,'Writing the script…','Setting the scene for Anna and Max…'],[25,'Building dialogue…','Writing natural German sentences…'],[50,'Adding reactions…','Making it feel real…'],[70,'Extracting vocabulary…','Pulling key words with synonyms…'],[85,'Creating challenges…','Building speaking prompts…'],[95,'Almost ready…','Final polish…']]
+    : mod==='lesen'
+    ? [[6,'Preparing reading text…','Writing exam-standard passage…'],[30,'Setting question difficulty…','Crafting comprehension questions…'],[55,'Adding vocabulary…','Extracting key words with synonyms…'],[80,'Adding exam tips…','TELC/Goethe strategy notes…'],[95,'Almost ready…','Final polish…']]
+    : mod==='schreiben'
+    ? [[6,'Creating writing task…','Setting up the scenario…'],[30,'Writing model answer…','Crafting a perfect response…'],[60,'Adding exam tips…','TELC/Goethe writing strategies…'],[85,'Extracting vocabulary…','Key phrases with synonyms…'],[95,'Almost ready…','']]
+    : [[6,'Preparing listening script…','Writing realistic dialogue…'],[30,'Recording voices in mind…','Structuring the audio content…'],[60,'Creating questions…','Testing listening comprehension…'],[85,'Adding vocabulary…','Key words with synonyms…'],[95,'Almost ready…','']];
+  steps.forEach(([pct,st,det],i)=>setTimeout(()=>{
+    document.getElementById('gen-bar').style.width=pct+'%';
+    document.getElementById('gen-st').textContent=st;
+    document.getElementById('gen-det').textContent=det;
+  },i*1000));
+}
+
+/* ══════════════════════════════════════
    VOCAB MERGE
-════════════════════════════════ */
-function mergeVocab(pod){
-  (pod.vocab||[]).forEach(v=>{
-    if(!S.fc.all.find(c=>c.word===v.word))
-      S.fc.all.push({...v,podcastId:pod.id,podcastTitle:pod.title,
-        sr:{interval:0,easeFactor:2.5,repetitions:0,nextReview:new Date().toISOString(),status:'new',totalReviews:0,lastQuality:null}});
+══════════════════════════════════════ */
+function mergeVocab(session) {
+  (session.vocab||[]).forEach(v=>{
+    if (!S.fc.all.find(c=>c.word===v.word))
+      S.fc.all.push({...v, sessionId:session.id, sessionTitle:session.title, module:session.module||'sprechen',
+        sr:{interval:0, easeFactor:2.5, repetitions:0, nextReview:new Date().toISOString(), status:'new', totalReviews:0, lastQuality:null}});
   });
 }
 
-/* ════════════════════════════════
-   PODCAST PLAYBACK
-════════════════════════════════ */
-function openPod(idx){
-  const p=S.podcasts[idx];S.activePod=p;
-  S.play={on:false,idx:0,speed:1,showTrans:true,viewMode:'both'};
-  document.getElementById('pod-lbl').textContent=p.level+' · '+p.title.toUpperCase();
-  document.getElementById('t-tot').textContent=fmtT(p.dialogue.length*34);
-  renderDiag();updateSub(0);go('podcast');applyVM('both');
+/* ══════════════════════════════════════
+   SPRECHEN — PODCAST PLAYBACK
+══════════════════════════════════════ */
+function openPod(idx) {
+  const p = S.podcasts[idx];
+  S.activePod = p;
+  S.play = {on:false, idx:0, speed:1, showTrans:true, viewMode:'both'};
+  document.getElementById('pod-lbl').textContent = (p.standard||'TELC').toUpperCase()+' '+p.level+' · '+p.title.toUpperCase();
+  document.getElementById('t-tot').textContent   = fmtT(p.dialogue.length*34);
+  renderDiag(); updateSub(0); go('podcast'); applyVM('both');
+  setExamAtmosphere('exam');
 }
-function renderDiag(){
+function setExamAtmosphere(mode) {
+  // animate exam room characters
+  const chars = ['cn-e1','cn-e2','cn-anna','cn-max'];
+  chars.forEach((id,i)=>setTimeout(()=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.add('speaking');
+    setTimeout(()=>{ if(el) el.classList.remove('speaking'); },1200);
+  },i*400));
+}
+function renderDiag() {
   const p=S.activePod;
   document.getElementById('diag-items').innerHTML=p.dialogue.map((l,i)=>`
     <div class="diag-item ${i===S.play.idx?'on':''}" id="di-${i}" onclick="jumpTo(${i})">
       <div class="di-av ${l.speaker==='Anna'?'a':'m'}">${l.speaker==='Anna'?'AN':'MX'}</div>
-      <div class="di-body">
+      <div class="flex-1">
         <div class="di-name ${l.speaker==='Anna'?'a':'m'}">${l.speaker}</div>
         <div class="di-txt">${l.text}</div>
         <div class="di-en" ${S.play.showTrans?'':'style="display:none"'}>${l.translation}</div>
@@ -761,31 +1212,33 @@ function renderDiag(){
       <div class="di-arr">${i===S.play.idx?'▶':''}</div>
     </div>`).join('');
 }
-function updateSub(idx){
-  const p=S.activePod;if(!p||idx>=p.dialogue.length)return;
+function updateSub(idx) {
+  const p=S.activePod; if(!p||idx>=p.dialogue.length) return;
   const l=p.dialogue[idx];
   const spk=document.getElementById('sub-spk');
-  spk.textContent=l.speaker.toUpperCase();spk.className='sub-spk '+(l.speaker==='Anna'?'a':'m');
+  spk.textContent=l.speaker.toUpperCase(); spk.className='sub-spk '+(l.speaker==='Anna'?'a':'m');
   document.getElementById('sub-txt').textContent=l.text;
-  const en=document.getElementById('sub-en');en.textContent=l.translation;en.style.display=S.play.showTrans?'':'none';
-  document.getElementById('cn-anna').classList.toggle('speaking',l.speaker==='Anna');
-  document.getElementById('cn-max').classList.toggle('speaking',l.speaker==='Max');
-  document.querySelectorAll('.wb').forEach(b=>{
-    b.classList.remove('ca','cm');b.classList.add(l.speaker==='Anna'?'ca':'cm');
-    b.classList.toggle('playing',S.play.on);
-  });
+  document.getElementById('sub-txt-mini').textContent=l.speaker+': '+l.text.substring(0,60)+(l.text.length>60?'…':'');
+  const en=document.getElementById('sub-en'); en.textContent=l.translation; en.style.display=S.play.showTrans?'':'none';
+  // Highlight speaking character in exam room
+  ['cn-anna','cn-max','cn-e1','cn-e2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('speaking'); });
+  const speakerEl=document.getElementById(l.speaker==='Anna'?'cn-anna':'cn-max');
+  if(speakerEl) speakerEl.classList.add('speaking');
+  // Wave
+  document.querySelectorAll('#exam-wave .ew-bar').forEach(b=>b.classList.toggle('playing',S.play.on));
+  // Progress
   document.getElementById('prog-fill').style.width=(idx/Math.max(p.dialogue.length-1,1)*100)+'%';
   document.getElementById('t-cur').textContent=fmtT(idx*34);
   const di=document.getElementById('di-'+idx);
-  if(di)di.scrollIntoView({behavior:'smooth',block:'nearest'});
+  if(di) di.scrollIntoView({behavior:'smooth',block:'nearest'});
   document.querySelectorAll('.diag-item').forEach((el,i)=>{
     el.classList.toggle('on',i===idx);
     el.querySelector('.di-arr').textContent=i===idx?'▶':'';
   });
 }
 function togglePlay(){S.play.on?pausePlay():startPlay();}
-function startPlay(){S.play.on=true;document.getElementById('play-btn').textContent='⏸';document.querySelectorAll('.wb').forEach(b=>b.classList.add('playing'));speakLine(S.play.idx);}
-function pausePlay(){S.play.on=false;document.getElementById('play-btn').textContent='▶';speechSynthesis.cancel();document.querySelectorAll('.wb').forEach(b=>b.classList.remove('playing'));document.getElementById('cn-anna').classList.remove('speaking');document.getElementById('cn-max').classList.remove('speaking');}
+function startPlay(){S.play.on=true;document.getElementById('play-btn').textContent='⏸';document.querySelectorAll('#exam-wave .ew-bar').forEach(b=>b.classList.add('playing'));speakLine(S.play.idx);}
+function pausePlay(){S.play.on=false;document.getElementById('play-btn').textContent='▶';speechSynthesis.cancel();document.querySelectorAll('#exam-wave .ew-bar').forEach(b=>b.classList.remove('playing'));['cn-anna','cn-max'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('speaking');});}
 let vc=null;
 function gv(){if(vc&&vc.length)return vc;vc=speechSynthesis.getVoices().filter(v=>v.lang.startsWith('de'));return vc;}
 function speakLine(idx){
@@ -795,11 +1248,8 @@ function speakLine(idx){
   const l=p.dialogue[idx],utt=new SpeechSynthesisUtterance(l.text);
   utt.lang='de-DE';utt.rate=S.play.speed;
   const voices=gv();
-  if(voices.length>=2){
-    const f=voices.find(v=>/female|anna|hedda|petra|vicki|steffi|hanna|marlene/i.test(v.name));
-    const m=voices.find(v=>/male|hans|stefan|markus|daniel|otto|yannick/i.test(v.name));
-    utt.voice=l.speaker==='Anna'?(f||voices[0]):(m||voices[voices.length>1?1:0]);
-  }else if(voices.length===1){utt.voice=voices[0];utt.pitch=l.speaker==='Anna'?1.28:.80;}
+  if(voices.length>=2){const f=voices.find(v=>/female|anna|hedda|petra|vicki|steffi|hanna|marlene/i.test(v.name));const m=voices.find(v=>/male|hans|stefan|markus|daniel|otto|yannick/i.test(v.name));utt.voice=l.speaker==='Anna'?(f||voices[0]):(m||voices[voices.length>1?1:0]);}
+  else if(voices.length===1){utt.voice=voices[0];utt.pitch=l.speaker==='Anna'?1.28:.80;}
   else{utt.pitch=l.speaker==='Anna'?1.22:.82;}
   utt.onend=()=>{if(S.play.on)setTimeout(()=>speakLine(idx+1),500/S.play.speed);};
   speechSynthesis.speak(utt);
@@ -809,12 +1259,12 @@ function prevLine(){speechSynthesis.cancel();const n=Math.max(S.play.idx-1,0);S.
 function repeatLine(){speechSynthesis.cancel();if(S.play.on)speakLine(S.play.idx);else updateSub(S.play.idx);}
 function jumpTo(idx){speechSynthesis.cancel();S.play.idx=idx;if(S.play.on)speakLine(idx);else{updateSub(idx);renderDiag();}}
 function seekTo(e){const bar=document.getElementById('prog-bar');const idx=Math.round((e.offsetX/bar.offsetWidth)*(S.activePod.dialogue.length-1));jumpTo(Math.max(0,Math.min(idx,S.activePod.dialogue.length-1)));}
-function toggleTrans(){S.play.showTrans=!S.play.showTrans;document.getElementById('trans-lbl').textContent=S.play.showTrans?'Translation':'Hide English';document.getElementById('sub-en').style.display=S.play.showTrans?'':'none';document.querySelectorAll('.di-en').forEach(e=>e.style.display=S.play.showTrans?'':'none');}
+function toggleTrans(){S.play.showTrans=!S.play.showTrans;document.getElementById('trans-lbl').textContent=S.play.showTrans?'Translation':'Hide EN';document.getElementById('sub-en').style.display=S.play.showTrans?'':'none';document.querySelectorAll('.di-en').forEach(e=>e.style.display=S.play.showTrans?'':'none');}
 function exitPod(){speechSynthesis.cancel();S.play.on=false;navTo('home');}
 
-/* ════════════════════════════════
-   HAMBURGER MENU
-════════════════════════════════ */
+/* ══════════════════════════════════════
+   HAMBURGER
+══════════════════════════════════════ */
 function openHB(){
   ['both','subtitle','script'].forEach(m=>document.getElementById('hbm-'+m).classList.toggle('on',m===S.play.viewMode));
   [0.5,.75,1,1.25,1.5].forEach((s,i)=>document.getElementById('hbsp-'+i).classList.toggle('on',s===S.play.speed));
@@ -824,44 +1274,235 @@ function openHB(){
 }
 function closeHB(){document.getElementById('hb-ov').classList.remove('open');}
 function hbOvClick(e){if(e.target===document.getElementById('hb-ov'))closeHB();}
-
-function setVM(mode){
-  S.play.viewMode=mode;
-  ['both','subtitle','script'].forEach(m=>document.getElementById('hbm-'+m).classList.toggle('on',m===mode));
-  applyVM(mode);
-}
+function setVM(mode){S.play.viewMode=mode;['both','subtitle','script'].forEach(m=>document.getElementById('hbm-'+m).classList.toggle('on',m===mode));applyVM(mode);}
 function applyVM(mode){
-  const studio=document.getElementById('pod-studio');
-  const sub=document.getElementById('pod-sub');
-  const script=document.getElementById('pod-script');
-  if(!studio)return;
-  studio.style.display=mode==='script'?'none':'';
-  sub.style.display=mode==='script'?'none':'';
-  script.style.display=mode==='subtitle'?'none':'';
+  document.getElementById('pod-studio').style.display=mode==='script'?'none':'';
+  document.getElementById('pod-sub').style.display=mode==='script'?'none':'';
+  document.getElementById('pod-script').style.display=mode==='subtitle'?'none':'';
 }
-function setSpd(v){
-  S.play.speed=v;
-  [0.5,.75,1,1.25,1.5].forEach((s,i)=>document.getElementById('hbsp-'+i).classList.toggle('on',s===v));
-  document.getElementById('speed-chip').textContent=v+'×';
-  if(S.play.on){speechSynthesis.cancel();speakLine(S.play.idx);}
+function setSpd(v){S.play.speed=v;[0.5,.75,1,1.25,1.5].forEach((s,i)=>document.getElementById('hbsp-'+i).classList.toggle('on',s===v));document.getElementById('speed-chip').textContent=v+'×';if(S.play.on){speechSynthesis.cancel();speakLine(S.play.idx);}}
+function setTransHB(show){S.play.showTrans=show;document.getElementById('hbt-show').classList.toggle('on',show);document.getElementById('hbt-hide').classList.toggle('on',!show);document.getElementById('sub-en').style.display=show?'':'none';document.querySelectorAll('.di-en').forEach(e=>e.style.display=show?'':'none');document.getElementById('trans-lbl').textContent=show?'Translation':'Hide EN';}
+
+/* ══════════════════════════════════════
+   LESEN
+══════════════════════════════════════ */
+function renderLesenScreen(s) {
+  document.getElementById('lesen-meta').textContent = (s.standard||'TELC').toUpperCase()+' '+s.level+' · '+s.title;
+  document.getElementById('lesen-room-txt').textContent = 'Lesen: '+s.title;
+  S.lesen.showTrans = false;
+  document.getElementById('lesen-trans-btn').textContent = '🇬🇧 Show English';
+
+  // Passage
+  const passEl = document.getElementById('lesen-passage');
+  passEl.innerHTML = `<div class="sec-lbl mb-2">Reading Passage</div>
+    <div class="passage-box mb-3">${(s.passage||[]).map((p,i)=>`
+      <div class="passage-para">
+        <div class="de-text">${p.de}</div>
+        <div class="en-text lesen-trans" style="display:none;">${p.en}</div>
+      </div>`).join('')}
+    </div>`;
+
+  // Questions
+  const qEl = document.getElementById('lesen-questions');
+  qEl.innerHTML = `<div class="sec-lbl mb-2">Comprehension Questions</div>`+
+    (s.questions||[]).map((q,qi)=>`
+    <div class="q-card mb-2" id="qcard-${qi}">
+      <div class="q-text">${qi+1}. ${q.question}</div>
+      ${q.options.map((opt,oi)=>`<div class="q-opt" id="qopt-${qi}-${oi}" onclick="selectLesenAnswer(${qi},${oi},${q.correct})">${opt}</div>`).join('')}
+      <div id="qexp-${qi}" style="display:none;font-size:12px;color:var(--txt3);margin-top:8px;padding:8px;background:var(--surf2);border-radius:8px;">💡 ${q.explanation||''}</div>
+    </div>`).join('');
+
+  // Vocab
+  if (s.vocab?.length) {
+    document.getElementById('lesen-vocab').innerHTML = `<div class="sec-lbl mb-2 mt-2">Key Vocabulary</div>`+
+      s.vocab.map(v=>`<div class="wl-item mb-2"><div><div class="wl-de">${v.article?v.article+' ':''}${v.baseForm||v.word}</div><div class="wl-en">${v.translation}</div>${v.synonyms?.length?`<div class="wl-syn">≈ ${v.synonyms.slice(0,2).join(', ')}</div>`:''}</div><span class="wl-badge new">New</span></div>`).join('');
+  }
+  if (s.examTip) {
+    document.getElementById('lesen-vocab').innerHTML += `<div class="mt-3 p-3 rounded-3" style="background:#22d3a415;border:1px solid #22d3a430;"><div style="font-size:10px;font-weight:700;color:var(--max);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;">📌 Exam Tip</div><div style="font-size:13px;color:var(--txt2);line-height:1.6;">${s.examTip}</div></div>`;
+  }
 }
-function setTransHB(show){
-  S.play.showTrans=show;
-  document.getElementById('hbt-show').classList.toggle('on',show);
-  document.getElementById('hbt-hide').classList.toggle('on',!show);
-  document.getElementById('sub-en').style.display=show?'':'none';
-  document.querySelectorAll('.di-en').forEach(e=>e.style.display=show?'':'none');
-  document.getElementById('trans-lbl').textContent=show?'Translation':'Hide English';
+function selectLesenAnswer(qi, oi, correct) {
+  document.querySelectorAll(`[id^="qopt-${qi}-"]`).forEach(el=>el.classList.remove('selected','correct','wrong'));
+  document.getElementById(`qopt-${qi}-${oi}`).classList.add(oi===correct?'correct':'wrong');
+  document.getElementById(`qopt-${qi}-${correct}`).classList.add('correct');
+  document.getElementById(`qexp-${qi}`).style.display='';
+}
+function toggleLesenTrans() {
+  S.lesen.showTrans = !S.lesen.showTrans;
+  document.querySelectorAll('.lesen-trans').forEach(e=>e.style.display=S.lesen.showTrans?'':'none');
+  document.getElementById('lesen-trans-btn').textContent = S.lesen.showTrans ? '🇩🇪 Hide English' : '🇬🇧 Show English';
+}
+function addLesenVocab() {
+  const s = S.activeSession;
+  if (!s || !s.vocab?.length) { toast('No vocabulary to add!'); return; }
+  mergeVocab(s); save(); toast(`✅ ${s.vocab.length} cards added to Flashcards!`);
 }
 
-/* ════════════════════════════════
-   CHALLENGE
-════════════════════════════════ */
+/* ══════════════════════════════════════
+   SCHREIBEN
+══════════════════════════════════════ */
+function renderSchreibenScreen(s) {
+  document.getElementById('schreiben-meta').textContent = (s.standard||'TELC').toUpperCase()+' '+s.level+' · '+s.title;
+  document.getElementById('schreiben-room-txt').textContent = 'Schreiben: '+s.taskType;
+
+  document.getElementById('schreiben-prompt').innerHTML = `
+    <div class="prompt-box mb-3">
+      <div class="prompt-type">${s.taskType||'Writing Task'} · ${s.wordCount||150} words</div>
+      <div class="prompt-text">${s.situation||''}</div>
+      ${(s.keyPoints||[]).length?`<div class="prompt-hints">${s.keyPoints.map(p=>`<div class="prompt-hint">✓ ${p}</div>`).join('')}</div>`:''}
+    </div>`;
+
+  document.getElementById('schreiben-write-lbl').style.display='';
+  document.getElementById('user-writing').style.display='';
+  document.getElementById('submit-writing-btn').style.display='';
+  document.getElementById('user-writing').value='';
+  document.getElementById('schreiben-feedback').innerHTML='';
+
+  if (s.modelAnswer?.de) {
+    document.getElementById('schreiben-model').innerHTML=`
+      <div class="model-answer mb-3" id="model-ans-box" style="display:none;">
+        <div class="model-lbl">Model Answer</div>
+        <div style="font-size:14px;line-height:1.75;margin-bottom:10px;">${s.modelAnswer.de}</div>
+        <div style="font-size:12px;color:var(--txt3);font-style:italic;">${s.modelAnswer.en||''}</div>
+      </div>
+      <button class="btn btn-sm mb-3" style="background:#22d3a415;border:1px solid #22d3a430;color:var(--max);font-weight:700;" onclick="toggleModelAnswer()">👁 Show Model Answer</button>`;
+  }
+
+  if (s.examTips?.length) {
+    document.getElementById('schreiben-vocab').innerHTML = `
+      <div class="sec-lbl mb-2 mt-2">Exam Tips</div>
+      ${s.examTips.map(t=>`<div class="mb-2 p-3 rounded-3" style="background:#ff9f0a15;border:1px solid #ff9f0a30;font-size:13px;color:var(--txt2);">💡 ${t}</div>`).join('')}
+      ${(s.vocab||[]).length?`<div class="sec-lbl mb-2 mt-2">Key Vocabulary</div>`+s.vocab.map(v=>`<div class="wl-item mb-2"><div><div class="wl-de">${v.baseForm||v.word}</div><div class="wl-en">${v.translation}</div>${v.synonyms?.length?`<div class="wl-syn">≈ ${v.synonyms.slice(0,2).join(', ')}</div>`:''}</div><span class="wl-badge new">New</span></div>`).join(''):''}`;
+  }
+}
+function toggleModelAnswer() {
+  const box=document.getElementById('model-ans-box');
+  box.style.display=box.style.display==='none'?'':'none';
+}
+async function submitWriting() {
+  const userText=document.getElementById('user-writing').value.trim();
+  const s=S.activeSession;
+  if (!userText) { toast('Write something first!'); return; }
+  document.getElementById('submit-writing-btn').textContent='⏳ Evaluating…';
+  document.getElementById('submit-writing-btn').disabled=true;
+  try {
+    const res=await callAPI(
+      'You are a German '+((s.standard||'telc').toUpperCase())+' exam writing examiner. Return ONLY valid JSON.',
+      `Task: ${s.situation}\nModel answer: ${s.modelAnswer?.de||''}\nStudent wrote: "${userText}"\nReturn: {"score":<0-100>,"taskCompletion":"Excellent|Good|Fair|Poor","grammar":"Excellent|Good|Fair|Poor","vocabulary":"Excellent|Good|Fair|Poor","coherence":"Excellent|Good|Fair|Poor","corrections":[{"error":"string","correction":"string"}],"tip":"Encouraging improvement tip","betterVersion":"Improved German text"}`
+      ,800);
+    const ev=JSON.parse(res.content[0].text.trim().replace(/```json|```/g,'').trim());
+    showWritingFeedback(ev);
+  } catch(e) {
+    toast('Feedback failed. Try again.');
+  }
+  document.getElementById('submit-writing-btn').textContent='📝 Submit for AI Feedback';
+  document.getElementById('submit-writing-btn').disabled=false;
+}
+function showWritingFeedback(ev) {
+  const cls=v=>({Excellent:'good',Good:'ok',Fair:'ok',Poor:'bad'}[v]||'ok');
+  document.getElementById('schreiben-feedback').innerHTML=`
+    <div class="writing-feedback mb-3">
+      <div style="font-size:22px;font-weight:800;margin-bottom:12px;">Score: <span style="color:${ev.score>=80?'var(--good)':ev.score>=60?'var(--warn)':'var(--danger)'};">${ev.score}/100</span></div>
+      <div class="fb-row"><span class="fb-label">Task Completion</span><span class="fb-score ${cls(ev.taskCompletion)}">${ev.taskCompletion}</span></div>
+      <div class="fb-row"><span class="fb-label">Grammar</span><span class="fb-score ${cls(ev.grammar)}">${ev.grammar}</span></div>
+      <div class="fb-row"><span class="fb-label">Vocabulary</span><span class="fb-score ${cls(ev.vocabulary)}">${ev.vocabulary}</span></div>
+      <div class="fb-row"><span class="fb-label">Coherence</span><span class="fb-score ${cls(ev.coherence)}">${ev.coherence}</span></div>
+    </div>
+    ${(ev.corrections||[]).length?`<div class="sec-lbl mb-2">Corrections</div>`+(ev.corrections||[]).map(c=>`<div class="mb-2 p-3 rounded-3" style="background:var(--surf2);border:1px solid var(--bdr);"><div style="font-size:12px;color:var(--danger);">✗ ${c.error}</div><div style="font-size:12px;color:var(--good);margin-top:3px;">✓ ${c.correction}</div></div>`).join(''):''}
+    ${ev.betterVersion?`<div class="sec-lbl mb-2 mt-2">Improved Version</div><div class="model-answer mb-3"><div class="model-lbl">Suggested Rewrite</div><div style="font-size:14px;line-height:1.75;">${ev.betterVersion}</div></div>`:''}
+    <div class="p-3 rounded-3 mb-3" style="background:#6457ff15;border:1px solid #6457ff30;font-size:13px;color:var(--txt2);">💡 ${ev.tip||''}</div>`;
+}
+
+/* ══════════════════════════════════════
+   HOREN
+══════════════════════════════════════ */
+let horenUtts=[], horenIdx=0, horenPlaying=false;
+function renderHorenScreen(s) {
+  document.getElementById('horen-meta').textContent = (s.standard||'TELC').toUpperCase()+' '+s.level+' · '+s.title;
+  document.getElementById('horen-room-txt').textContent = 'Hören: '+s.scriptType;
+  document.getElementById('h-t-tot').textContent = fmtT((s.transcript||[]).length*28);
+  horenIdx=0; horenPlaying=false;
+  document.getElementById('horen-play-btn').textContent='▶';
+  document.getElementById('horen-prog-fill').style.width='0%';
+
+  // Transcript (hidden by default)
+  document.getElementById('horen-transcript').innerHTML=(s.transcript||[]).map(t=>`
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:${t.speaker&&t.speaker.includes('2')?'var(--max)':'var(--anna)'};">${t.speaker||'Speaker'}</div>
+      <div style="font-size:14px;line-height:1.6;">${t.text}</div>
+      <div class="horen-trans-line" style="font-size:12px;color:var(--txt3);font-style:italic;display:none;">${t.translation||''}</div>
+    </div>`).join('');
+
+  // Questions
+  document.getElementById('horen-questions').innerHTML=`<div class="sec-lbl mb-2 mt-2">Comprehension Questions</div>`+
+    (s.questions||[]).map((q,qi)=>`
+    <div class="q-card mb-2">
+      <div class="q-text">${qi+1}. ${q.question}</div>
+      ${q.options.map((opt,oi)=>`<div class="q-opt" id="hqopt-${qi}-${oi}" onclick="selectHorenAnswer(${qi},${oi},${q.correct})">${opt}</div>`).join('')}
+    </div>`).join('');
+
+  // Vocab
+  if (s.vocab?.length) {
+    document.getElementById('horen-vocab').innerHTML=`<div class="sec-lbl mb-2 mt-2">Key Vocabulary</div>`+
+      s.vocab.map(v=>`<div class="wl-item mb-2"><div><div class="wl-de">${v.article?v.article+' ':''}${v.baseForm||v.word}</div><div class="wl-en">${v.translation}</div>${v.synonyms?.length?`<div class="wl-syn">≈ ${v.synonyms.slice(0,2).join(', ')}</div>`:''}</div><span class="wl-badge new">New</span></div>`).join('');
+    if(s.examTip) document.getElementById('horen-vocab').innerHTML+=`<div class="mt-2 p-3 rounded-3" style="background:#ff4f9715;border:1px solid #ff4f9730;"><div style="font-size:10px;font-weight:700;color:var(--anna);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;">📌 Exam Tip</div><div style="font-size:13px;color:var(--txt2);">${s.examTip}</div></div>`;
+  }
+}
+function toggleHorenPlay(){horenPlaying?pauseHoren():startHoren();}
+function startHoren(){
+  const s=S.activeSession; if(!s||!s.transcript?.length) return;
+  horenPlaying=true; document.getElementById('horen-play-btn').textContent='⏸';
+  document.querySelectorAll('#horen-wave .hw-bar').forEach(b=>b.classList.add('playing'));
+  document.getElementById('hr-e1')?.classList.add('speaking');
+  speakHorenLine(horenIdx);
+}
+function pauseHoren(){
+  horenPlaying=false; speechSynthesis.cancel();
+  document.getElementById('horen-play-btn').textContent='▶';
+  document.querySelectorAll('#horen-wave .hw-bar').forEach(b=>b.classList.remove('playing'));
+  document.getElementById('hr-e1')?.classList.remove('speaking');
+  document.getElementById('hr-e2')?.classList.remove('speaking');
+}
+function speakHorenLine(idx){
+  const s=S.activeSession;
+  if(!s||idx>=s.transcript.length){pauseHoren();toast('Listening complete! Answer the questions above 📝');return;}
+  horenIdx=idx;
+  const line=s.transcript[idx];
+  document.getElementById('horen-room-txt').textContent=line.speaker+': '+line.text.substring(0,50)+'…';
+  document.getElementById('horen-prog-fill').style.width=(idx/Math.max(s.transcript.length-1,1)*100)+'%';
+  document.getElementById('h-t-cur').textContent=fmtT(idx*28);
+  // Alternate speakers
+  const isSpk2=line.speaker&&(line.speaker.includes('2')||line.speaker.toLowerCase().includes('max'));
+  document.getElementById('hr-e1')?.classList.toggle('speaking',!isSpk2);
+  document.getElementById('hr-e2')?.classList.toggle('speaking',isSpk2);
+  const utt=new SpeechSynthesisUtterance(line.text);
+  utt.lang='de-DE'; utt.rate=1;
+  const voices=gv();
+  if(voices.length>=2){utt.voice=isSpk2?(voices[1]||voices[0]):(voices[0]);}
+  utt.onend=()=>{if(horenPlaying)setTimeout(()=>speakHorenLine(idx+1),400);};
+  speechSynthesis.speak(utt);
+}
+function repeatHoren(){speechSynthesis.cancel();horenIdx=0;if(horenPlaying)speakHorenLine(0);else{document.getElementById('horen-prog-fill').style.width='0%';document.getElementById('h-t-cur').textContent='0:00';}}
+function seekHoren(e){const bar=document.getElementById('horen-prog-bar');const s=S.activeSession;if(!s)return;const idx=Math.round((e.offsetX/bar.offsetWidth)*(s.transcript.length-1));horenIdx=Math.max(0,Math.min(idx,s.transcript.length-1));if(horenPlaying){speechSynthesis.cancel();speakHorenLine(horenIdx);}else{document.getElementById('horen-prog-fill').style.width=(horenIdx/Math.max(s.transcript.length-1,1)*100)+'%';}}
+function toggleTranscript(){
+  S.horen.showTranscript=!S.horen.showTranscript;
+  document.getElementById('horen-transcript-box').style.display=S.horen.showTranscript?'':'none';
+  document.getElementById('transcript-btn').textContent=S.horen.showTranscript?'📜 Hide Transcript':'📜 Show Transcript';
+}
+function selectHorenAnswer(qi,oi,correct){
+  document.querySelectorAll(`[id^="hqopt-${qi}-"]`).forEach(el=>el.classList.remove('selected','correct','wrong'));
+  document.getElementById(`hqopt-${qi}-${oi}`).classList.add(oi===correct?'correct':'wrong');
+  document.getElementById(`hqopt-${qi}-${correct}`).classList.add('correct');
+}
+
+/* ══════════════════════════════════════
+   SPEAKING CHALLENGE
+══════════════════════════════════════ */
 function startChallenge(){
   const p=S.activePod;
   S.ch={turns:p.challenges||[],idx:0,rec:false,iv:null,secs:0,speech:'',recog:null,scores:[]};
   document.getElementById('ch-sub').textContent=p.title+' · '+p.level;
-  renderChTurn();go('challenge');
+  renderChTurn(); go('challenge');
 }
 function renderChTurn(){
   const{turns,idx}=S.ch,t=turns[idx];
@@ -873,7 +1514,6 @@ function renderChTurn(){
   document.getElementById('ch-acts').style.display='none';
   document.getElementById('rec-btn').classList.remove('live');
   document.getElementById('rec-st').textContent='Tap to speak';
-  document.getElementById('rec-st').classList.remove('live');
   document.getElementById('rec-timer').style.display='none';
   document.getElementById('rec-wave').style.display='none';
 }
@@ -882,27 +1522,22 @@ function startRec(){
   S.ch.rec=true;S.ch.secs=0;S.ch.speech='';
   document.getElementById('rec-btn').classList.add('live');
   document.getElementById('rec-st').textContent='Recording…';
-  document.getElementById('rec-st').classList.add('live');
   document.getElementById('rec-timer').style.display='block';
   document.getElementById('rec-wave').style.display='flex';
-  document.getElementById('rec-wave').innerHTML=Array.from({length:18},(_,i)=>`<div class="rw-b" style="animation-delay:${i*.055}s"></div>`).join('');
+  document.getElementById('rec-wave').innerHTML=Array.from({length:16},(_,i)=>`<div style="width:3px;border-radius:2px;background:var(--danger);height:4px;animation-delay:${i*.055}s;" class="rw-b"></div>`).join('');
   S.ch.iv=setInterval(()=>{
     S.ch.secs++;document.getElementById('rec-timer').textContent=fmtT(S.ch.secs);
-    document.querySelectorAll('.rw-b').forEach(b=>b.style.height=(4+Math.random()*30)+'px');
+    document.querySelectorAll('.rw-b').forEach(b=>b.style.height=(4+Math.random()*28)+'px');
     if(S.ch.secs>=15)stopRec();
   },200);
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(SR){const r=new SR();r.lang='de-DE';r.interimResults=false;r.maxAlternatives=1;S.ch.recog=r;
-    r.onresult=e=>{S.ch.speech=e.results[0][0].transcript;};
-    r.onend=()=>{if(S.ch.rec)stopRec();};r.onerror=()=>{if(S.ch.rec)stopRec();};
-    try{r.start();}catch(e){}}
+  if(SR){const r=new SR();r.lang='de-DE';r.interimResults=false;r.maxAlternatives=1;S.ch.recog=r;r.onresult=e=>{S.ch.speech=e.results[0][0].transcript;};r.onend=()=>{if(S.ch.rec)stopRec();};r.onerror=()=>{if(S.ch.rec)stopRec();};try{r.start();}catch(e){}}
 }
 function stopRec(){
   if(!S.ch.rec)return;S.ch.rec=false;clearInterval(S.ch.iv);
   try{S.ch.recog&&S.ch.recog.stop();}catch(e){}
   document.getElementById('rec-btn').classList.remove('live');
   document.getElementById('rec-st').textContent='Evaluating…';
-  document.getElementById('rec-st').classList.remove('live');
   document.getElementById('rec-timer').style.display='none';
   document.querySelectorAll('.rw-b').forEach(b=>b.style.height='4px');
   setTimeout(evalSpeech,800);
@@ -910,104 +1545,127 @@ function stopRec(){
 async function evalSpeech(){
   const t=S.ch.turns[S.ch.idx],spoken=S.ch.speech||'(no speech detected)';
   try{
-    const res=await callAPI('You are a German teacher. Return ONLY valid JSON.',
+    const res=await callAPI('You are a German exam teacher. Return ONLY valid JSON.',
       `Situation:${t.situation}\nTask:${t.cue}\nTarget:${t.targetAnswer}\nStudent:"${spoken}"\nReturn:{"score":<0-100>,"pronunciation":"Excellent|Good|Fair|Needs Practice","fluency":"Excellent|Good|Fair|Needs Practice","grammar":"Excellent|Good|Fair|Needs Practice","content":"Excellent|Good|Fair|Needs Practice","errors":[{"type":"str","example":"corrected"}],"betterAnswer":"German","tip":"tip"}`,600);
     showFb(JSON.parse(res.content[0].text.trim().replace(/```json|```/g,'').trim()));
-  }catch(e){showFb({score:62,pronunciation:'Good',fluency:'Fair',grammar:'Good',content:'Good',errors:[{type:'Word order',example:'Verb in position 2'}],betterAnswer:t.targetAnswer,tip:'Focus on verb placement — always second in German main clauses!'});}
+  }catch(e){showFb({score:60,pronunciation:'Good',fluency:'Fair',grammar:'Good',content:'Good',errors:[{type:'Word order',example:'Verb in position 2'}],betterAnswer:t.targetAnswer,tip:'Focus on verb placement in German main clauses!'});}
 }
 function showFb(ev){
   S.ch.scores.push(ev.score);const best=Math.max(...S.ch.scores);
-  if(best>S.stats.bestScore)S.stats.bestScore=best;
-  if(S.activePod)S.activePod.bestScore=Math.max(S.activePod.bestScore||0,best);
-  save();
+  if(best>S.stats.bestScore)S.stats.bestScore=best;if(S.activePod)S.activePod.bestScore=Math.max(S.activePod.bestScore||0,best);save();
   const circ=2*Math.PI*38,filled=(ev.score/100)*circ,ring=document.getElementById('score-ring');
-  ring.style.strokeDasharray=`${filled} ${circ}`;
-  ring.style.stroke=ev.score>=80?'var(--good)':ev.score>=60?'var(--warn)':'var(--danger)';
+  ring.style.strokeDasharray=`${filled} ${circ}`;ring.style.stroke=ev.score>=80?'var(--good)':ev.score>=60?'var(--warn)':'var(--danger)';
   document.getElementById('score-txt').textContent=ev.score;
   const cls=v=>({Excellent:'good',Good:'ok',Fair:'ok','Needs Practice':'bad'}[v]||'ok');
   [['pron','pronunciation'],['flu','fluency'],['gram','grammar'],['cont','content']].forEach(([id,k])=>{const el=document.getElementById('m-'+id);el.textContent=ev[k];el.className='fb-mv '+cls(ev[k]);});
   const errs=ev.errors||[];
   document.getElementById('fb-errs').innerHTML=errs.length
-    ?`<div class="fb-err-ttl" style="margin-top:14px;">Corrections</div>`+errs.map(e=>`<div class="fb-err-item"><div class="fb-err-type">${e.type}</div><div class="fb-err-ex">${e.example}</div></div>`).join('')+(ev.betterAnswer?`<div class="fb-err-item" style="border-color:#6457ff40"><div class="fb-err-type" style="color:var(--accent2)">Better answer</div><div class="fb-err-ex">"${ev.betterAnswer}"</div></div>`:'')
-    :`<div style="color:var(--good);font-weight:600;padding:10px 0">✓ No major errors!</div>`;
-  document.getElementById('fb-tip').textContent='💡 '+ev.tip;
+    ?`<div class="sec-lbl my-2">Corrections</div>`+errs.map(e=>`<div class="mb-2 p-2 rounded-3" style="background:var(--surf2);border:1px solid var(--bdr);"><div style="font-size:12px;font-weight:700;color:var(--warn);">${e.type}</div><div style="font-size:12px;color:var(--txt2);">${e.example}</div></div>`).join('')+(ev.betterAnswer?`<div class="mb-2 p-2 rounded-3" style="background:#6457ff15;border:1px solid #6457ff40;"><div style="font-size:12px;font-weight:700;color:var(--accent2);">Better answer</div><div style="font-size:12px;color:var(--txt2);">"${ev.betterAnswer}"</div></div>`:'')
+    :`<div style="color:var(--good);font-weight:600;padding:8px 0">✓ No major errors!</div>`;
+  document.getElementById('fb-tip').textContent='💡 '+(ev.tip||'');
   document.getElementById('fb-card').style.display='';
   document.getElementById('ch-acts').style.display='';
   document.getElementById('ch-next').textContent=S.ch.idx>=S.ch.turns.length-1?'✓ Finish Test':'Continue →';
 }
-function nextCh(){
-  if(S.ch.idx>=S.ch.turns.length-1){const avg=Math.round(S.ch.scores.reduce((a,b)=>a+b,0)/S.ch.scores.length);toast(`Test complete! Average: ${avg}% 🎉`);exitChallenge();return;}
-  S.ch.idx++;S.ch.speech='';renderChTurn();
-}
+function nextCh(){if(S.ch.idx>=S.ch.turns.length-1){const avg=Math.round(S.ch.scores.reduce((a,b)=>a+b,0)/S.ch.scores.length);toast(`Test complete! Average: ${avg}% 🎉`);exitChallenge();return;}S.ch.idx++;S.ch.speech='';renderChTurn();}
 function retryCh(){S.ch.speech='';renderChTurn();}
 function exitChallenge(){clearInterval(S.ch.iv);try{S.ch.recog&&S.ch.recog.stop();}catch(e){}go('podcast');}
 
-/* ════════════════════════════════
+/* ══════════════════════════════════════
    FLASHCARDS
-════════════════════════════════ */
-function getDeck(){return S.fc.deck==='all'?S.fc.all:S.fc.all.filter(c=>String(c.podcastId)===S.fc.deck);}
+══════════════════════════════════════ */
+function getDeck(){
+  let cards=S.fc.all;
+  if(S.fc.modFilter!=='all') cards=cards.filter(c=>c.module===S.fc.modFilter);
+  if(S.fc.deck!=='all') cards=cards.filter(c=>String(c.sessionId)===S.fc.deck);
+  return cards;
+}
 function getQueue(){return getDeck().filter(isDue).sort((a,b)=>{if(a.sr.status==='new'&&b.sr.status!=='new')return -1;if(b.sr.status==='new'&&a.sr.status!=='new')return 1;return new Date(a.sr.nextReview)-new Date(b.sr.nextReview);});}
 function setFCMode(m){S.fc.mode=m;document.getElementById('mode-study').classList.toggle('on',m==='study');document.getElementById('mode-list').classList.toggle('on',m==='list');renderFCContent();}
 function selectDeck(id){S.fc.deck=id;S.fc.studyIdx=0;S.fc.flipped=false;document.querySelectorAll('.deck-tab').forEach(t=>t.classList.toggle('on',t.dataset.deck===id));renderFCContent();}
+function selectModFilter(m){S.fc.modFilter=m;S.fc.deck='all';S.fc.studyIdx=0;renderFlash();}
+
+function confirmClearDeck(){
+  if(confirm('Clear all flashcards for this deck? This cannot be undone.')) clearDeck();
+}
+function clearDeck(){
+  const deck=S.fc.deck;
+  if(deck==='all'&&S.fc.modFilter==='all'){S.fc.all=[];}
+  else if(deck==='all'){S.fc.all=S.fc.all.filter(c=>c.module!==S.fc.modFilter);}
+  else{S.fc.all=S.fc.all.filter(c=>String(c.sessionId)!==deck);}
+  S.fc.studyIdx=0;S.fc.flipped=false;save();renderFlash();toast('Deck cleared ✓');
+}
+
 function renderFlash(){
   const now=new Date(),all=S.fc.all;
   document.getElementById('sr-new').textContent=all.filter(c=>c.sr.status==='new').length;
   document.getElementById('sr-due').textContent=all.filter(c=>c.sr.status!=='new'&&new Date(c.sr.nextReview)<=now).length;
   document.getElementById('sr-ok').textContent=all.filter(c=>c.sr.repetitions>=3).length;
   document.getElementById('sr-streak').textContent=S.fc.streak;
-  const ids=[...new Set(all.map(c=>c.podcastId))];
+
+  // Module filter
+  const mods=['all','sprechen','lesen','schreiben','horen'];
+  const modIcos={all:'All',sprechen:'🎙',lesen:'📖',schreiben:'✍️',horen:'🎧'};
+  document.getElementById('mod-filter-tabs').innerHTML=mods.map(m=>`<div class="deck-tab ${S.fc.modFilter===m?'on':''}" onclick="selectModFilter('${m}')">${modIcos[m]} ${m==='all'?'All':m.charAt(0).toUpperCase()+m.slice(1)}</div>`).join('');
+
+  // Deck tabs
+  const ids=[...new Set(getDeck().map(c=>c.sessionId))];
   document.getElementById('deck-tabs').innerHTML=
     `<div class="deck-tab ${S.fc.deck==='all'?'on':''}" data-deck="all" onclick="selectDeck('all')">All</div>`+
-    ids.map(id=>{const c=all.find(x=>x.podcastId===id);return`<div class="deck-tab ${S.fc.deck===String(id)?'on':''}" data-deck="${id}" onclick="selectDeck('${id}')">${c?c.podcastTitle.slice(0,18):id}</div>`;}).join('');
+    ids.map(id=>{const c=S.fc.all.find(x=>x.sessionId===id);return`<div class="deck-tab ${S.fc.deck===String(id)?'on':''}" data-deck="${id}" onclick="selectDeck('${id}')">${c?c.sessionTitle.slice(0,16):id}</div>`;}).join('');
+
   renderFCContent();
 }
 function renderFCContent(){
   const queue=getQueue(),deck=getDeck(),el=document.getElementById('fc-content');
-  if(!deck.length){el.innerHTML=`<div class="empty-state"><div class="empty-ico">🃏</div><div class="empty-title">No vocabulary yet</div><div class="empty-desc">Generate a podcast to automatically extract vocabulary flashcards.</div></div>`;return;}
-  if(S.fc.mode==='list'){el.innerHTML=renderWL(deck);return;}
-  if(!queue.length){el.innerHTML=`<div class="session-done"><div class="session-ico">🎉</div><div class="session-title">All caught up!</div><div class="session-sub">Come back later.<br><br><span style="font-size:13px;color:var(--txt3);">Next: ${nextDue(deck)}</span></div></div>${renderWL(deck)}`;return;}
+  if(!deck.length){el.innerHTML=`<div class="empty-state"><div class="empty-ico">🃏</div><div class="empty-title">No vocabulary yet</div><div class="empty-desc">Generate any module session to automatically extract vocabulary flashcards with synonyms.</div></div>`;return;}
+  if(S.fc.mode==='list'){el.innerHTML='<div class="px-3">'+renderWL(deck)+'</div>';return;}
+  if(!queue.length){el.innerHTML=`<div class="session-done px-3"><div class="session-ico">🎉</div><div style="font-size:20px;font-weight:800;margin-bottom:8px;">All caught up!</div><div style="font-size:14px;color:var(--txt2);">Come back later for your next session.</div></div><div class="px-3">${renderWL(deck)}</div>`;return;}
   const idx=Math.min(S.fc.studyIdx,queue.length-1),card=queue[idx];S.fc.studyIdx=idx;
   const reps=Math.min(card.sr.repetitions,5),R=16,circ=2*Math.PI*R;
+  const modColors={sprechen:'var(--sprechen)',lesen:'var(--lesen)',schreiben:'var(--schreiben)',horen:'var(--horen)'};
+  const modIcos={sprechen:'🎙',lesen:'📖',schreiben:'✍️',horen:'🎧'};
   el.innerHTML=`
-    <div style="padding:0 14px;font-size:13px;color:var(--txt2);margin-bottom:4px;">
-      <span style="color:var(--accent2);font-weight:700">${idx+1}</span> of ${queue.length} to review
-      ${S.fc.sessionTotal>0?`<span style="margin-left:12px;color:var(--good)">✓ ${S.fc.sessionCorrect}/${S.fc.sessionTotal}</span>`:''}
-    </div>
-    <div class="fc-card-wrap"><div class="fc-card-scene">
+    <div class="px-3">
+    <div style="font-size:13px;color:var(--txt2);margin-bottom:8px;"><span style="color:var(--accent2);font-weight:700;">${idx+1}</span> of ${queue.length} to review${S.fc.sessionTotal>0?` · <span style="color:var(--good);">✓ ${S.fc.sessionCorrect}/${S.fc.sessionTotal}</span>`:''}</div>
+    <div class="fc-card-scene mb-2">
       <div class="fc-card-inner ${S.fc.flipped?'flipped':''}" onclick="flipCard()">
         <div class="fc-face fc-front">
-          <svg class="fc-prog-ring" width="40" height="40" viewBox="0 0 40 40">
+          <svg width="38" height="38" viewBox="0 0 40 40" class="mb-2">
             <circle cx="20" cy="20" r="${R}" fill="none" stroke="var(--bdr2)" stroke-width="3"/>
             <circle cx="20" cy="20" r="${R}" fill="none" stroke="${card.sr.status==='new'?'var(--accent2)':'var(--good)'}" stroke-width="3"
               stroke-dasharray="${(reps/5)*circ} ${circ}" stroke-linecap="round"
               style="transform:rotate(-90deg);transform-origin:20px 20px"/>
             <text x="20" y="25" text-anchor="middle" fill="var(--txt3)" font-size="10" font-family="-apple-system">${reps}/5</text>
           </svg>
+          <div class="fc-module-badge" style="background:${modColors[card.module]||'var(--accent)'}22;color:${modColors[card.module]||'var(--accent2)'};">${modIcos[card.module]||'📚'} ${card.module||'vocab'}</div>
           ${card.article?`<div class="fc-article">${card.article}</div>`:''}
           <div class="fc-word">${card.baseForm||card.word}</div>
           <div class="fc-pos">${card.partOfSpeech||''} · ${card.level||''}</div>
           <div class="fc-tap-hint">Tap to reveal →</div>
         </div>
         <div class="fc-face fc-back">
-          <div class="fc-trans">${card.translation}</div>
-          ${card.podcastContext?`<div class="fc-ctx-lbl">📻 ${card.podcastContext}</div>`:''}
+          <div class="fc-translation">${card.translation}</div>
+          ${card.synonyms?.length?`<div class="fc-synonym">≈ ${card.synonyms.slice(0,2).join(' · ')}</div>`:''}
+          ${card.podcastContext?`<div style="font-size:11px;color:var(--accent2);font-weight:700;background:#6457ff20;border-radius:6px;padding:3px 10px;margin-bottom:8px;">📻 ${card.podcastContext}</div>`:''}
           <div class="fc-phrase-de">"${card.exampleDe||''}"</div>
           <div class="fc-phrase-en">${card.exampleEn||''}</div>
         </div>
       </div>
-    </div></div>
+    </div>
     ${S.fc.flipped?`
-    <div style="padding:0 14px 8px;font-size:11px;color:var(--txt3);text-align:center;">How well did you know this?</div>
-    <div class="rate-row">
+    <div style="font-size:11px;color:var(--txt3);text-align:center;margin-bottom:8px;">How well did you know this?</div>
+    <div class="rate-row mb-2">
       <button class="rate-btn r-again" onclick="event.stopPropagation();rateCard(1)">Again<span class="ri">10 min</span></button>
       <button class="rate-btn r-hard"  onclick="event.stopPropagation();rateCard(2)">Hard<span class="ri">1 day</span></button>
       <button class="rate-btn r-good"  onclick="event.stopPropagation();rateCard(4)">Good<span class="ri">${nxtInt(card,4)}d</span></button>
       <button class="rate-btn r-easy"  onclick="event.stopPropagation();rateCard(5)">Easy<span class="ri">${nxtInt(card,5)}d</span></button>
-    </div>`:'<div style="height:56px"></div>'}
-    <div style="height:12px"></div>${renderWL(deck)}`;
+    </div>`:'<div style="height:50px;"></div>'}
+    <div style="height:12px;"></div>
+    ${renderWL(deck)}
+    </div>`;
 }
 function nxtInt(card,q){return sm2(card,q).interval;}
-function nextDue(deck){const f=deck.filter(c=>c.sr.status!=='new').sort((a,b)=>new Date(a.sr.nextReview)-new Date(b.sr.nextReview));if(!f.length)return'No scheduled cards';return new Date(f[0].sr.nextReview).toLocaleDateString('en-US',{weekday:'short',hour:'2-digit',minute:'2-digit'});}
 function flipCard(){S.fc.flipped=!S.fc.flipped;renderFCContent();}
 function rateCard(q){
   const queue=getQueue(),card=queue[S.fc.studyIdx];if(!card)return;
@@ -1020,46 +1678,40 @@ function rateCard(q){
 function renderWL(deck){
   if(!deck.length)return'';
   const now=new Date();
-  return`<div style="padding:16px 14px 100px;">
-    <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--txt3);margin-bottom:12px;">ALL VOCABULARY (${deck.length})</div>
-    ${deck.map(c=>{const due=c.sr.status!=='new'&&new Date(c.sr.nextReview)<=now,isNew=c.sr.status==='new',isMat=c.sr.repetitions>=5;const lbl=isNew?'New':isMat?'Mature':due?'Due':'OK',cls=isNew?'new':isMat?'mature':due?'due':'ok';
-    return`<div class="wl-item"><div><div class="wl-de">${c.article?c.article+' ':''}${c.baseForm||c.word}</div><div class="wl-en">${c.translation}</div></div><span class="wl-badge ${cls}">${lbl}</span></div>`;}).join('')}
-  </div>`;
+  const modColors={sprechen:'var(--sprechen)',lesen:'var(--lesen)',schreiben:'var(--schreiben)',horen:'var(--horen)'};
+  return`<div style="margin-top:8px;"><div class="sec-lbl mb-2">ALL VOCABULARY (${deck.length})</div>`+
+    deck.map(c=>{const due=c.sr.status!=='new'&&new Date(c.sr.nextReview)<=now,isNew=c.sr.status==='new',isMat=c.sr.repetitions>=5;const lbl=isNew?'New':isMat?'Mature':due?'Due':'OK',cls=isNew?'new':isMat?'mature':due?'due':'ok';
+    return`<div class="wl-item"><div><div class="wl-de" style="border-left:2px solid ${modColors[c.module]||'var(--accent)'};padding-left:8px;">${c.article?c.article+' ':''}${c.baseForm||c.word}</div><div class="wl-en">${c.translation}</div>${c.synonyms?.length?`<div class="wl-syn">≈ ${c.synonyms.slice(0,2).join(', ')}</div>`:''}</div><span class="wl-badge ${cls}">${lbl}</span></div>`;}).join('')+'</div>';
 }
 
-/* ════════════════════════════════
+/* ══════════════════════════════════════
    API
-════════════════════════════════ */
+══════════════════════════════════════ */
 async function callAPI(system,prompt,max_tokens=1000){
   const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens,system,messages:[{role:'user',content:prompt}]})});
   if(!res.ok)throw new Error('API '+res.status);
   return res.json();
 }
 
-/* ════════════════════════════════
-   DEMO DATA
-════════════════════════════════ */
-function demoData(topic,level){return{title:'Beim Arzt',dialogue:[{speaker:'Anna',text:'Guten Morgen! Ich habe einen Termin bei Doktor Müller.',translation:'Good morning! I have an appointment with Doctor Müller.',notes:'Use "Ich habe einen Termin" to say "I have an appointment".'},{speaker:'Max',text:'Guten Morgen! Wie ist Ihr Name, bitte?',translation:'Good morning! What is your name, please?',notes:null},{speaker:'Anna',text:"Mein Name ist Anna Schmidt. Ich fühle mich gar nicht gut — ich habe hohes Fieber.",translation:"My name is Anna Schmidt. I don't feel well at all — I have a high fever.",notes:'"Gar nicht" = "not at all".'},{speaker:'Max',text:'Oh, das tut mir wirklich leid. Seit wann haben Sie Fieber?',translation:"Oh, I'm really sorry. Since when have you had a fever?",notes:'"Seit wann" triggers present tense.'},{speaker:'Anna',text:'Seit gestern Abend. Ich habe auch starke Kopfschmerzen und Halsschmerzen.',translation:'Since yesterday evening. I also have a bad headache and sore throat.',notes:null},{speaker:'Max',text:'Verstehe. Haben Sie auch Husten oder Schnupfen?',translation:'Do you also have a cough or runny nose?',notes:null},{speaker:'Anna',text:'Nein, keinen Husten. Aber ich bin sehr müde und habe keinen Appetit.',translation:'No cough. But I am very tired and have no appetite.',notes:null},{speaker:'Max',text:'Der Doktor kommt gleich. Bitte nehmen Sie dort Platz.',translation:'The doctor will be right with you. Please take a seat.',notes:'"Nehmen Sie Platz" = formal "please sit down".'}],
-  vocab:[{word:'der Termin',article:'der',baseForm:'Termin',translation:'appointment',partOfSpeech:'noun',level,exampleDe:'Ich habe einen Termin.',exampleEn:'I have an appointment.',podcastContext:'Anna at reception'},{word:'das Fieber',article:'das',baseForm:'Fieber',translation:'fever',partOfSpeech:'noun',level,exampleDe:'Ich habe hohes Fieber.',exampleEn:'I have a high fever.',podcastContext:'Anna describing symptoms'},{word:'die Kopfschmerzen',article:'die',baseForm:'Kopfschmerzen',translation:'headache',partOfSpeech:'noun',level,exampleDe:'Ich habe starke Kopfschmerzen.',exampleEn:'I have a bad headache.',podcastContext:'Anna listing symptoms'},{word:'seit',article:null,baseForm:'seit',translation:'since / for',partOfSpeech:'preposition',level,exampleDe:'Seit wann haben Sie Fieber?',exampleEn:'Since when have you had a fever?',podcastContext:'Max asking duration'}],
-  challenges:[{situation:"You arrive at a German doctor's surgery.",cue:'Greet and announce your appointment',cueHint:'Guten Morgen, ich habe einen Termin…',targetAnswer:'Guten Morgen! Ich habe einen Termin bei Doktor Müller.',difficulty:'easy'},{situation:'The receptionist asks your name.',cue:'Give your full name',cueHint:'Mein Name ist…',targetAnswer:'Mein Name ist Anna Schmidt.',difficulty:'easy'},{situation:'The doctor asks how you feel.',cue:"Say you don't feel well and have had a fever since yesterday",cueHint:'Ich fühle mich nicht gut…',targetAnswer:'Ich fühle mich nicht gut. Ich habe hohes Fieber seit gestern Abend.',difficulty:'medium'},{situation:'The doctor asks about symptoms.',cue:'Mention headache and sore throat',cueHint:'Ich habe auch…',targetAnswer:'Ich habe auch starke Kopfschmerzen und Halsschmerzen.',difficulty:'medium'},{situation:'The doctor asks about cough.',cue:'Say no cough, very tired, no appetite',cueHint:'Nein, keinen Husten, aber…',targetAnswer:'Nein, keinen Husten. Aber ich bin sehr müde und habe keinen Appetit.',difficulty:'hard'},{situation:'Ask about the medicine.',cue:'Ask when to take the tablets',cueHint:'Wann soll ich…',targetAnswer:'Wann soll ich die Tabletten nehmen?',difficulty:'medium'}]};}
-
-/* ════════════════════════════════
+/* ══════════════════════════════════════
    UTILS
-════════════════════════════════ */
+══════════════════════════════════════ */
 function fmtT(s){const m=Math.floor(s/60),sec=Math.floor(s%60);return`${m}:${sec.toString().padStart(2,'0')}`;}
 let toastTm;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTm);toastTm=setTimeout(()=>el.classList.remove('show'),2800);}
 
-/* ════════════════════════════════
+/* ══════════════════════════════════════
    BOOT
-════════════════════════════════ */
+══════════════════════════════════════ */
 window.addEventListener('load',()=>{
   load();
   speechSynthesis.getVoices();
   speechSynthesis.onvoiceschanged=()=>{vc=null;};
   renderHome();
-  document.getElementById('global-nav').style.display='flex';
+  document.getElementById('global-nav').style.display='block';
   document.getElementById('nt-home').classList.add('on');
+  // Set default toggles
+  setStd('telc'); setLvl('A2'); setDur('medium');
 });
 </script>
 </body>
