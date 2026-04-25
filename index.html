@@ -1144,6 +1144,61 @@ function setSpeed(val) {
   toast('Speed set to '+val+'×');
 }
 
+function setViewMode(mode) {
+  S.play.viewMode = mode;
+  ['both','sub','script'].forEach(m => {
+    const el = document.getElementById('vm-' + (m==='sub'?'sub':m));
+    if(el) el.classList.toggle('on', m===mode || (m==='both'&&mode==='both'));
+  });
+  document.getElementById('vm-both').classList.toggle('on', mode==='both');
+  document.getElementById('vm-sub').classList.toggle('on', mode==='subtitle');
+  document.getElementById('vm-script').classList.toggle('on', mode==='script');
+
+  const studio   = document.querySelector('.studio');
+  const subBox   = document.querySelector('.subtitle-box');
+  const diagList = document.querySelector('.diag-list');
+
+  if(!studio || !subBox || !diagList) return;
+
+  if(mode === 'subtitle') {
+    studio.style.display   = 'none';
+    diagList.style.display = 'none';
+    subBox.classList.add('sub-sticky');
+    subBox.style.display   = '';
+  } else if(mode === 'script') {
+    studio.style.display   = '';
+    subBox.style.display   = 'none';
+    subBox.classList.remove('sub-sticky');
+    diagList.style.display = '';
+  } else {
+    studio.style.display   = '';
+    subBox.style.display   = '';
+    subBox.classList.remove('sub-sticky');
+    diagList.style.display = '';
+  }
+}
+
+function toggleSpeedPanel() {
+  const panel = document.getElementById('speed-panel');
+  const btn   = document.getElementById('vm-speed');
+  if(!panel) return;
+  const open = panel.classList.toggle('open');
+  btn.classList.toggle('on', open);
+}
+
+function setSpeed(val) {
+  S.play.speed = val;
+  const speeds = [0.5, 0.75, 1, 1.25, 1.5];
+  speeds.forEach((s,i) => {
+    const el = document.getElementById('spd-'+i);
+    if(el) el.classList.toggle('on', s===val);
+  });
+  const chip = document.getElementById('speed-chip');
+  if(chip) chip.textContent = val+'×';
+  if(S.play.on) { speechSynthesis.cancel(); speakLine(S.play.idx); }
+  toast('Speed: '+val+'×');
+}
+
 function exitPod() { speechSynthesis.cancel(); S.play.on=false; navTo('home'); }
 
 /* ════════════════════════════════════════════════
