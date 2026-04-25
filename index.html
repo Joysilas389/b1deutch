@@ -37,6 +37,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 }
 .screen::-webkit-scrollbar{display:none;}
 .screen.active{display:block;animation:fadeUp .28s cubic-bezier(.22,1,.36,1) both;}
+#s-generating.active{display:flex;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
 /* ═══════════════════════════════════════
@@ -396,7 +397,7 @@ textarea.t-input::placeholder{color:var(--txt3);}
 </div>
 
 <!-- ══════════ GENERATING ══════════ -->
-<div id="s-generating" class="screen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 32px;">
+<div id="s-generating" class="screen" style="flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 32px;">
   <div class="gen-orbs"><div class="orb a"></div><div class="orb m"></div><div class="orb c"></div></div>
   <div style="font-size:22px;font-weight:800;letter-spacing:-.3px;margin-bottom:8px;">In the Studio…</div>
   <div style="font-size:14px;color:var(--txt2);margin-bottom:20px;" id="gen-st">Anna and Max are warming up</div>
