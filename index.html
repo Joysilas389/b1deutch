@@ -56,7 +56,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 /* ═══════════════════════════════════════
    BOTTOM NAV
 ═══════════════════════════════════════ */
-.nav{display:flex;background:rgba(8,8,16,.96);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--bdr);padding:8px 0 max(env(safe-area-inset-bottom,0px),10px);position:fixed;bottom:0;left:0;right:0;z-index:100;}
+.nav{display:flex;background:rgba(8,8,16,.96);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--bdr);padding:8px 0 max(env(safe-area-inset-bottom,0px),10px);position:sticky;bottom:0;z-index:10;}
 .nav-tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;}
 .nav-tab-ico{font-size:22px;line-height:1;}
 .nav-tab-lbl{font-size:10px;font-weight:600;letter-spacing:.03em;color:var(--txt3);transition:color .2s;}
@@ -73,7 +73,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
 .stat-card{flex:1;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r-md);padding:13px 10px;text-align:center;}
 .stat-v{font-size:22px;font-weight:800;letter-spacing:-.5px;}
 .stat-l{font-size:10px;color:var(--txt3);margin-top:3px;font-weight:600;letter-spacing:.06em;}
-.fab{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);z-index:50;background:linear-gradient(135deg,var(--accent),#8070ff);color:#fff;border:none;border-radius:50px;padding:14px 20px;font-family:var(--font);font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 6px 28px #6457ff50;transition:all .2s;}
+.fab{position:fixed;bottom:88px;right:18px;z-index:50;background:linear-gradient(135deg,var(--accent),#8070ff);color:#fff;border:none;border-radius:50px;padding:14px 20px;font-family:var(--font);font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 6px 28px #6457ff50;transition:all .2s;}
 .fab:active{transform:scale(.95);}
 .sec-lbl{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--txt3);text-transform:uppercase;padding:0 20px 10px;}
 .pod-card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r-lg);padding:16px;cursor:pointer;transition:background .15s;margin-bottom:12px;}
@@ -349,10 +349,7 @@ textarea.t-input::placeholder{color:var(--txt3);}
   <div class="sec-lbl">Your Podcasts</div>
   <div style="padding:0 16px 100px;"><div id="pod-list"></div></div>
   <button class="fab" onclick="go('generate')">🎙 New Podcast</button>
-  <div class="nav">
-    <div class="nav-tab on" id="nt-home" onclick="navTo('home')"><div class="nav-tab-ico">🏠</div><div class="nav-tab-lbl">Home</div></div>
-    <div class="nav-tab" id="nt-flash" onclick="navTo('flash')"><div class="nav-tab-ico">🃏</div><div class="nav-tab-lbl">Flashcards</div></div>
-  </div>
+  <div style="height:80px"></div>
 </div>
 
 <!-- ══════════ GENERATE ══════════ -->
@@ -539,10 +536,13 @@ textarea.t-input::placeholder{color:var(--txt3);}
     <div class="fc-mode-tab" id="mode-list" onclick="setFCMode('list')">Word List</div>
   </div>
   <div id="fc-content"></div>
-  <div class="nav">
-    <div class="nav-tab" id="nt-home2" onclick="navTo('home')"><div class="nav-tab-ico">🏠</div><div class="nav-tab-lbl">Home</div></div>
-    <div class="nav-tab on" id="nt-flash2" onclick="navTo('flash')"><div class="nav-tab-ico">🃏</div><div class="nav-tab-lbl">Flashcards</div></div>
-  </div>
+  <div style="height:80px"></div>
+</div>
+
+<!-- ══════════ GLOBAL FIXED NAV ══════════ -->
+<div id="global-nav" class="nav" style="position:fixed;bottom:0;left:0;right:0;z-index:100;display:none;">
+  <div class="nav-tab" id="nt-home" onclick="navTo('home')"><div class="nav-tab-ico">🏠</div><div class="nav-tab-lbl">Home</div></div>
+  <div class="nav-tab" id="nt-flash" onclick="navTo('flash')"><div class="nav-tab-ico">🃏</div><div class="nav-tab-lbl">Flashcards</div></div>
 </div>
 
 <!-- ══════════ HAMBURGER BOTTOM SHEET ══════════ -->
@@ -651,13 +651,11 @@ function go(id){
 }
 function navTo(id){
   go(id);
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('on'));
+  const nav=document.getElementById('global-nav');
+  if(id==='home'||id==='flash'){nav.style.display='flex';}else{nav.style.display='none';}
+  document.querySelectorAll('#global-nav .nav-tab').forEach(t=>t.classList.remove('on'));
   if(id==='home'){document.getElementById('nt-home').classList.add('on');renderHome();}
-  if(id==='flash'){
-    document.getElementById('nt-flash').classList.add('on');
-    document.getElementById('nt-flash2').classList.add('on');
-    renderFlash();
-  }
+  if(id==='flash'){document.getElementById('nt-flash').classList.add('on');renderFlash();}
 }
 
 /* ════════════════════════════════
@@ -1001,10 +999,10 @@ function renderFCContent(){
     ${S.fc.flipped?`
     <div style="padding:0 14px 8px;font-size:11px;color:var(--txt3);text-align:center;">How well did you know this?</div>
     <div class="rate-row">
-      <button class="rate-btn r-again" onclick="rateCard(1)">Again<span class="ri">10 min</span></button>
-      <button class="rate-btn r-hard"  onclick="rateCard(2)">Hard<span class="ri">1 day</span></button>
-      <button class="rate-btn r-good"  onclick="rateCard(4)">Good<span class="ri">${nxtInt(card,4)}d</span></button>
-      <button class="rate-btn r-easy"  onclick="rateCard(5)">Easy<span class="ri">${nxtInt(card,5)}d</span></button>
+      <button class="rate-btn r-again" onclick="event.stopPropagation();rateCard(1)">Again<span class="ri">10 min</span></button>
+      <button class="rate-btn r-hard"  onclick="event.stopPropagation();rateCard(2)">Hard<span class="ri">1 day</span></button>
+      <button class="rate-btn r-good"  onclick="event.stopPropagation();rateCard(4)">Good<span class="ri">${nxtInt(card,4)}d</span></button>
+      <button class="rate-btn r-easy"  onclick="event.stopPropagation();rateCard(5)">Easy<span class="ri">${nxtInt(card,5)}d</span></button>
     </div>`:'<div style="height:56px"></div>'}
     <div style="height:12px"></div>${renderWL(deck)}`;
 }
@@ -1022,7 +1020,7 @@ function rateCard(q){
 function renderWL(deck){
   if(!deck.length)return'';
   const now=new Date();
-  return`<div style="padding:16px 14px 140px;">
+  return`<div style="padding:16px 14px 100px;">
     <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--txt3);margin-bottom:12px;">ALL VOCABULARY (${deck.length})</div>
     ${deck.map(c=>{const due=c.sr.status!=='new'&&new Date(c.sr.nextReview)<=now,isNew=c.sr.status==='new',isMat=c.sr.repetitions>=5;const lbl=isNew?'New':isMat?'Mature':due?'Due':'OK',cls=isNew?'new':isMat?'mature':due?'due':'ok';
     return`<div class="wl-item"><div><div class="wl-de">${c.article?c.article+' ':''}${c.baseForm||c.word}</div><div class="wl-en">${c.translation}</div></div><span class="wl-badge ${cls}">${lbl}</span></div>`;}).join('')}
@@ -1060,6 +1058,8 @@ window.addEventListener('load',()=>{
   speechSynthesis.getVoices();
   speechSynthesis.onvoiceschanged=()=>{vc=null;};
   renderHome();
+  document.getElementById('global-nav').style.display='flex';
+  document.getElementById('nt-home').classList.add('on');
 });
 </script>
 </body>
