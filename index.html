@@ -1659,20 +1659,58 @@ function renderChTurn(){
   document.getElementById('rec-wave').style.display='none';
 }
 function toggleRec(){S.ch.rec?stopRec():startRec();}
-function startRec(){
-  S.ch.rec=true;S.ch.secs=0;S.ch.speech='';
+async function startRec(){
+  S.ch.rec=true; S.ch.secs=0; S.ch.speech=''; S.ch.chunks=[];
   document.getElementById('rec-btn').classList.add('live');
   document.getElementById('rec-st').textContent='Recording…';
   document.getElementById('rec-timer').style.display='block';
   document.getElementById('rec-wave').style.display='flex';
-  document.getElementById('rec-wave').innerHTML=Array.from({length:16},(_,i)=>`<div style="width:3px;border-radius:2px;background:var(--danger);height:4px;animation-delay:${i*.055}s;" class="rw-b"></div>`).join('');
+  document.getElementById('rec-wave').innerHTML=Array.from({length:16},(_,i)=>`<div style="width:3px;border-radius:2px;background:var(--danger);height:4px;" class="rw-b"></div>`).join('');
   S.ch.iv=setInterval(()=>{
-    S.ch.secs++;document.getElementById('rec-timer').textContent=fmtT(S.ch.secs);
+    S.ch.secs++;
+    document.getElementById('rec-timer').textContent=fmtT(S.ch.secs);
     document.querySelectorAll('.rw-b').forEach(b=>b.style.height=(4+Math.random()*28)+'px');
-    if(S.ch.secs>=15)stopRec();
+    if(S.ch.secs>=15) stopRec();
   },200);
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(SR){const r=new SR();r.lang='de-DE';r.interimResults=false;r.maxAlternatives=1;S.ch.recog=r;r.onresult=e=>{S.ch.speech=e.results[0][0].transcript;};r.onend=()=>{if(S.ch.rec)stopRec();};r.onerror=()=>{if(S.ch.rec)stopRec();};try{r.start();}catch(e){}}
+  // Use MediaRecorder for Whisper STT
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+    const mr = new MediaRecorder(stream, {mimeType});
+    S.ch.mediaRecorder = mr;
+    S.ch.stream = stream;
+    S.ch.chunks = [];
+    mr.ondataavailable = e => { if(e.data.size>0) S.ch.chunks.push(e.data); };
+    mr.onstop = async () => {
+      stream.getTracks().forEach(t=>t.stop());
+      if(S.ch.chunks.length===0) return;
+      const blob = new Blob(S.ch.chunks, {type: mimeType});
+      await transcribeWithWhisper(blob);
+    };
+    mr.start(200);
+  } catch(e) {
+    console.error('Mic error:', e);
+    toast('Microphone access denied');
+    stopRec();
+  }
+}
+
+async function transcribeWithWhisper(audioBlob) {
+  try {
+    document.getElementById('rec-st').textContent='Transcribing…';
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'audio.webm');
+    const res = await fetch('./api/stt', {method:'POST', body:formData});
+    if (!res.ok) throw new Error('STT failed');
+    const data = await res.json();
+    S.ch.speech = data.transcript || '';
+    console.log('Whisper transcript:', S.ch.speech);
+  } catch(e) {
+    console.error('Whisper STT failed, using Web Speech fallback:', e);
+    // speech stays as whatever Web Speech captured or empty
+  }
+  // Now evaluate
+  setTimeout(evalSpeech, 200);
 }
 function stopRec(){
   if(!S.ch.rec)return;S.ch.rec=false;clearInterval(S.ch.iv);
@@ -1710,7 +1748,7 @@ function showFb(ev){
 }
 function nextCh(){if(S.ch.idx>=S.ch.turns.length-1){const avg=Math.round(S.ch.scores.reduce((a,b)=>a+b,0)/S.ch.scores.length);toast(`Test complete! Average: ${avg}% 🎉`);exitChallenge();return;}S.ch.idx++;S.ch.speech='';renderChTurn();}
 function retryCh(){S.ch.speech='';renderChTurn();}
-function exitChallenge(){clearInterval(S.ch.iv);try{S.ch.recog&&S.ch.recog.stop();}catch(e){}go('podcast');}
+function exitChallenge(){clearInterval(S.ch.iv);try{if(S.ch.mediaRecorder&&S.ch.mediaRecorder.state!=='inactive')S.ch.mediaRecorder.stop();}catch(e){}try{S.ch.stream&&S.ch.stream.getTracks().forEach(t=>t.stop());}catch(e){}go('podcast');}
 
 /* ══════════════════════════════════════
    FLASHCARDS

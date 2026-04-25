@@ -3,6 +3,7 @@
   "routes": [
     { "src": "/api/claude", "dest": "/api/claude.js" },
     { "src": "/api/tts", "dest": "/api/tts.js" },
+    { "src": "/api/stt", "dest": "/api/stt.js" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
