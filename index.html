@@ -979,10 +979,10 @@ JSON: {"title":"Title","scriptType":"Gespräch|Durchsage|Interview|Nachricht","t
 ══════════════════════════════════════ */
 const TTS_API = './api/tts';
 const VOICE_MAP = {
-  'Anna':      { voice: 'nova',    speed: 1.0 },  // warm female
-  'Max':       { voice: 'onyx',    speed: 1.0 },  // deep male
-  'Examiner1': { voice: 'shimmer', speed: 0.95 }, // clear female
-  'Examiner2': { voice: 'echo',    speed: 0.95 }, // male
+  'Anna':      { voice: 'nova',   speed: 0.95 }, // warm female
+  'Max':       { voice: 'echo',   speed: 1.0  }, // distinct male
+  'Examiner1': { voice: 'alloy',  speed: 0.95 }, // neutral female
+  'Examiner2': { voice: 'fable',  speed: 0.95 }, // male storyteller
 };
 
 let ttsCache = {}; // cache audio URLs to avoid re-fetching same line
@@ -1320,7 +1320,7 @@ function mergeVocab(session) {
 function openPod(idx) {
   const p = S.podcasts[idx];
   S.activePod = p;
-  S.play = {on:false, idx:0, speed:1, showTrans:true, viewMode:'both'};
+  S.play = {on:false, idx:0, speed:1, showTrans:true, viewMode:'both'}; ttsCache={};
   document.getElementById('pod-lbl').textContent = (p.standard||'TELC').toUpperCase()+' '+p.level+' · '+p.title.toUpperCase();
   document.getElementById('t-tot').textContent   = fmtT(p.dialogue.length*34);
   renderDiag(); updateSub(0); go('podcast'); applyVM('both');

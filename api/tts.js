@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'tts-1',          // standard model — free tier compatible
+        model: 'tts-1-hd',       // higher quality for better German pronunciation
         input: text,
         voice: voice || 'nova',  // nova | onyx | shimmer | echo | alloy | fable
         speed: speed || 1.0,     // 0.25 - 4.0
