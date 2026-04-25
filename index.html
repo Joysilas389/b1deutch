@@ -396,6 +396,33 @@ textarea.t-input::placeholder{color:var(--txt3);}
 ═══════════════════════════════════════════ */
 #toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surf2);border:1px solid var(--bdr2);border-radius:12px;padding:11px 18px;font-size:13px;font-weight:500;white-space:nowrap;pointer-events:none;opacity:0;z-index:200;transition:all .28s cubic-bezier(.22,1,.36,1);}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.hamburger-overlay{display:none;position:fixed;inset:0;background:#0009;z-index:100;}
+.hamburger-overlay.open{display:flex;align-items:flex-end;}
+.hamburger-panel{
+  background:var(--surf);border-top:1px solid var(--bdr);
+  border-radius:var(--r-xl) var(--r-xl) 0 0;
+  padding:20px 20px 40px;width:100%;
+  animation:slideUp .3s cubic-bezier(.22,1,.36,1);
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.hb-title{font-size:18px;font-weight:800;margin-bottom:4px;}
+.hb-sub{font-size:12px;color:var(--txt3);margin-bottom:20px;}
+.hb-section{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--txt3);margin-bottom:10px;text-transform:uppercase;}
+.hb-pills{display:flex;gap:8px;margin-bottom:20px;}
+.hb-pill{flex:1;background:var(--surf2);border:1px solid var(--bdr2);border-radius:var(--r-md);padding:12px 6px;text-align:center;cursor:pointer;font-family:var(--font);transition:all .2s;}
+.hb-pill.on{background:#6457ff20;border-color:#6457ff60;}
+.hb-pill-ico{font-size:20px;margin-bottom:4px;}
+.hb-pill-lbl{font-size:11px;font-weight:700;color:var(--txt3);}
+.hb-pill.on .hb-pill-lbl{color:var(--accent2);}
+.hb-speed-row{display:flex;gap:6px;margin-bottom:20px;}
+.hb-sp{flex:1;background:var(--surf2);border:1px solid var(--bdr2);border-radius:var(--r-sm);padding:10px 4px;text-align:center;cursor:pointer;font-family:var(--font);transition:all .2s;}
+.hb-sp.on{background:#6457ff20;border-color:#6457ff60;}
+.hb-sp-val{font-size:15px;font-weight:800;color:var(--txt);}
+.hb-sp-lbl{font-size:9px;color:var(--txt3);margin-top:2px;font-weight:600;}
+.hb-sp.on .hb-sp-val{color:var(--accent2);}
+.hb-sp.on .hb-sp-lbl{color:var(--accent2);}
+.hb-close{width:100%;margin-top:4px;}
 </style>
 </head>
 <body>
@@ -1199,6 +1226,74 @@ function setSpeed(val) {
   toast('Speed: '+val+'×');
 }
 
+
+function openHamburger() {
+  document.getElementById('hb-overlay').classList.add('open');
+  // Sync current state to menu
+  ['both','subtitle','script'].forEach(m => {
+    document.getElementById('hbm-'+m).classList.toggle('on', m===(S.play.viewMode||'both'));
+  });
+  const speeds = [0.5,0.75,1,1.25,1.5];
+  speeds.forEach((s,i) => {
+    document.getElementById('hbsp-'+i).classList.toggle('on', s===S.play.speed);
+  });
+  document.getElementById('hbt-on').classList.toggle('on', S.play.showTrans);
+  document.getElementById('hbt-off').classList.toggle('on', !S.play.showTrans);
+}
+
+function closeHamburger(e) {
+  if(!e || e.target === document.getElementById('hb-overlay')) {
+    document.getElementById('hb-overlay').classList.remove('open');
+  }
+}
+
+function setViewMode(mode) {
+  S.play.viewMode = mode;
+  ['both','subtitle','script'].forEach(m => {
+    const el = document.getElementById('hbm-'+m);
+    if(el) el.classList.toggle('on', m===mode);
+  });
+  const studio   = document.querySelector('.studio');
+  const subBox   = document.querySelector('.subtitle-box');
+  const diagList = document.querySelector('.diag-list');
+  if(!studio || !subBox || !diagList) return;
+  if(mode==='subtitle') {
+    studio.style.display='none';
+    diagList.style.display='none';
+    subBox.style.display='';
+  } else if(mode==='script') {
+    studio.style.display='';
+    subBox.style.display='none';
+    diagList.style.display='';
+  } else {
+    studio.style.display='';
+    subBox.style.display='';
+    diagList.style.display='';
+  }
+}
+
+function setSpeed(val) {
+  S.play.speed = val;
+  const speeds = [0.5,0.75,1,1.25,1.5];
+  speeds.forEach((s,i) => {
+    const el = document.getElementById('hbsp-'+i);
+    if(el) el.classList.toggle('on', s===val);
+  });
+  const chip = document.getElementById('speed-chip');
+  if(chip) chip.textContent = val+'×';
+  if(S.play.on) { speechSynthesis.cancel(); speakLine(S.play.idx); }
+}
+
+function setTransFromMenu(show) {
+  S.play.showTrans = show;
+  document.getElementById('hbt-on').classList.toggle('on', show);
+  document.getElementById('hbt-off').classList.toggle('on', !show);
+  document.getElementById('sub-en').style.display = show ? '' : 'none';
+  document.querySelectorAll('.di-en').forEach(e => e.style.display = show ? '' : 'none');
+  const lbl = document.getElementById('trans-lbl');
+  if(lbl) lbl.textContent = show ? 'Translation' : 'Hide English';
+}
+
 function exitPod() { speechSynthesis.cancel(); S.play.on=false; navTo('home'); }
 
 /* ════════════════════════════════════════════════
@@ -1635,5 +1730,67 @@ window.addEventListener('load',()=>{
   renderHome();
 });
 </script>
+
+<!-- HAMBURGER MENU -->
+<div class="hamburger-overlay" id="hb-overlay" onclick="closeHamburger(event)">
+  <div class="hamburger-panel" id="hb-panel">
+    <div class="hb-title">Podcast Settings</div>
+    <div class="hb-sub">Customise your listening experience</div>
+
+    <div class="hb-section">View Mode</div>
+    <div class="hb-pills">
+      <div class="hb-pill on" id="hbm-both" onclick="setViewMode('both')">
+        <div class="hb-pill-ico">📺</div>
+        <div class="hb-pill-lbl">Both</div>
+      </div>
+      <div class="hb-pill" id="hbm-subtitle" onclick="setViewMode('subtitle')">
+        <div class="hb-pill-ico">💬</div>
+        <div class="hb-pill-lbl">Subtitle</div>
+      </div>
+      <div class="hb-pill" id="hbm-script" onclick="setViewMode('script')">
+        <div class="hb-pill-ico">📜</div>
+        <div class="hb-pill-lbl">Script</div>
+      </div>
+    </div>
+
+    <div class="hb-section">Playback Speed</div>
+    <div class="hb-speed-row">
+      <div class="hb-sp" id="hbsp-0" onclick="setSpeed(0.5)">
+        <div class="hb-sp-val">0.5×</div>
+        <div class="hb-sp-lbl">Very Slow</div>
+      </div>
+      <div class="hb-sp" id="hbsp-1" onclick="setSpeed(0.75)">
+        <div class="hb-sp-val">0.75×</div>
+        <div class="hb-sp-lbl">Slow</div>
+      </div>
+      <div class="hb-sp on" id="hbsp-2" onclick="setSpeed(1)">
+        <div class="hb-sp-val">1×</div>
+        <div class="hb-sp-lbl">Normal</div>
+      </div>
+      <div class="hb-sp" id="hbsp-3" onclick="setSpeed(1.25)">
+        <div class="hb-sp-val">1.25×</div>
+        <div class="hb-sp-lbl">Fast</div>
+      </div>
+      <div class="hb-sp" id="hbsp-4" onclick="setSpeed(1.5)">
+        <div class="hb-sp-val">1.5×</div>
+        <div class="hb-sp-lbl">Faster</div>
+      </div>
+    </div>
+
+    <div class="hb-section">Translation</div>
+    <div class="hb-pills" style="margin-bottom:24px;">
+      <div class="hb-pill on" id="hbt-on" onclick="setTransFromMenu(true)">
+        <div class="hb-pill-ico">🇬🇧</div>
+        <div class="hb-pill-lbl">Show English</div>
+      </div>
+      <div class="hb-pill" id="hbt-off" onclick="setTransFromMenu(false)">
+        <div class="hb-pill-ico">🇩🇪</div>
+        <div class="hb-pill-lbl">German Only</div>
+      </div>
+    </div>
+
+    <button class="btn btn-secondary hb-close" onclick="closeHamburger()">Done</button>
+  </div>
+</div>
 </body>
 </html>
