@@ -925,11 +925,11 @@ function openPod(idx) {
   S.activePod = p;
   S.play = { on:false, idx:0, speed:1, showTrans:true, viewMode:'both' };
   document.getElementById('pod-lbl').textContent = p.level + ' · ' + p.title.toUpperCase();
-  setViewMode('both');
   document.getElementById('t-tot').textContent   = fmtT(p.dialogue.length * 34); // ~34s per turn
   renderDialogue();
   updateSub(0);
   go('podcast');
+  setTimeout(() => setViewMode('both'), 50);
 }
 
 function renderDialogue() {
