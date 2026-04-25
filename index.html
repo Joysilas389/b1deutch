@@ -923,8 +923,9 @@ function mergeVocab(pod) {
 function openPod(idx) {
   const p   = S.podcasts[idx];
   S.activePod = p;
-  S.play = { on:false, idx:0, speed:1, showTrans:true };
+  S.play = { on:false, idx:0, speed:1, showTrans:true, viewMode:'both' };
   document.getElementById('pod-lbl').textContent = p.level + ' · ' + p.title.toUpperCase();
+  setViewMode('both');
   document.getElementById('t-tot').textContent   = fmtT(p.dialogue.length * 34); // ~34s per turn
   renderDialogue();
   updateSub(0);
@@ -1083,6 +1084,64 @@ function seekTo(e) {
   const bar=document.getElementById('prog-bar');
   const idx=Math.round((e.offsetX/bar.offsetWidth)*(S.activePod.dialogue.length-1));
   jumpTo(Math.max(0,Math.min(idx,S.activePod.dialogue.length-1)));
+}
+
+/* ════════════════════════════════════════════════
+   VIEW MODE & SPEED PANEL
+════════════════════════════════════════════════ */
+function setViewMode(mode) {
+  S.play.viewMode = mode;
+  // Update pills
+  ['both','subtitle','script'].forEach(m => {
+    document.getElementById('vm-'+m).classList.toggle('on', m===mode);
+  });
+
+  const studio   = document.querySelector('.studio');
+  const subBox   = document.querySelector('.subtitle-box');
+  const diagList = document.querySelector('.diag-list');
+  const podCtrl  = document.querySelector('.pod-ctrl');
+  const podActs  = document.querySelector('.pod-actions');
+
+  if(mode === 'subtitle') {
+    // Show sticky subtitle + controls, hide studio + script
+    studio.style.display    = 'none';
+    diagList.style.display  = 'none';
+    subBox.classList.add('sub-sticky');
+    subBox.style.display    = '';
+  } else if(mode === 'script') {
+    // Hide subtitle box, show studio + script only
+    studio.style.display    = '';
+    subBox.style.display    = 'none';
+    subBox.classList.remove('sub-sticky');
+    diagList.style.display  = '';
+  } else {
+    // Both — everything visible
+    studio.style.display    = '';
+    subBox.style.display    = '';
+    subBox.classList.remove('sub-sticky');
+    diagList.style.display  = '';
+  }
+}
+
+function toggleSpeedPanel() {
+  const panel = document.getElementById('speed-panel');
+  const btn   = document.getElementById('vm-speed');
+  const open  = panel.classList.toggle('open');
+  btn.classList.toggle('on', open);
+}
+
+function setSpeed(val) {
+  S.play.speed = val;
+  // Update speed option highlights
+  const speeds = [0.5, 0.75, 1, 1.25, 1.5];
+  speeds.forEach((s,i) => {
+    document.getElementById('spd-'+i).classList.toggle('on', s===val);
+  });
+  // Update old speed chip too
+  document.getElementById('speed-chip').textContent = val+'×';
+  // If playing, restart current line at new speed
+  if(S.play.on) { speechSynthesis.cancel(); speakLine(S.play.idx); }
+  toast('Speed set to '+val+'×');
 }
 
 function exitPod() { speechSynthesis.cancel(); S.play.on=false; navTo('home'); }
