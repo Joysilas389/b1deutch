@@ -39,7 +39,7 @@ html, body { height: 100%; background: var(--bg) !important; color: var(--txt) !
 @keyframes fadeUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
 #s-generating.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 /* Chat screen needs flex to keep input bar pinned at bottom */
-#s-chat.active { display: flex !important; flex-direction: column; height: 100%; overflow: hidden; }
+#s-chat.active { display: flex !important; flex-direction: column; height: calc(100% - 72px); overflow: hidden; }
 
 /* ── BOOTSTRAP OVERRIDES ── */
 body, .card, .modal-content, .offcanvas { font-family: var(--font) !important; }
@@ -394,7 +394,7 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
 .chat-bubble.anna .cb-speaker { color: var(--anna); }
 .chat-bubble.max  .cb-speaker { color: var(--max); }
 .chat-bubble .cb-tip { font-size: 11px; color: var(--warn); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--bdr); }
-.chat-input-row { position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid var(--bdr); padding: 10px 14px max(env(safe-area-inset-bottom,0px),14px); display: flex; gap: 8px; align-items: center; }
+.chat-input-row { flex-shrink: 0; background: var(--bg); border-top: 1px solid var(--bdr); padding: 10px 14px max(env(safe-area-inset-bottom,0px),14px); display: flex; gap: 8px; align-items: center; }
 .chat-rec-btn { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--bdr2); background: var(--surf2); display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; flex-shrink: 0; transition: all .2s; }
 .chat-rec-btn.live { border-color: var(--danger); background: #ff3b3015; animation: recPulse 1.6s infinite; }
 
