@@ -148,7 +148,8 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
 .exam-char.s1 .exam-glow { border-color: var(--anna); box-shadow: 0 0 14px #ff4f9755; }
 .exam-char.s2 .exam-glow { border-color: var(--max); box-shadow: 0 0 14px #22d3a455; }
 .exam-char.speaking .exam-glow { opacity: 1; animation: examGlow 1.4s ease-in-out infinite; }
-.exam-char.speaking .exam-av { transform: scale(1.08); }
+.exam-char.speaking .exam-av { transform: scale(1.08); animation: charBounce 0.6s ease-in-out infinite alternate; }
+@keyframes charBounce { from { transform: scale(1.08) translateY(0); } to { transform: scale(1.1) translateY(-4px); } }
 @keyframes examGlow { 0%,100% { box-shadow: 0 0 14px currentColor } 50% { box-shadow: 0 0 28px currentColor } }
 .exam-badge { font-size: 9px; font-weight: 700; background: rgba(9,9,15,.9); border: 1px solid var(--bdr2); border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
 .exam-char.e1 .exam-badge, .exam-char.e2 .exam-badge { color: var(--accent2); }
@@ -353,10 +354,21 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
 .empty-desc { font-size: 14px; color: var(--txt3); line-height: 1.65; }
 
 
-body.light-mode{--bg:#f4f4f8;--surf:#ffffff;--surf2:#eeeef4;--bdr:#d0d0e0;--bdr2:#c0c0d4;--txt:#111120;--txt2:#44445e;--txt3:#8a8aaa;}
-body.light-mode .card{background:#fff!important;}
-body.light-mode #global-nav{background:rgba(244,244,248,.97);}
-body.light-mode .hb-panel{background:#fff;}
+/* ── LIGHT MODE ── */
+body.light-mode {
+  --bg: #f4f4f8;
+  --surf: #ffffff;
+  --surf2: #eeeef4;
+  --bdr: #d0d0e0;
+  --bdr2: #c0c0d4;
+  --txt: #111120;
+  --txt2: #44445e;
+  --txt3: #8a8aaa;
+}
+body.light-mode .card { background: #fff !important; }
+body.light-mode #global-nav { background: rgba(244,244,248,.97); }
+body.light-mode .hb-panel { background: #fff; }
+
 /* ── MISC ── */
 .session-done { text-align: center; padding: 36px 20px; }
 .session-ico { font-size: 50px; margin-bottom: 14px; }
@@ -502,19 +514,19 @@ body.light-mode .hb-panel{background:#fff;}
     <div class="exam-room" id="pod-studio">
       <div class="exam-bg"></div>
       <div class="exam-char e1 speaking" id="cn-e1">
-        <div class="exam-av"><div class="exam-glow"></div>EX1</div>
+        <div class="exam-av" style="overflow:hidden;padding:0;background:none;border:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Examiner1.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" alt="Examiner 1"/></div>
         <div class="exam-badge">Examiner 1</div>
       </div>
       <div class="exam-char e2" id="cn-e2">
-        <div class="exam-av"><div class="exam-glow"></div>EX2</div>
+        <div class="exam-av" style="overflow:hidden;padding:0;background:none;border:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Examiner2.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" alt="Examiner 2"/></div>
         <div class="exam-badge">Examiner 2</div>
       </div>
       <div class="exam-char s1" id="cn-anna">
-        <div class="exam-av"><div class="exam-glow"></div>AN</div>
+        <div class="exam-av" style="overflow:hidden;padding:0;background:none;border:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Anna.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" alt="Anna"/></div>
         <div class="exam-badge">Anna</div>
       </div>
       <div class="exam-char s2" id="cn-max">
-        <div class="exam-av"><div class="exam-glow"></div>MX</div>
+        <div class="exam-av" style="overflow:hidden;padding:0;background:none;border:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Max.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" alt="Max"/></div>
         <div class="exam-badge">Max</div>
       </div>
       <div class="exam-table"></div>
@@ -584,9 +596,9 @@ body.light-mode .hb-panel{background:#fff;}
   <div class="px-3 mb-2">
     <div class="exam-room" id="lesen-room" style="height:160px;">
       <div class="exam-bg"></div>
-      <div class="exam-char e1" id="lr-e1"><div class="exam-av"><div class="exam-glow"></div>EX1</div><div class="exam-badge">Examiner</div></div>
-      <div class="exam-char s1" id="lr-s1"><div class="exam-av"><div class="exam-glow"></div>AN</div><div class="exam-badge">Anna</div></div>
-      <div class="exam-char s2" id="lr-s2"><div class="exam-av"><div class="exam-glow"></div>MX</div><div class="exam-badge">Max</div></div>
+      <div class="exam-char e1" id="lr-e1"><div class="exam-av" style="overflow:hidden;padding:0;background:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Examiner1.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/></div><div class="exam-badge">Examiner</div></div>
+      <div class="exam-char s1" id="lr-s1"><div class="exam-av" style="overflow:hidden;padding:0;background:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Anna.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/></div><div class="exam-badge">Anna</div></div>
+      <div class="exam-char s2" id="lr-s2"><div class="exam-av" style="overflow:hidden;padding:0;background:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Max.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/></div><div class="exam-badge">Max</div></div>
       <div class="exam-table"></div><div class="exam-floor"></div>
       <div class="exam-papers"><div class="exam-paper"></div><div class="exam-paper"></div><div class="exam-paper"></div></div>
       <div class="exam-subtitle" id="lesen-room-txt">Reading exam in progress…</div>
@@ -623,8 +635,8 @@ body.light-mode .hb-panel{background:#fff;}
     <!-- Exam room -->
     <div class="exam-room mb-3" id="schreiben-room" style="height:140px;">
       <div class="exam-bg"></div>
-      <div class="exam-char e1"><div class="exam-av"><div class="exam-glow"></div>EX</div><div class="exam-badge">Examiner</div></div>
-      <div class="exam-char s1"><div class="exam-av"><div class="exam-glow"></div>AN</div><div class="exam-badge">Anna</div></div>
+      <div class="exam-char e1"><div class="exam-av" style="overflow:hidden;padding:0;background:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Examiner1.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/></div><div class="exam-badge">Examiner</div></div>
+      <div class="exam-char s1"><div class="exam-av" style="overflow:hidden;padding:0;background:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Anna.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/></div><div class="exam-badge">Anna</div></div>
       <div class="exam-table"></div><div class="exam-floor"></div>
       <div class="exam-papers"><div class="exam-paper"></div><div class="exam-paper"></div></div>
       <div class="exam-subtitle" id="schreiben-room-txt">Writing exam in progress…</div>
@@ -659,10 +671,10 @@ body.light-mode .hb-panel{background:#fff;}
     <!-- Exam room -->
     <div class="exam-room mb-3" id="horen-room" style="height:160px;">
       <div class="exam-bg"></div>
-      <div class="exam-char e1" id="hr-e1"><div class="exam-av"><div class="exam-glow"></div>EX1</div><div class="exam-badge">Speaker 1</div></div>
-      <div class="exam-char e2" id="hr-e2"><div class="exam-av"><div class="exam-glow"></div>EX2</div><div class="exam-badge">Speaker 2</div></div>
-      <div class="exam-char s1"><div class="exam-av"><div class="exam-glow"></div>AN</div><div class="exam-badge">Anna</div></div>
-      <div class="exam-char s2"><div class="exam-av"><div class="exam-glow"></div>MX</div><div class="exam-badge">Max</div></div>
+      <div class="exam-char e1" id="hr-e1"><div class="exam-av" style="overflow:hidden;padding:0;background:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Examiner1.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/></div><div class="exam-badge">Speaker 1</div></div>
+      <div class="exam-char e2" id="hr-e2"><div class="exam-av" style="overflow:hidden;padding:0;background:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Examiner2.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/></div><div class="exam-badge">Speaker 2</div></div>
+      <div class="exam-char s1"><div class="exam-av" style="overflow:hidden;padding:0;background:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Anna.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/></div><div class="exam-badge">Anna</div></div>
+      <div class="exam-char s2"><div class="exam-av" style="overflow:hidden;padding:0;background:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Max.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/></div><div class="exam-badge">Max</div></div>
       <div class="exam-table"></div><div class="exam-floor"></div>
       <div class="exam-subtitle" id="horen-room-txt">Listening exam in progress…</div>
     </div>
@@ -983,7 +995,7 @@ function go(id) {
 function navTo(id) {
   go(id);
   document.querySelectorAll('#global-nav .nav-tab').forEach(t => t.classList.remove('on'));
-  if (id==='home')  { document.getElementById('nt-home').classList.add('on');const t=localStorage.getItem('sp2_theme');if(t==='light'){document.body.classList.add('light-mode');document.getElementById('theme-btn').textContent='☀️';document.documentElement.setAttribute('data-bs-theme','light');} renderHome(); }
+  if (id==='home')  { document.getElementById('nt-home').classList.add('on'); renderHome(); }
   if (id==='flash') { document.getElementById('nt-flash').classList.add('on'); renderFlash(); }
 }
 
@@ -1253,9 +1265,15 @@ function speakLine(idx){
   const l=p.dialogue[idx],utt=new SpeechSynthesisUtterance(l.text);
   utt.lang='de-DE';utt.rate=S.play.speed;
   const voices=gv();
-  if(voices.length>=2){const f=voices.find(v=>/female|anna|hedda|petra|vicki|steffi|hanna|marlene/i.test(v.name));const m=voices.find(v=>/male|hans|stefan|markus|daniel|otto|yannick/i.test(v.name));utt.voice=l.speaker==='Anna'?(f||voices[0]):(m||voices[voices.length>1?1:0]);}
-  else if(voices.length===1){utt.voice=voices[0];utt.pitch=l.speaker==='Anna'?1.28:.80;}
-  else{utt.pitch=l.speaker==='Anna'?1.22:.82;}
+  if(l.speaker==='Anna'){
+    utt.pitch=1.3; utt.rate=S.play.speed*0.95;
+    const f=voices.find(v=>/female|anna|hedda|petra|vicki|steffi|hanna|marlene|zira|susan|karen|moira/i.test(v.name));
+    if(f) utt.voice=f; else if(voices.length>0) utt.voice=voices[0];
+  } else {
+    utt.pitch=0.75; utt.rate=S.play.speed*1.05;
+    const m=voices.find(v=>/male|hans|stefan|markus|daniel|otto|yannick|david|james|george/i.test(v.name));
+    if(m) utt.voice=m; else if(voices.length>1) utt.voice=voices[1]; else if(voices.length>0) utt.voice=voices[0];
+  }
   utt.onend=()=>{if(S.play.on)setTimeout(()=>speakLine(idx+1),500/S.play.speed);};
   speechSynthesis.speak(utt);
 }
@@ -1671,7 +1689,7 @@ function renderFCContent(){
     </div>`;
 }
 function nxtInt(card,q){return sm2(card,q).interval;}
-function flipCard(){S.fc.flipped=!S.fc.flipped;renderFCContent();if(!S.fc.flipped){const c=getQueue()[S.fc.studyIdx];if(c){const u=new SpeechSynthesisUtterance(c.baseForm||c.word);u.lang="de-DE";speechSynthesis.cancel();speechSynthesis.speak(u);}}}
+function flipCard(){S.fc.flipped=!S.fc.flipped;renderFCContent();}
 function rateCard(q){
   const queue=getQueue(),card=queue[S.fc.studyIdx];if(!card)return;
   card.sr=sm2(card,q);S.fc.sessionTotal++;
@@ -1705,7 +1723,17 @@ function fmtT(s){const m=Math.floor(s/60),sec=Math.floor(s%60);return`${m}:${sec
 let toastTm;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTm);toastTm=setTimeout(()=>el.classList.remove('show'),2800);}
 
-function toggleTheme(){const l=document.body.classList.toggle("light-mode");document.getElementById("theme-btn").textContent=l?"☀️":"🌙";document.documentElement.setAttribute("data-bs-theme",l?"light":"dark");localStorage.setItem("sp2_theme",l?"light":"dark");}
+
+/* ══════════════════════════════════════
+   THEME TOGGLE
+══════════════════════════════════════ */
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light-mode');
+  document.getElementById('theme-btn').textContent = isLight ? '☀️' : '🌙';
+  document.documentElement.setAttribute('data-bs-theme', isLight ? 'light' : 'dark');
+  localStorage.setItem('sp2_theme', isLight ? 'light' : 'dark');
+}
+
 /* ══════════════════════════════════════
    BOOT
 ══════════════════════════════════════ */
@@ -1715,7 +1743,14 @@ window.addEventListener('load',()=>{
   speechSynthesis.onvoiceschanged=()=>{vc=null;};
   renderHome();
   document.getElementById('global-nav').style.display='block';
-  document.getElementById('nt-home').classList.add('on');const t=localStorage.getItem('sp2_theme');if(t==='light'){document.body.classList.add('light-mode');document.getElementById('theme-btn').textContent='☀️';document.documentElement.setAttribute('data-bs-theme','light');}
+  document.getElementById('nt-home').classList.add('on');
+  // Load saved theme
+  const savedTheme = localStorage.getItem('sp2_theme');
+  if (savedTheme === 'light') {
+    document.body.classList.add('light-mode');
+    document.getElementById('theme-btn').textContent = '☀️';
+    document.documentElement.setAttribute('data-bs-theme', 'light');
+  }
   // Set default toggles
   setStd('telc'); setLvl('A2'); setDur('medium');
 });
