@@ -21,11 +21,12 @@ export default async function handler(req, res) {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'tts-1-hd',       // higher quality for better German pronunciation
+        model: 'tts-1-hd',
         input: text,
-        voice: voice || 'nova',  // nova | onyx | shimmer | echo | alloy | fable
-        speed: speed || 1.0,     // 0.25 - 4.0
+        voice: voice || 'nova',
+        speed: speed || 1.0,
         response_format: 'mp3',
+        instructions: 'You are a native German speaker. Speak with authentic German pronunciation, correct German intonation, and natural German rhythm. Pronounce all words exactly as a native German would.',
       }),
     });
 

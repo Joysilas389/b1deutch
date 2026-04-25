@@ -353,6 +353,95 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
 .empty-desc { font-size: 14px; color: var(--txt3); line-height: 1.65; }
 
 
+
+/* ═══════════════════════════════════
+   XP / STREAK BANNER
+═══════════════════════════════════ */
+.xp-banner { background: linear-gradient(135deg, #6457ff18, #8070ff08); border: 1px solid #6457ff30; border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; }
+.xp-bar-bg { height: 6px; background: var(--bdr2); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+.xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; transition: width .6s ease; }
+.xp-popup { position: fixed; top: 60px; left: 50%; transform: translateX(-50%) scale(.8); background: linear-gradient(135deg, var(--accent), #8070ff); color: #fff; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 14px; opacity: 0; pointer-events: none; z-index: 1000; transition: all .4s cubic-bezier(.22,1,.36,1); white-space: nowrap; }
+.xp-popup.show { opacity: 1; transform: translateX(-50%) scale(1); }
+
+/* ═══════════════════════════════════
+   WORD OF THE DAY
+═══════════════════════════════════ */
+.wotd-card { background: linear-gradient(135deg, #0d0d22, #141432); border: 1px solid #6457ff35; border-radius: 18px; padding: 18px; margin-bottom: 12px; cursor: pointer; }
+.wotd-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; color: var(--accent2); text-transform: uppercase; margin-bottom: 6px; }
+.wotd-word { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
+.wotd-ipa { font-size: 13px; color: var(--accent2); margin: 2px 0 4px; font-style: italic; }
+.wotd-en { font-size: 15px; color: var(--txt2); margin-bottom: 8px; }
+.wotd-fact { font-size: 12px; color: var(--txt3); line-height: 1.6; background: var(--surf2); border-radius: 10px; padding: 10px; margin-top: 8px; }
+
+/* ═══════════════════════════════════
+   EXAM COUNTDOWN
+═══════════════════════════════════ */
+.countdown-card { background: var(--surf); border: 1px solid var(--bdr); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+.countdown-days { font-size: 42px; font-weight: 900; letter-spacing: -2px; background: linear-gradient(135deg, var(--warn), #ff6b00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.countdown-bar { height: 5px; background: var(--bdr2); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+.countdown-fill { height: 100%; background: linear-gradient(90deg, var(--warn), #ff6b00); border-radius: 3px; transition: width .6s; }
+
+/* ═══════════════════════════════════
+   FREE TALK / CHAT
+═══════════════════════════════════ */
+.chat-bubble { max-width: 82%; padding: 10px 14px; border-radius: 18px; font-size: 14px; line-height: 1.55; margin-bottom: 8px; }
+.chat-bubble.user { background: linear-gradient(135deg, var(--accent), #8070ff); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; }
+.chat-bubble.anna { background: var(--surf); border: 1px solid var(--bdr); border-bottom-left-radius: 4px; align-self: flex-start; }
+.chat-bubble.max  { background: var(--surf); border: 1px solid #22d3a430; border-bottom-left-radius: 4px; align-self: flex-start; }
+.chat-bubble .cb-speaker { font-size: 10px; font-weight: 700; margin-bottom: 4px; }
+.chat-bubble.anna .cb-speaker { color: var(--anna); }
+.chat-bubble.max  .cb-speaker { color: var(--max); }
+.chat-bubble .cb-tip { font-size: 11px; color: var(--warn); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--bdr); }
+.chat-input-row { position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid var(--bdr); padding: 10px 14px max(env(safe-area-inset-bottom,0px),14px); display: flex; gap: 8px; align-items: center; }
+.chat-rec-btn { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--bdr2); background: var(--surf2); display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; flex-shrink: 0; transition: all .2s; }
+.chat-rec-btn.live { border-color: var(--danger); background: #ff3b3015; animation: recPulse 1.6s infinite; }
+
+/* ═══════════════════════════════════
+   MOCK EXAM
+═══════════════════════════════════ */
+.exam-progress { display: flex; gap: 6px; }
+.ep-seg { flex: 1; height: 4px; border-radius: 2px; background: var(--bdr2); transition: background .3s; }
+.ep-seg.done { background: var(--good); }
+.ep-seg.cur  { background: var(--accent); }
+.exam-timer { font-size: 32px; font-weight: 900; font-family: var(--mono); letter-spacing: -1px; }
+.exam-timer.urgent { color: var(--danger); animation: timerPulse 1s infinite; }
+@keyframes timerPulse { 0%,100%{opacity:1}50%{opacity:.5} }
+.cert-card { background: linear-gradient(135deg, #0a0a20, #141430); border: 2px solid #6457ff50; border-radius: 24px; padding: 28px 20px; text-align: center; }
+.cert-seal { font-size: 64px; margin-bottom: 12px; }
+.cert-grade { font-size: 48px; font-weight: 900; letter-spacing: -2px; background: linear-gradient(135deg, var(--accent2), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.cert-label { font-size: 13px; color: var(--txt3); margin-top: 4px; }
+.score-seg { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--bdr); }
+.score-seg:last-child { border-bottom: none; }
+
+/* ═══════════════════════════════════
+   MISTAKE JOURNAL
+═══════════════════════════════════ */
+.journal-item { background: var(--surf); border: 1px solid var(--bdr); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+.ji-error { font-size: 14px; color: var(--danger); font-style: italic; margin-bottom: 4px; }
+.ji-correct { font-size: 14px; color: var(--good); font-weight: 600; margin-bottom: 6px; }
+.ji-note { font-size: 12px; color: var(--txt3); line-height: 1.6; }
+.ji-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+/* ═══════════════════════════════════
+   STORY MODE
+═══════════════════════════════════ */
+.story-card { background: var(--surf); border: 1px solid var(--bdr); border-radius: 16px; padding: 16px; margin-bottom: 10px; cursor: pointer; transition: background .15s; }
+.story-card:active { background: var(--surf2); }
+.story-ep-num { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--accent2); text-transform: uppercase; margin-bottom: 4px; }
+.story-ep-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.story-ep-scenario { font-size: 12px; color: var(--txt3); }
+
+/* ═══════════════════════════════════
+   SHADOWING MODE
+═══════════════════════════════════ */
+.shadow-line { background: var(--surf); border: 1px solid var(--bdr); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+.shadow-de { font-size: 16px; font-weight: 600; line-height: 1.55; margin-bottom: 4px; }
+.shadow-en { font-size: 13px; color: var(--txt3); font-style: italic; }
+.shadow-score { font-size: 22px; font-weight: 800; }
+.shadow-score.good { color: var(--good); }
+.shadow-score.ok   { color: var(--warn); }
+.shadow-score.bad  { color: var(--danger); }
+
 /* ── LIGHT MODE ── */
 body.light-mode {
   --bg: #f4f4f8;
@@ -430,6 +519,26 @@ body.light-mode .hb-panel { background: #fff; }
           <div class="mod-bar"></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- XP Banner -->
+  <div class="px-3 mb-2" id="xp-section"></div>
+
+  <!-- Exam Countdown -->
+  <div class="px-3 mb-2" id="countdown-section"></div>
+
+  <!-- Word of the Day -->
+  <div class="px-3 mb-2" id="wotd-section"></div>
+
+  <!-- Quick Actions -->
+  <div class="px-3 mb-2">
+    <div class="sec-lbl mb-2">Quick Access</div>
+    <div class="row g-2">
+      <div class="col-6"><div onclick="navTo('chat')" style="background:linear-gradient(135deg,#ff4f9720,#c44dde10);border:1px solid #ff4f9730;border-radius:14px;padding:14px;cursor:pointer;text-align:center;"><div style="font-size:24px;">💬</div><div style="font-size:13px;font-weight:700;color:var(--anna);margin-top:4px;">Free Talk</div><div style="font-size:11px;color:var(--txt3);">Chat with Anna or Max</div></div></div>
+      <div class="col-6"><div onclick="navTo('exam')" style="background:linear-gradient(135deg,#6457ff20,#8070ff10);border:1px solid #6457ff30;border-radius:14px;padding:14px;cursor:pointer;text-align:center;"><div style="font-size:24px;">📝</div><div style="font-size:13px;font-weight:700;color:var(--accent2);margin-top:4px;">Mock Exam</div><div style="font-size:11px;color:var(--txt3);">Full 4-section test</div></div></div>
+      <div class="col-6"><div onclick="navTo('story')" style="background:linear-gradient(135deg,#22d3a420,#06b6d410);border:1px solid #22d3a430;border-radius:14px;padding:14px;cursor:pointer;text-align:center;"><div style="font-size:24px;">📚</div><div style="font-size:13px;font-weight:700;color:var(--max);margin-top:4px;">Story Mode</div><div style="font-size:11px;color:var(--txt3);">Dynamic episodes</div></div></div>
+      <div class="col-6"><div onclick="navTo('journal')" style="background:linear-gradient(135deg,#ff9f0a20,#ff6b0010);border:1px solid #ff9f0a30;border-radius:14px;padding:14px;cursor:pointer;text-align:center;"><div style="font-size:24px;">📔</div><div style="font-size:13px;font-weight:700;color:var(--warn);margin-top:4px;">Mistake Journal</div><div style="font-size:11px;color:var(--txt3);">Auto-saved errors</div></div></div>
     </div>
   </div>
 
@@ -580,6 +689,10 @@ body.light-mode .hb-panel { background: #fff; }
       <div class="col-4"><div class="d-flex flex-column align-items-center justify-content-center p-2 rounded-3 gap-1" style="background:var(--surf2);border:1px solid var(--bdr2);cursor:pointer;" onclick="toggleTrans()"><span style="font-size:18px">🇩🇪</span><span style="font-size:11px;color:var(--txt2);font-weight:600;" id="trans-lbl">Translation</span></div></div>
       <div class="col-4"><div class="d-flex flex-column align-items-center justify-content-center p-2 rounded-3 gap-1" style="background:var(--surf2);border:1px solid var(--bdr2);cursor:pointer;" onclick="startChallenge()"><span style="font-size:18px">🎯</span><span style="font-size:11px;color:var(--txt2);font-weight:600;">Speaking Test</span></div></div>
       <div class="col-4"><div class="d-flex flex-column align-items-center justify-content-center p-2 rounded-3 gap-1" style="background:var(--surf2);border:1px solid var(--bdr2);cursor:pointer;" onclick="navTo('flash')"><span style="font-size:18px">🃏</span><span style="font-size:11px;color:var(--txt2);font-weight:600;">Vocab Cards</span></div></div>
+    </div>
+    <div class="row g-2 mt-1">
+      <div class="col-6"><div class="d-flex flex-column align-items-center justify-content-center p-2 rounded-3 gap-1" style="background:var(--surf2);border:1px solid var(--bdr2);cursor:pointer;" onclick="openShadowing()"><span style="font-size:18px">🔄</span><span style="font-size:11px;color:var(--txt2);font-weight:600;">Shadowing Mode</span></div></div>
+      <div class="col-6"><div class="d-flex flex-column align-items-center justify-content-center p-2 rounded-3 gap-1" style="background:var(--surf2);border:1px solid var(--bdr2);cursor:pointer;" onclick="navTo('journal')"><span style="font-size:18px">📔</span><span style="font-size:11px;color:var(--txt2);font-weight:600;">Mistake Journal</span></div></div>
     </div>
   </div>
 
@@ -927,9 +1040,231 @@ body.light-mode .hb-panel { background: #fff; }
 <div id="global-nav" style="position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(8,8,16,.97);backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--bdr);padding:8px 0 max(env(safe-area-inset-bottom,0px),10px);display:none;">
   <div class="d-flex">
     <button class="nav-tab" id="nt-home" onclick="navTo('home')"><div class="nav-tab-ico">🏠</div><div class="nav-tab-lbl">Home</div></button>
-    <button class="nav-tab" id="nt-flash" onclick="navTo('flash')"><div class="nav-tab-ico">🃏</div><div class="nav-tab-lbl">Flashcards</div></button>
+    <button class="nav-tab" id="nt-story" onclick="navTo('story')"><div class="nav-tab-ico">📚</div><div class="nav-tab-lbl">Story</div></button>
+    <button class="nav-tab" id="nt-chat" onclick="navTo('chat')"><div class="nav-tab-ico">💬</div><div class="nav-tab-lbl">Talk</div></button>
+    <button class="nav-tab" id="nt-exam" onclick="navTo('exam')"><div class="nav-tab-ico">📝</div><div class="nav-tab-lbl">Exam</div></button>
+    <button class="nav-tab" id="nt-journal" onclick="navTo('journal')"><div class="nav-tab-ico">📔</div><div class="nav-tab-lbl">Journal</div></button>
+    <button class="nav-tab" id="nt-flash" onclick="navTo('flash')"><div class="nav-tab-ico">🃏</div><div class="nav-tab-lbl">Cards</div></button>
   </div>
 </div>
+
+
+<!-- ════════════════════════════════════════
+     FREE TALK SCREEN
+════════════════════════════════════════ -->
+<div id="s-chat" class="screen" style="display:flex;flex-direction:column;">
+  <div class="safe-top px-3 pb-2 d-flex align-items-center gap-3">
+    <div class="back-btn" onclick="exitChat()">←</div>
+    <div style="flex:1;">
+      <div style="font-size:19px;font-weight:800;">💬 Free Talk</div>
+      <div style="font-size:12px;color:var(--txt3);" id="chat-sub">Talking with Anna · B1</div>
+    </div>
+    <button onclick="toggleGrammarTips()" id="grammar-tips-btn" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:6px 10px;font-size:12px;font-weight:700;color:var(--txt2);cursor:pointer;">💡 Tips</button>
+  </div>
+  <!-- Partner selector -->
+  <div class="px-3 mb-2 d-flex gap-2">
+    <div class="tgl on" id="chat-anna-btn" onclick="setChatPartner('Anna')" style="font-size:12px;">🌸 Anna</div>
+    <div class="tgl" id="chat-max-btn" onclick="setChatPartner('Max')" style="font-size:12px;">🌊 Max</div>
+    <div class="tgl" id="chat-lvl-a2" onclick="setChatLevel('A2')" style="font-size:12px;">A2</div>
+    <div class="tgl on" id="chat-lvl-b1" onclick="setChatLevel('B1')" style="font-size:12px;">B1</div>
+    <div class="tgl" id="chat-lvl-b2" onclick="setChatLevel('B2')" style="font-size:12px;">B2</div>
+  </div>
+  <!-- Messages -->
+  <div id="chat-messages" style="flex:1;overflow-y:auto;padding:12px 16px 8px;display:flex;flex-direction:column;gap:2px;-webkit-overflow-scrolling:touch;"></div>
+  <!-- Typing indicator -->
+  <div id="chat-typing" style="display:none;padding:0 16px 4px;font-size:12px;color:var(--txt3);font-style:italic;"></div>
+  <!-- Input row -->
+  <div class="chat-input-row">
+    <div class="chat-rec-btn" id="chat-rec-btn" onclick="toggleChatRec()">🎙</div>
+    <input type="text" id="chat-input" class="t-input" style="flex:1;padding:10px 14px;font-size:14px;" placeholder="Type in German…" onkeydown="if(event.key==='Enter')sendChatMsg()">
+    <button onclick="sendChatMsg()" style="background:linear-gradient(135deg,var(--accent),#8070ff);border:none;border-radius:12px;padding:10px 16px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap;">Send</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     MOCK EXAM SCREEN
+════════════════════════════════════════ -->
+<div id="s-exam" class="screen">
+  <div id="exam-setup-view">
+    <div class="safe-top px-3 pb-2 d-flex align-items-center gap-3">
+      <div class="back-btn" onclick="navTo('home')">←</div>
+      <div><div style="font-size:19px;font-weight:800;">📝 Mock Exam</div><div style="font-size:12px;color:var(--txt3);">Full simulation · All 4 sections</div></div>
+    </div>
+    <div class="px-3" style="padding-bottom:120px;">
+      <div class="exam-room mb-3" style="height:160px;">
+        <div class="exam-bg"></div>
+        <div class="exam-char e1"><div class="exam-av-wrap"><div class="exam-glow"></div><div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Examiner1&backgroundColor=b6e3f4" loading="lazy"/></div></div><div class="exam-badge">Examiner 1</div></div>
+        <div class="exam-char e2"><div class="exam-av-wrap"><div class="exam-glow"></div><div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Examiner2&backgroundColor=c0aede" loading="lazy"/></div></div><div class="exam-badge">Examiner 2</div></div>
+        <div class="exam-char s1"><div class="exam-av-wrap"><div class="exam-glow"></div><div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Anna&backgroundColor=ffdfbf" loading="lazy"/></div></div><div class="exam-badge">Anna</div></div>
+        <div class="exam-char s2"><div class="exam-av-wrap"><div class="exam-glow"></div><div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Max&backgroundColor=d1f4d1" loading="lazy"/></div></div><div class="exam-badge">Max</div></div>
+        <div class="exam-table"></div><div class="exam-floor"></div>
+        <div class="exam-subtitle">Ready to begin your exam?</div>
+      </div>
+      <div class="sec-lbl mb-2">Exam Standard</div>
+      <div class="tgl-row mb-3">
+        <div class="tgl on-telc" id="ex-std-telc" onclick="setExamStd('telc')">TELC</div>
+        <div class="tgl" id="ex-std-goethe" onclick="setExamStd('goethe')">Goethe</div>
+      </div>
+      <div class="sec-lbl mb-2">Level</div>
+      <div class="tgl-row mb-3">
+        <div class="tgl" id="ex-a2" onclick="setExamLvl('A2')">A2</div>
+        <div class="tgl on-b1" id="ex-b1" onclick="setExamLvl('B1')">B1</div>
+        <div class="tgl" id="ex-b2" onclick="setExamLvl('B2')">B2</div>
+      </div>
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="sec-lbl mb-2">What's Included</div>
+          <div class="d-flex flex-column gap-2">
+            <div class="d-flex align-items-center gap-3"><span style="font-size:22px;">📖</span><div><div style="font-size:14px;font-weight:700;">Lesen</div><div style="font-size:12px;color:var(--txt3);">Reading comprehension · 20 min</div></div></div>
+            <div class="d-flex align-items-center gap-3"><span style="font-size:22px;">🎧</span><div><div style="font-size:14px;font-weight:700;">Hören</div><div style="font-size:12px;color:var(--txt3);">Listening comprehension · 30 min</div></div></div>
+            <div class="d-flex align-items-center gap-3"><span style="font-size:22px;">✍️</span><div><div style="font-size:14px;font-weight:700;">Schreiben</div><div style="font-size:12px;color:var(--txt3);">Writing task · 30 min</div></div></div>
+            <div class="d-flex align-items-center gap-3"><span style="font-size:22px;">🎙</span><div><div style="font-size:14px;font-weight:700;">Sprechen</div><div style="font-size:12px;color:var(--txt3);">Speaking test · 15 min</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="position:sticky;bottom:0;background:var(--bg);padding:12px 16px max(env(safe-area-inset-bottom,0px),20px);">
+      <button class="btn btn-accent w-100 py-3 rounded-3 fs-6" onclick="startExam()">🚀 Start Exam</button>
+    </div>
+  </div>
+  <div id="exam-active-view" style="display:none;">
+    <div class="safe-top px-3 pb-2">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <div class="d-flex align-items-center gap-2">
+          <div style="font-size:20px;font-weight:800;" id="exam-section-title">Lesen</div>
+          <span style="font-size:12px;color:var(--txt3);" id="exam-section-num">1/4</span>
+        </div>
+        <div class="exam-timer" id="exam-timer">20:00</div>
+      </div>
+      <div class="exam-progress" id="exam-progress"></div>
+    </div>
+    <div class="px-3" style="padding-bottom:120px;" id="exam-content"></div>
+    <div style="position:sticky;bottom:0;background:var(--bg);padding:12px 16px max(env(safe-area-inset-bottom,0px),20px);">
+      <button class="btn btn-accent w-100 py-3 rounded-3 fs-6" id="exam-next-btn" onclick="examNextSection()">Next Section →</button>
+    </div>
+  </div>
+  <div id="exam-result-view" style="display:none;">
+    <div class="safe-top px-3 pb-3" style="padding-bottom:120px;" id="exam-result-content"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     MISTAKE JOURNAL SCREEN
+════════════════════════════════════════ -->
+<div id="s-journal" class="screen">
+  <div class="safe-top px-3 pb-2 d-flex align-items-center gap-3">
+    <div class="back-btn" onclick="navTo('home')">←</div>
+    <div><div style="font-size:19px;font-weight:800;">📔 Mistake Journal</div><div style="font-size:12px;color:var(--txt3);">Auto-saved grammar errors</div></div>
+    <button onclick="clearJournal()" style="margin-left:auto;background:#ff3b3015;border:1px solid #ff3b3040;color:var(--danger);border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;">Clear</button>
+  </div>
+  <div class="px-3" style="padding-bottom:90px;" id="journal-list"></div>
+</div>
+
+<!-- ════════════════════════════════════════
+     STORY MODE SCREEN
+════════════════════════════════════════ -->
+<div id="s-story" class="screen">
+  <div class="safe-top px-3 pb-2 d-flex align-items-center gap-3">
+    <div class="back-btn" onclick="navTo('home')">←</div>
+    <div><div style="font-size:19px;font-weight:800;">📚 Story Mode</div><div style="font-size:12px;color:var(--txt3);">Dynamic episodes · Random scenarios</div></div>
+  </div>
+  <div class="px-3" style="padding-bottom:100px;">
+    <div class="wotd-card mb-3" style="cursor:default;">
+      <div class="wotd-label">How it works</div>
+      <div style="font-size:14px;color:var(--txt2);line-height:1.7;">Each episode is a fresh German scenario. Anna &amp; Max navigate real-life situations. Vocab carries forward between episodes. New episode every time!</div>
+    </div>
+    <div id="story-episodes"></div>
+  </div>
+  <div style="position:sticky;bottom:0;background:var(--bg);padding:12px 16px max(env(safe-area-inset-bottom,0px),20px);">
+    <button class="btn btn-accent w-100 py-3 rounded-3 fs-6" id="story-gen-btn" onclick="generateStoryEpisode()">🎲 Generate New Episode</button>
+  </div>
+</div>
+
+<!-- Story Episode Player -->
+<div id="s-story-player" class="screen">
+  <div class="safe-top px-3 pb-2 d-flex align-items-center gap-3">
+    <div class="back-btn" onclick="go('story')">←</div>
+    <div><div style="font-size:17px;font-weight:800;" id="story-ep-title">Episode</div><div style="font-size:12px;color:var(--txt3);" id="story-ep-sub">Story Mode</div></div>
+    <div class="d-flex gap-2 ms-auto">
+      <button class="back-btn" style="font-size:14px;" onclick="openHB()">⚙️</button>
+    </div>
+  </div>
+  <!-- Exam room -->
+  <div class="px-3 mb-2">
+    <div class="exam-room" id="story-room" style="height:180px;">
+      <div class="exam-bg"></div>
+      <div class="exam-char s1 speaking" id="story-anna">
+        <div class="exam-av-wrap"><div class="exam-glow"></div><div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Anna&backgroundColor=ffdfbf" loading="lazy"/></div></div>
+        <div class="exam-badge">Anna</div>
+      </div>
+      <div class="exam-char s2" id="story-max">
+        <div class="exam-av-wrap"><div class="exam-glow"></div><div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Max&backgroundColor=d1f4d1" loading="lazy"/></div></div>
+        <div class="exam-badge">Max</div>
+      </div>
+      <div class="exam-char e1" id="story-extra1" style="display:none;">
+        <div class="exam-av-wrap"><div class="exam-glow"></div><div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Examiner1&backgroundColor=b6e3f4" loading="lazy"/></div></div>
+        <div class="exam-badge" id="story-extra1-lbl">Guest</div>
+      </div>
+      <div class="exam-table"></div><div class="exam-floor"></div>
+      <div class="exam-papers"><div class="exam-paper"></div><div class="exam-paper"></div></div>
+      <div class="exam-subtitle" id="story-sub-mini">Press play…</div>
+    </div>
+  </div>
+  <!-- Subtitle -->
+  <div class="px-3 mb-2">
+    <div class="sub-box">
+      <div class="sub-spk" id="story-sub-spk">ANNA</div>
+      <div class="sub-txt" id="story-sub-txt">Press play to begin the story…</div>
+      <div class="sub-en" id="story-sub-en"></div>
+    </div>
+  </div>
+  <!-- Controls -->
+  <div class="px-3 mb-2">
+    <div class="d-flex align-items-center justify-content-center gap-4 mt-2">
+      <button class="ctrl-btn" onclick="storyPrev()">⏮</button>
+      <button class="play-btn" id="story-play-btn" onclick="toggleStoryPlay()">▶</button>
+      <button class="ctrl-btn" onclick="storyNext()">⏭</button>
+    </div>
+  </div>
+  <!-- Script -->
+  <div class="px-3 mb-2">
+    <div class="sec-lbl mb-2">Episode Script</div>
+    <div id="story-script"></div>
+  </div>
+  <!-- Vocab -->
+  <div class="px-3 mb-2" id="story-vocab-section" style="padding-bottom:60px;">
+    <div class="sec-lbl mb-2">Episode Vocabulary</div>
+    <div id="story-vocab-list"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     SHADOWING MODE SCREEN
+════════════════════════════════════════ -->
+<div id="s-shadow" class="screen">
+  <div class="safe-top px-3 pb-2 d-flex align-items-center gap-3">
+    <div class="back-btn" onclick="go('podcast')">←</div>
+    <div><div style="font-size:19px;font-weight:800;">🔄 Shadowing Mode</div><div style="font-size:12px;color:var(--txt3);" id="shadow-sub">Listen · Repeat · Perfect</div></div>
+  </div>
+  <div class="px-3 mb-3">
+    <div class="wotd-card" style="cursor:default;">
+      <div class="wotd-label">How to shadow</div>
+      <div style="font-size:13px;color:var(--txt2);line-height:1.7;">1. Press ▶ to hear the German line<br>2. Press 🎙 and repeat exactly what you heard<br>3. AI scores your pronunciation<br>4. Aim for 80+ on all lines!</div>
+    </div>
+  </div>
+  <div class="px-3" id="shadow-content" style="padding-bottom:60px;"></div>
+</div>
+
+<!-- ════════════════════════════════════════
+     WORD OF THE DAY / HOME EXTRAS
+     (rendered inside home screen, not separate)
+════════════════════════════════════════ -->
+
+<!-- XP Popup -->
+<div id="xp-popup" class="xp-popup"></div>
+
+<!-- Exam Std for exam screen -->
+<script>let examStd='telc', examLvl='B1';</script>
 
 <div id="toast"></div>
 
@@ -1077,21 +1412,31 @@ let S = {
 ══════════════════════════════════════ */
 function save() {
   try {
-    localStorage.setItem('sp2_pods',  JSON.stringify(S.podcasts));
-    localStorage.setItem('sp2_lesen', JSON.stringify(S.lesenSessions));
-    localStorage.setItem('sp2_schr',  JSON.stringify(S.schreibenSessions));
-    localStorage.setItem('sp2_hor',   JSON.stringify(S.horenSessions));
-    localStorage.setItem('sp2_fc',    JSON.stringify(S.fc.all));
-    localStorage.setItem('sp2_stats', JSON.stringify(S.stats));
-    localStorage.setItem('sp2_streak',String(S.fc.streak));
+    localStorage.setItem('sp3_pods',  JSON.stringify(S.podcasts));
+    localStorage.setItem('sp3_lesen', JSON.stringify(S.lesenSessions));
+    localStorage.setItem('sp3_schr',  JSON.stringify(S.schreibenSessions));
+    localStorage.setItem('sp3_hor',   JSON.stringify(S.horenSessions));
+    localStorage.setItem('sp3_fc',    JSON.stringify(S.fc.all));
+    localStorage.setItem('sp3_stats', JSON.stringify(S.stats));
+    localStorage.setItem('sp3_streak',String(S.fc.streak));
+    localStorage.setItem('sp3_journal',JSON.stringify(S.journal));
+    localStorage.setItem('sp3_xp',    JSON.stringify({xp:S.xp,xpLevel:S.xpLevel,streakDays:S.streakDays,lastActive:S.lastActive}));
+    localStorage.setItem('sp3_examdate', S.examDate||'');
+    localStorage.setItem('sp3_wotd',  JSON.stringify(S.wotd));
+    localStorage.setItem('sp3_story', JSON.stringify(S.story.episodes));
   } catch(e) {}
 }
 function load() {
   try {
-    const p=localStorage.getItem('sp2_pods'),   l=localStorage.getItem('sp2_lesen'),
-          sc=localStorage.getItem('sp2_schr'),  h=localStorage.getItem('sp2_hor'),
-          f=localStorage.getItem('sp2_fc'),     st=localStorage.getItem('sp2_stats'),
-          sk=localStorage.getItem('sp2_streak');
+    const p=localStorage.getItem('sp3_pods'),   l=localStorage.getItem('sp3_lesen'),
+          sc=localStorage.getItem('sp3_schr'),  h=localStorage.getItem('sp3_hor'),
+          f=localStorage.getItem('sp3_fc'),     st=localStorage.getItem('sp3_stats'),
+          sk=localStorage.getItem('sp3_streak'),
+          jn=localStorage.getItem('sp3_journal'),
+          xp=localStorage.getItem('sp3_xp'),
+          ed=localStorage.getItem('sp3_examdate'),
+          wd=localStorage.getItem('sp3_wotd'),
+          sy=localStorage.getItem('sp3_story');
     if(p)  S.podcasts           = JSON.parse(p);
     if(l)  S.lesenSessions      = JSON.parse(l);
     if(sc) S.schreibenSessions  = JSON.parse(sc);
@@ -1099,6 +1444,11 @@ function load() {
     if(f)  S.fc.all             = JSON.parse(f);
     if(st) S.stats              = JSON.parse(st);
     if(sk) S.fc.streak          = parseInt(sk)||0;
+    if(jn) S.journal            = JSON.parse(jn);
+    if(xp) { const x=JSON.parse(xp); S.xp=x.xp||0; S.xpLevel=x.xpLevel||0; S.streakDays=x.streakDays||0; S.lastActive=x.lastActive||null; }
+    if(ed) S.examDate           = ed||null;
+    if(wd) S.wotd               = JSON.parse(wd);
+    if(sy) S.story.episodes     = JSON.parse(sy);
   } catch(e) {}
 }
 
@@ -1109,20 +1459,28 @@ function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('s-'+id);
   if (el) { el.classList.add('active'); el.scrollTop = 0; }
+  const navScreens = ['home','flash','story','chat','exam','journal'];
   const nav = document.getElementById('global-nav');
-  nav.style.display = (id==='home'||id==='flash') ? 'block' : 'none';
+  nav.style.display = navScreens.includes(id) ? 'block' : 'none';
 }
 function navTo(id) {
   go(id);
   document.querySelectorAll('#global-nav .nav-tab').forEach(t => t.classList.remove('on'));
-  if (id==='home')  { document.getElementById('nt-home').classList.add('on'); renderHome(); }
-  if (id==='flash') { document.getElementById('nt-flash').classList.add('on'); renderFlash(); }
+  const nt = document.getElementById('nt-'+id);
+  if (nt) nt.classList.add('on');
+  if (id==='home')    renderHome();
+  if (id==='flash')   renderFlash();
+  if (id==='story')   renderStory();
+  if (id==='chat')    initChat();
+  if (id==='exam')    initExam();
+  if (id==='journal') renderJournal();
 }
 
 /* ══════════════════════════════════════
    HOME
 ══════════════════════════════════════ */
 function renderHome() {
+  renderHomeEnhancements();
   document.getElementById('st-pods').textContent  = S.podcasts.length + S.lesenSessions.length + S.schreibenSessions.length + S.horenSessions.length;
   document.getElementById('st-cards').textContent = S.fc.all.length;
   document.getElementById('st-score').textContent = S.stats.bestScore > 0 ? S.stats.bestScore+'%' : '—';
@@ -1883,6 +2241,1017 @@ async function callAPI(system,prompt,max_tokens=1000){
   return res.json();
 }
 
+
+/* ══════════════════════════════════════
+   XP & STREAK SYSTEM
+══════════════════════════════════════ */
+const XP_LEVELS = [
+  {name:'Anfänger',    min:0,    max:100,  icon:'🌱'},
+  {name:'Lerner',      min:100,  max:300,  icon:'📚'},
+  {name:'Schüler',     min:300,  max:600,  icon:'✏️'},
+  {name:'Fortgeschritten', min:600, max:1000, icon:'🎯'},
+  {name:'Kenner',      min:1000, max:1500, icon:'⭐'},
+  {name:'Experte',     min:1500, max:2200, icon:'🏆'},
+  {name:'Meister',     min:2200, max:99999, icon:'👑'},
+];
+const XP_REWARDS = {
+  podcast_listen: 10, speaking_test: 25, flashcard: 5, lesen: 15,
+  schreiben: 20, horen: 15, free_talk: 20, story_episode: 15,
+  shadow_line: 8, exam_complete: 100, wotd: 5,
+};
+
+function awardXP(action) {
+  const pts = XP_REWARDS[action] || 5;
+  S.xp += pts;
+  // Check level up
+  const newLevel = XP_LEVELS.findIndex((l,i) => S.xp >= l.min && S.xp < l.max);
+  if (newLevel > S.xpLevel) {
+    S.xpLevel = newLevel;
+    showXPPopup(`🎉 Level Up! ${XP_LEVELS[newLevel].icon} ${XP_LEVELS[newLevel].name}`);
+  } else {
+    showXPPopup(`+${pts} XP ⚡`);
+  }
+  // Daily streak
+  const today = new Date().toDateString();
+  if (S.lastActive !== today) {
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+    S.streakDays = (S.lastActive === yesterday.toDateString()) ? S.streakDays + 1 : 1;
+    S.lastActive = today;
+  }
+  save();
+}
+
+function showXPPopup(msg) {
+  const el = document.getElementById('xp-popup');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+function getCurrentLevel() {
+  return XP_LEVELS.find((l,i) => S.xp >= l.min && (i===XP_LEVELS.length-1 || S.xp < XP_LEVELS[i+1].min)) || XP_LEVELS[0];
+}
+
+/* ══════════════════════════════════════
+   WORD OF THE DAY
+══════════════════════════════════════ */
+async function loadWOTD() {
+  const today = new Date().toDateString();
+  if (S.wotd && S.wotd.date === today) return renderWOTD();
+  try {
+    const res = await callAPI(
+      'You are a German vocabulary expert. Return ONLY valid JSON, no markdown.',
+      `Generate a Word of the Day for German learners (B1 level). Make it interesting and useful for TELC/Goethe exam.
+JSON: {"word":"das Fernweh","article":"das","ipa":"[ˈfɛʁnveː]","translation":"wanderlust / longing for distant places","partOfSpeech":"noun","exampleDe":"Mich packt das Fernweh jeden Frühling.","exampleEn":"I get wanderlust every spring.","culturalFact":"This uniquely German word captures the feeling of longing for travel — English has no single word for it.","synonyms":["die Reiselust","der Wandertrieb"]}`,
+      600
+    );
+    const txt = res.content[0].text;
+    const parsed = JSON.parse(txt.replace(/```json|```/g,'').trim());
+    S.wotd = {...parsed, date: today};
+    save();
+    renderWOTD();
+    awardXP('wotd');
+  } catch(e) { console.error('WOTD error',e); }
+}
+
+function renderWOTD() {
+  const el = document.getElementById('wotd-section');
+  if (!el || !S.wotd) return;
+  const w = S.wotd;
+  el.innerHTML = `
+    <div class="wotd-card" onclick="speakTTS('${w.word.replace(/'/g,"\'")}. ${w.exampleDe.replace(/'/g,"\'")}','Anna',null)">
+      <div class="wotd-label">✨ Word of the Day · ${w.date}</div>
+      <div class="wotd-word">${w.word} <span style="font-size:16px;color:var(--txt3);">🔊</span></div>
+      <div class="wotd-ipa">${w.ipa||''} · <span style="color:var(--txt3);">${w.partOfSpeech}</span></div>
+      <div class="wotd-en">${w.translation}</div>
+      <div style="font-size:12px;color:var(--txt2);font-style:italic;margin-bottom:6px;">"${w.exampleDe}"</div>
+      <div style="font-size:11px;color:var(--txt3);">${w.exampleEn}</div>
+      ${w.culturalFact?`<div class="wotd-fact">💡 ${w.culturalFact}</div>`:''}
+      <button onclick="event.stopPropagation();addWOTDToCards()" style="margin-top:10px;background:#6457ff20;border:1px solid #6457ff40;color:var(--accent2);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;width:100%;">➕ Add to Flashcards</button>
+    </div>`;
+}
+
+function addWOTDToCards() {
+  if (!S.wotd) return;
+  const w = S.wotd;
+  if (S.fc.all.find(c=>c.word===w.word)) { toast('Already in your cards!'); return; }
+  S.fc.all.push({
+    id: Date.now(), word: w.word, article: w.article||null, baseForm: w.word,
+    translation: w.translation, synonyms: w.synonyms||[], partOfSpeech: w.partOfSpeech,
+    level: 'B1', exampleDe: w.exampleDe, exampleEn: w.exampleEn,
+    grammarNote: `Cultural vocab: ${w.culturalFact||''}`, module: 'wotd',
+    sessionId: 'wotd', sessionTitle: 'Word of the Day',
+    sr: {interval:1, easeFactor:2.5, repetitions:0, nextReview: new Date().toISOString(), status:'new', lastQuality:0, totalReviews:0},
+    addedAt: new Date().toISOString(),
+  });
+  save(); toast('Added to flashcards! 🃏');
+}
+
+/* ══════════════════════════════════════
+   EXAM COUNTDOWN
+══════════════════════════════════════ */
+function renderCountdown() {
+  const el = document.getElementById('countdown-section');
+  if (!el) return;
+  if (!S.examDate) {
+    el.innerHTML = `
+      <div class="countdown-card">
+        <div class="sec-lbl mb-2">📅 Exam Countdown</div>
+        <div style="font-size:13px;color:var(--txt3);margin-bottom:10px;">Set your exam date to track your preparation progress.</div>
+        <input type="date" id="exam-date-input" class="t-input" style="font-size:14px;" onchange="setExamDate(this.value)">
+      </div>`;
+    return;
+  }
+  const days = Math.max(0, Math.ceil((new Date(S.examDate) - new Date()) / 86400000));
+  const totalDays = Math.ceil((new Date(S.examDate) - new Date(S.examDate)).getTime()); // rough
+  const pct = Math.max(5, Math.min(95, ((90 - days) / 90) * 100));
+  el.innerHTML = `
+    <div class="countdown-card" onclick="document.getElementById('exam-date-edit').click()">
+      <div class="d-flex justify-content-between align-items-start mb-1">
+        <div class="sec-lbl">📅 Exam Countdown</div>
+        <button onclick="event.stopPropagation();S.examDate=null;save();renderCountdown();" style="background:none;border:none;color:var(--txt3);font-size:11px;cursor:pointer;">Change</button>
+      </div>
+      <div class="d-flex align-items-baseline gap-2">
+        <div class="countdown-days">${days}</div>
+        <div style="font-size:14px;color:var(--txt2);">days until your exam</div>
+      </div>
+      <div class="countdown-bar"><div class="countdown-fill" style="width:${pct}%"></div></div>
+      <div style="font-size:11px;color:var(--txt3);margin-top:6px;">${days===0?'🎯 Exam day! Good luck!':days<=7?'⚡ Final stretch — review everything!':days<=30?'📚 Keep practicing daily!':'🌱 Great time to build strong foundations!'}</div>
+      <input type="date" id="exam-date-edit" style="display:none;" onchange="setExamDate(this.value)">
+    </div>`;
+}
+
+function setExamDate(val) {
+  S.examDate = val;
+  save();
+  renderCountdown();
+  toast('Exam date set! 📅');
+}
+
+/* ══════════════════════════════════════
+   HOME RENDER (enhanced)
+══════════════════════════════════════ */
+function renderHomeEnhancements() {
+  // XP banner in home
+  const xpEl = document.getElementById('xp-section');
+  if (xpEl) {
+    const lvl = getCurrentLevel();
+    const nextLvl = XP_LEVELS[Math.min(S.xpLevel+1, XP_LEVELS.length-1)];
+    const pct = Math.min(100, ((S.xp - lvl.min) / (nextLvl.min - lvl.min)) * 100) || 5;
+    xpEl.innerHTML = `
+      <div class="xp-banner">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <div style="font-size:15px;font-weight:800;">${lvl.icon} ${lvl.name}</div>
+          <div style="font-size:12px;color:var(--accent2);font-weight:700;">🔥 ${S.streakDays}d streak · ⚡ ${S.xp} XP</div>
+        </div>
+        <div class="xp-bar-bg"><div class="xp-bar-fill" style="width:${pct}%"></div></div>
+        <div style="font-size:10px;color:var(--txt3);margin-top:4px;">${nextLvl.min - S.xp} XP to ${nextLvl.icon} ${nextLvl.name}</div>
+      </div>`;
+  }
+  renderCountdown();
+  loadWOTD();
+}
+
+/* ══════════════════════════════════════
+   MISTAKE JOURNAL
+══════════════════════════════════════ */
+function addToJournal(error, correct, note, context) {
+  S.journal.unshift({
+    id: Date.now(),
+    error, correct, note, context,
+    date: new Date().toLocaleDateString('de-DE'),
+    module: S.activeModule || 'sprechen',
+  });
+  if (S.journal.length > 100) S.journal = S.journal.slice(0, 100);
+  save();
+}
+
+function renderJournal() {
+  const el = document.getElementById('journal-list');
+  if (!el) return;
+  if (!S.journal.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-ico">📔</div><div class="empty-title">No mistakes yet!</div><div class="empty-desc">Grammar errors from speaking tests and writing feedback will appear here automatically.</div></div>`;
+    return;
+  }
+  el.innerHTML = S.journal.map(j => `
+    <div class="journal-item">
+      <div style="font-size:10px;color:var(--txt3);font-weight:600;margin-bottom:6px;">${j.date} · ${j.module?.toUpperCase()||'SPRECHEN'}</div>
+      ${j.context?`<div style="font-size:12px;color:var(--txt3);margin-bottom:6px;font-style:italic;">Context: "${j.context}"</div>`:''}
+      <div class="ji-error">✗ ${j.error}</div>
+      <div class="ji-correct">✓ ${j.correct}</div>
+      ${j.note?`<div class="ji-note">💡 ${j.note}</div>`:''}
+      <div class="ji-actions">
+        <button onclick="speakTTS('${j.correct.replace(/'/g,"\'")}','Anna',null)" style="background:#30d15815;border:1px solid #30d15840;color:var(--good);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex:1;">🔊 Hear Correct</button>
+        <button onclick="addJournalToCards(${j.id})" style="background:#6457ff15;border:1px solid #6457ff40;color:var(--accent2);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex:1;">🃏 Add to Cards</button>
+        <button onclick="removeJournalItem(${j.id})" style="background:#ff3b3010;border:1px solid #ff3b3030;color:var(--danger);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function addJournalToCards(id) {
+  const j = S.journal.find(x=>x.id===id);
+  if (!j) return;
+  if (S.fc.all.find(c=>c.word===j.correct)) { toast('Already in cards!'); return; }
+  S.fc.all.push({
+    id: Date.now(), word: j.correct, article: null, baseForm: j.correct,
+    translation: `Correct form (was: ${j.error})`, synonyms: [], partOfSpeech: 'phrase',
+    level: S.level, exampleDe: j.correct, exampleEn: j.note||'',
+    grammarNote: j.note||'', module: 'journal',
+    sessionId: 'journal', sessionTitle: 'Mistake Journal',
+    sr: {interval:1, easeFactor:2.5, repetitions:0, nextReview: new Date().toISOString(), status:'new', lastQuality:0, totalReviews:0},
+    addedAt: new Date().toISOString(),
+  });
+  save(); toast('Added to flashcards! 🃏');
+}
+
+function removeJournalItem(id) {
+  S.journal = S.journal.filter(j=>j.id!==id);
+  save(); renderJournal();
+}
+
+function clearJournal() {
+  if (!confirm('Clear all journal entries?')) return;
+  S.journal = []; save(); renderJournal(); toast('Journal cleared');
+}
+
+/* ══════════════════════════════════════
+   FREE TALK / CHAT
+══════════════════════════════════════ */
+function initChat() {
+  if (!S.chat.msgs.length) {
+    // Greeting message from partner
+    const partner = S.chat.partner;
+    const greetings = {
+      Anna: 'Hallo! Ich bin Anna. Lass uns auf Deutsch reden! Worüber möchtest du sprechen? 😊',
+      Max: 'Hey! Ich bin Max. Keine Angst vor Fehlern — reden wir einfach auf Deutsch! 💪',
+    };
+    S.chat.msgs = [{role:'assistant', speaker: partner, text: greetings[partner]||greetings.Anna}];
+  }
+  renderChat();
+  updateChatUI();
+}
+
+function setChatPartner(name) {
+  S.chat.partner = name;
+  S.chat.msgs = [];
+  ['Anna','Max'].forEach(n => {
+    const btn = document.getElementById('chat-'+n.toLowerCase()+'-btn');
+    if (btn) btn.classList.toggle('on', n===name);
+  });
+  initChat();
+}
+
+function setChatLevel(lvl) {
+  S.chat.level = lvl;
+  ['A2','B1','B2'].forEach(l => {
+    const btn = document.getElementById('chat-lvl-'+l.toLowerCase());
+    if (btn) btn.classList.toggle('on', l===lvl);
+  });
+  updateChatUI();
+}
+
+function toggleGrammarTips() {
+  S.chat.grammarTips = !S.chat.grammarTips;
+  const btn = document.getElementById('grammar-tips-btn');
+  if (btn) { btn.style.background = S.chat.grammarTips ? '#6457ff20' : 'var(--surf2)'; btn.style.color = S.chat.grammarTips ? 'var(--accent2)' : 'var(--txt2)'; }
+  toast(S.chat.grammarTips ? '💡 Grammar tips ON' : 'Tips off');
+}
+
+function updateChatUI() {
+  const sub = document.getElementById('chat-sub');
+  if (sub) sub.textContent = `Talking with ${S.chat.partner} · ${S.chat.level}`;
+}
+
+function renderChat() {
+  const el = document.getElementById('chat-messages');
+  if (!el) return;
+  el.innerHTML = S.chat.msgs.map(m => {
+    if (m.role === 'user') {
+      return `<div style="display:flex;justify-content:flex-end;"><div class="chat-bubble user">${escHtml(m.text)}</div></div>`;
+    }
+    const spk = m.speaker || S.chat.partner;
+    const cls = spk === 'Anna' ? 'anna' : 'max';
+    return `<div style="display:flex;justify-content:flex-start;"><div class="chat-bubble ${cls}">
+      <div class="cb-speaker">${spk.toUpperCase()}</div>
+      <div onclick="speakTTS('${m.text.replace(/'/g,"\'").replace(/"/g,'&quot;')}','${spk}',null)" style="cursor:pointer;">${escHtml(m.text)} <span style="font-size:11px;opacity:.5;">🔊</span></div>
+      ${m.tip?`<div class="cb-tip">💡 ${escHtml(m.tip)}</div>`:''}
+      ${m.translation?`<div style="font-size:11px;color:var(--txt3);font-style:italic;margin-top:4px;">${escHtml(m.translation)}</div>`:''}
+    </div></div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function sendChatMsg() {
+  const inp = document.getElementById('chat-input');
+  const text = (inp?.value||'').trim();
+  if (!text) return;
+  inp.value = '';
+  S.chat.msgs.push({role:'user', text});
+  renderChat();
+  // Show typing
+  const typing = document.getElementById('chat-typing');
+  if (typing) { typing.textContent = `${S.chat.partner} is typing…`; typing.style.display='block'; }
+  try {
+    const history = S.chat.msgs.slice(-8).map(m => ({
+      role: m.role==='user'?'user':'assistant',
+      content: m.text
+    }));
+    const sys = `You are ${S.chat.partner}, a friendly German conversation partner helping someone practice German for their TELC/Goethe exam at ${S.chat.level} level.
+RULES:
+- Always respond IN GERMAN at ${S.chat.level} level
+- Keep responses conversational and natural (2-4 sentences)
+- ${S.chat.grammarTips ? 'If the user made a grammar error, gently correct it with a short tip' : 'Focus on keeping the conversation flowing naturally'}
+- Be warm, encouraging and natural like a real friend
+Return JSON: {"text":"German response","translation":"English translation","tip":${S.chat.grammarTips?'"grammar tip if error, or null"':'null'}}`;
+    const res = await callAPI(sys, `Conversation so far:
+${history.map(h=>h.role+': '+h.content).join('
+')}
+User just said: "${text}"
+Respond naturally in German.`, 400);
+    const data = JSON.parse(res.content[0].text.replace(/```json|```/g,'').trim());
+    S.chat.msgs.push({role:'assistant', speaker: S.chat.partner, text: data.text, translation: data.translation, tip: data.tip||null});
+    // Auto-speak partner response
+    speakTTS(data.text, S.chat.partner, null);
+    awardXP('free_talk');
+    // Auto-save grammar errors to journal
+    if (data.tip && data.tip.includes('sollte')) {
+      addToJournal(text, data.tip, 'Grammar correction from Free Talk', text);
+    }
+  } catch(e) {
+    S.chat.msgs.push({role:'assistant', speaker: S.chat.partner, text: 'Entschuldigung, ich habe einen kleinen Fehler gemacht. Kannst du das nochmal sagen?', translation: 'Sorry, I made a small error. Can you say that again?'});
+  }
+  if (typing) typing.style.display='none';
+  renderChat();
+}
+
+// Chat speech recording
+async function toggleChatRec() {
+  if (S.chat.rec) {
+    S.chat.rec = false;
+    const btn = document.getElementById('chat-rec-btn');
+    if (btn) btn.classList.remove('live');
+    try { if (S.chat.mediaRecorder?.state !== 'inactive') S.chat.mediaRecorder.stop(); } catch(e){}
+  } else {
+    S.chat.rec = true;
+    const btn = document.getElementById('chat-rec-btn');
+    if (btn) btn.classList.add('live');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      const mr = new MediaRecorder(stream, {mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm'});
+      S.chat.stream = stream; S.chat.chunks = []; S.chat.mediaRecorder = mr;
+      mr.ondataavailable = e => { if(e.data.size>0) S.chat.chunks.push(e.data); };
+      mr.onstop = async () => {
+        stream.getTracks().forEach(t=>t.stop());
+        if (!S.chat.chunks.length) return;
+        const blob = new Blob(S.chat.chunks, {type:'audio/webm'});
+        try {
+          const fd = new FormData(); fd.append('audio', blob, 'audio.webm');
+          const r = await fetch('./api/stt', {method:'POST', body:fd});
+          const d = await r.json();
+          if (d.transcript) {
+            const inp = document.getElementById('chat-input');
+            if (inp) inp.value = d.transcript;
+            sendChatMsg();
+          }
+        } catch(e) { toast('Transcription failed'); }
+        S.chat.rec = false;
+        const btn2 = document.getElementById('chat-rec-btn');
+        if (btn2) btn2.classList.remove('live');
+      };
+      mr.start(200);
+      toast('🎙 Recording… tap again to stop');
+    } catch(e) { toast('Mic access denied'); S.chat.rec = false; }
+  }
+}
+
+function exitChat() {
+  try { if (S.chat.mediaRecorder?.state !== 'inactive') S.chat.mediaRecorder.stop(); } catch(e){}
+  try { S.chat.stream?.getTracks().forEach(t=>t.stop()); } catch(e){}
+  S.chat.rec = false;
+  stopTTS();
+  navTo('home');
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ══════════════════════════════════════
+   MOCK EXAM
+══════════════════════════════════════ */
+const EXAM_TIMES = {lesen:1200, horen:1800, schreiben:1800, sprechen:900};
+const EXAM_SECTIONS = ['lesen','horen','schreiben','sprechen'];
+
+function setExamStd(std) {
+  examStd = std;
+  ['telc','goethe'].forEach(s => {
+    const el = document.getElementById('ex-std-'+s);
+    if (el) el.className = 'tgl' + (s===std?' on-telc':'');
+  });
+}
+function setExamLvl(lvl) {
+  examLvl = lvl;
+  ['a2','b1','b2'].forEach(l => {
+    const el = document.getElementById('ex-'+l);
+    if (el) el.className = 'tgl' + (l.toUpperCase()===lvl?' on-'+l:'');
+  });
+}
+
+function initExam() {
+  document.getElementById('exam-setup-view').style.display='block';
+  document.getElementById('exam-active-view').style.display='none';
+  document.getElementById('exam-result-view').style.display='none';
+  setExamStd('telc'); setExamLvl('B1');
+}
+
+async function startExam() {
+  document.getElementById('exam-setup-view').style.display='none';
+  document.getElementById('exam-active-view').style.display='block';
+  S.exam = {phase:'active', section:0, sections:[], startTime:Date.now(), timeLeft:0, timerIv:null, answers:{}, scores:{}, writing:'', speaking:[]};
+  // Generate all 4 sections
+  go('generating');
+  document.getElementById('gen-title-txt').textContent = 'Preparing Exam…';
+  document.getElementById('gen-st').textContent = 'Generating 4 sections';
+  try {
+    const topics = ['daily life in Germany', 'environment and sustainability', 'technology and society', 'work and career'];
+    const topic = topics[Math.floor(Math.random()*topics.length)];
+    // Generate lesen
+    animateGenBar(10,30);
+    document.getElementById('gen-det').textContent = 'Generating Lesen section…';
+    const lesenRes = await callAPI(MODULE_PROMPTS.lesen(topic, examLvl, examStd).sys, MODULE_PROMPTS.lesen(topic, examLvl, examStd).user, 2000);
+    const lesen = JSON.parse(lesenRes.content[0].text.replace(/```json|```/g,'').trim());
+    animateGenBar(30,55);
+    document.getElementById('gen-det').textContent = 'Generating Hören section…';
+    const horenRes = await callAPI(MODULE_PROMPTS.horen(topic, examLvl, examStd).sys, MODULE_PROMPTS.horen(topic, examLvl, examStd).user, 2000);
+    const horen = JSON.parse(horenRes.content[0].text.replace(/```json|```/g,'').trim());
+    animateGenBar(55,75);
+    document.getElementById('gen-det').textContent = 'Generating Schreiben section…';
+    const schrRes = await callAPI(MODULE_PROMPTS.schreiben(topic, examLvl, examStd).sys, MODULE_PROMPTS.schreiben(topic, examLvl, examStd).user, 2000);
+    const schr = JSON.parse(schrRes.content[0].text.replace(/```json|```/g,'').trim());
+    animateGenBar(75,90);
+    document.getElementById('gen-det').textContent = 'Generating Sprechen section…';
+    const sprechRes = await callAPI(MODULE_PROMPTS.sprechen(topic, examLvl, examStd, 6).sys, MODULE_PROMPTS.sprechen(topic, examLvl, examStd, 6).user, 2500);
+    const sprech = JSON.parse(sprechRes.content[0].text.replace(/```json|```/g,'').trim());
+    animateGenBar(90,100);
+    S.exam.sections = [
+      {type:'lesen', data:lesen, timeLimit:EXAM_TIMES.lesen},
+      {type:'horen', data:horen, timeLimit:EXAM_TIMES.horen},
+      {type:'schreiben', data:schr, timeLimit:EXAM_TIMES.schreiben},
+      {type:'sprechen', data:sprech, timeLimit:EXAM_TIMES.sprechen},
+    ];
+    go('exam');
+    document.getElementById('exam-active-view').style.display='block';
+    renderExamSection();
+  } catch(e) {
+    go('exam');
+    document.getElementById('exam-setup-view').style.display='block';
+    toast('Error generating exam. Please try again.');
+    console.error(e);
+  }
+}
+
+function renderExamProgress() {
+  const el = document.getElementById('exam-progress');
+  if (!el) return;
+  el.innerHTML = EXAM_SECTIONS.map((s,i) => `<div class="ep-seg ${i<S.exam.section?'done':i===S.exam.section?'cur':''}"></div>`).join('');
+}
+
+function renderExamSection() {
+  const sec = S.exam.sections[S.exam.section];
+  if (!sec) return;
+  const icons = {lesen:'📖',horen:'🎧',schreiben:'✍️',sprechen:'🎙'};
+  const names = {lesen:'Lesen',horen:'Hören',schreiben:'Schreiben',sprechen:'Sprechen'};
+  document.getElementById('exam-section-title').textContent = icons[sec.type]+' '+names[sec.type];
+  document.getElementById('exam-section-num').textContent = `${S.exam.section+1}/4`;
+  renderExamProgress();
+  // Start timer
+  if (S.exam.timerIv) clearInterval(S.exam.timerIv);
+  S.exam.timeLeft = sec.timeLimit;
+  updateExamTimer();
+  S.exam.timerIv = setInterval(() => {
+    S.exam.timeLeft--;
+    updateExamTimer();
+    if (S.exam.timeLeft <= 0) { clearInterval(S.exam.timerIv); examNextSection(); }
+  }, 1000);
+  // Render content
+  const content = document.getElementById('exam-content');
+  if (sec.type === 'lesen') renderExamLesen(sec.data, content);
+  else if (sec.type === 'horen') renderExamHoren(sec.data, content);
+  else if (sec.type === 'schreiben') renderExamSchreiben(sec.data, content);
+  else if (sec.type === 'sprechen') renderExamSprechen(sec.data, content);
+}
+
+function updateExamTimer() {
+  const el = document.getElementById('exam-timer');
+  if (!el) return;
+  el.textContent = fmtT(S.exam.timeLeft);
+  el.classList.toggle('urgent', S.exam.timeLeft <= 60);
+}
+
+function renderExamLesen(data, el) {
+  let html = `<div class="passage-box mb-3">${(data.passage||[]).map(p=>`<div class="passage-para"><div class="de-text">${p.de}</div></div>`).join('')}</div>`;
+  html += (data.questions||[]).map((q,qi) => `
+    <div class="q-card" id="eq-${qi}">
+      <div class="q-text">${qi+1}. ${q.question}</div>
+      ${q.options.map((o,oi)=>`<div class="q-opt" id="eqo-${qi}-${oi}" onclick="selectExamQ(${qi},${oi},${q.correct})">${o}</div>`).join('')}
+    </div>`).join('');
+  el.innerHTML = html;
+}
+
+function selectExamQ(qi, oi, correct) {
+  const key = `lesen_${qi}`;
+  if (S.exam.answers[key] !== undefined) return;
+  S.exam.answers[key] = oi;
+  document.querySelectorAll(`#eqo-${qi}-0,#eqo-${qi}-1,#eqo-${qi}-2,#eqo-${qi}-3`).forEach((o,i) => {
+    if (i===correct) o.classList.add('correct');
+    else if (i===oi && oi!==correct) o.classList.add('wrong');
+  });
+}
+
+function renderExamHoren(data, el) {
+  let html = `<div class="horen-player mb-3"><div class="d-flex align-items-center gap-3"><button class="play-btn" onclick="playExamHoren()" style="width:48px;height:48px;font-size:17px;" id="exam-horen-btn">▶</button><div style="flex:1;font-size:14px;font-weight:600;">${data.title||'Hören'}</div></div></div>`;
+  html += `<div style="font-size:13px;color:var(--txt3);margin-bottom:12px;font-style:italic;">Listen to the recording, then answer the questions. You can play it again.</div>`;
+  html += (data.questions||[]).map((q,qi) => `
+    <div class="q-card" id="ehq-${qi}">
+      <div class="q-text">${qi+1}. ${q.question}</div>
+      ${q.options.map((o,oi)=>`<div class="q-opt" id="ehqo-${qi}-${oi}" onclick="selectExamHQ(${qi},${oi},${q.correct})">${o}</div>`).join('')}
+    </div>`).join('');
+  el.innerHTML = html;
+  // Store horen data for playback
+  S.exam._horenData = data;
+}
+
+let examHorenIdx = 0, examHorenPlaying = false;
+function playExamHoren() {
+  if (examHorenPlaying) { examHorenPlaying=false; stopTTS(); document.getElementById('exam-horen-btn').textContent='▶'; return; }
+  examHorenPlaying = true;
+  document.getElementById('exam-horen-btn').textContent='⏸';
+  examHorenIdx = 0;
+  playExamHorenLine(0);
+}
+function playExamHorenLine(idx) {
+  const data = S.exam._horenData;
+  if (!data||!examHorenPlaying||idx>=data.transcript.length) { examHorenPlaying=false; const b=document.getElementById('exam-horen-btn'); if(b)b.textContent='▶'; return; }
+  const line = data.transcript[idx];
+  const spk = idx%2===0?'Examiner1':'Examiner2';
+  speakTTS(line.text, spk, () => { if(examHorenPlaying) setTimeout(()=>playExamHorenLine(idx+1),300); });
+}
+
+function selectExamHQ(qi, oi, correct) {
+  const key = `horen_${qi}`;
+  if (S.exam.answers[key] !== undefined) return;
+  S.exam.answers[key] = oi;
+  document.querySelectorAll(`#ehqo-${qi}-0,#ehqo-${qi}-1,#ehqo-${qi}-2,#ehqo-${qi}-3`).forEach((o,i) => {
+    if (i===correct) o.classList.add('correct');
+    else if (i===oi&&oi!==correct) o.classList.add('wrong');
+  });
+}
+
+function renderExamSchreiben(data, el) {
+  el.innerHTML = `
+    <div class="prompt-box mb-3">
+      <div class="prompt-type">${data.taskType||'Schreiben'}</div>
+      <div class="prompt-text">${data.situation||''}</div>
+      ${data.keyPoints?`<div class="prompt-hints">${data.keyPoints.map(p=>`<div class="prompt-hint">• ${p}</div>`).join('')}</div>`:''}
+      <div style="font-size:11px;color:var(--txt3);margin-top:8px;">Min. ${data.wordCount||150} words</div>
+    </div>
+    <div class="sec-lbl mb-2">Your Answer</div>
+    <textarea id="exam-writing" class="t-input mb-2" rows="8" placeholder="Write your answer in German here…"></textarea>`;
+}
+
+function renderExamSprechen(data, el) {
+  S.exam._sprechenData = data;
+  S.exam._sprechenIdx = 0;
+  S.exam.speaking = [];
+  renderExamSprechenTurn(el);
+}
+
+function renderExamSprechenTurn(el) {
+  if (!el) el = document.getElementById('exam-content');
+  const data = S.exam._sprechenData;
+  const challenges = data.challenges||[];
+  const idx = S.exam._sprechenIdx;
+  if (idx >= challenges.length) {
+    el.innerHTML = `<div class="session-done"><div class="session-ico">✅</div><div style="font-size:18px;font-weight:800;">Speaking Done!</div><div style="color:var(--txt3);margin-top:8px;">Avg score: ${Math.round(S.exam.speaking.reduce((a,b)=>a+b,0)/(S.exam.speaking.length||1))}%</div></div>`;
+    return;
+  }
+  const ch = challenges[idx];
+  const dots = challenges.map((_,i)=>`<div class="p-dot ${i<idx?'done':i===idx?'cur':''}"></div>`).join('');
+  el.innerHTML = `
+    <div class="p-dots mb-3">${dots}</div>
+    <div class="card mb-3"><div class="card-body">
+      <div class="sec-lbl mb-2">Situation</div>
+      <div style="background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:12px;font-size:14px;color:var(--txt2);">${ch.situation}</div>
+      <div class="sec-lbl mb-2">Was sagen Sie?</div>
+      <div style="font-size:16px;font-weight:600;">${ch.cue}</div>
+      <div style="font-size:13px;color:var(--txt3);font-style:italic;margin-top:5px;">${ch.cueHint||''}</div>
+    </div></div>
+    <div class="d-flex flex-column align-items-center gap-3 py-2">
+      <div class="rec-btn" id="exam-rec-btn" onclick="toggleExamRec()"><div class="rec-ripple"></div>🎙</div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:.07em;color:var(--txt3);text-transform:uppercase;" id="exam-rec-st">Tap to speak</div>
+    </div>
+    <div id="exam-sp-fb" style="display:none;"></div>`;
+}
+
+let examRecState = {rec:false, chunks:[], mr:null, stream:null};
+async function toggleExamRec() {
+  if (examRecState.rec) {
+    examRecState.rec = false;
+    document.getElementById('exam-rec-btn')?.classList.remove('live');
+    document.getElementById('exam-rec-st').textContent = 'Processing…';
+    try { if(examRecState.mr?.state!=='inactive')examRecState.mr.stop(); } catch(e){}
+  } else {
+    examRecState.rec = true;
+    document.getElementById('exam-rec-btn')?.classList.add('live');
+    document.getElementById('exam-rec-st').textContent = 'Recording…';
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      const mr = new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm'});
+      examRecState = {...examRecState, stream, chunks:[], mr};
+      mr.ondataavailable=e=>{if(e.data.size>0)examRecState.chunks.push(e.data);};
+      mr.onstop=async()=>{
+        stream.getTracks().forEach(t=>t.stop());
+        if(!examRecState.chunks.length)return;
+        const blob=new Blob(examRecState.chunks,{type:'audio/webm'});
+        const fd=new FormData();fd.append('audio',blob,'audio.webm');
+        try{
+          const r=await fetch('./api/stt',{method:'POST',body:fd});
+          const d=await r.json();
+          const transcript=d.transcript||'';
+          await gradeExamSpeech(transcript);
+        }catch(e){console.error(e);}
+        examRecState.rec=false;
+      };
+      mr.start(200);
+    } catch(e){toast('Mic error');examRecState.rec=false;}
+  }
+}
+
+async function gradeExamSpeech(transcript) {
+  const data = S.exam._sprechenData;
+  const ch = (data.challenges||[])[S.exam._sprechenIdx||0];
+  if (!ch) return;
+  try {
+    const res = await callAPI(
+      'You are a German TELC exam speaking examiner. Return ONLY valid JSON.',
+      `Grade this German speaking response.
+Situation: ${ch.situation}
+Expected: ${ch.targetAnswer}
+Student said: "${transcript}"
+JSON: {"score":75,"pronunciation":"Good","fluency":"Natural","grammar":"Minor errors","content":"Relevant","feedback":"Detailed feedback","correction":"Corrected version if needed"}`,
+      400
+    );
+    const grade = JSON.parse(res.content[0].text.replace(/```json|```/g,'').trim());
+    S.exam.speaking.push(grade.score||50);
+    // Save errors to journal
+    if (grade.correction && grade.correction !== transcript) {
+      addToJournal(transcript, grade.correction, grade.feedback, ch.situation);
+    }
+    const fbEl = document.getElementById('exam-sp-fb');
+    if (fbEl) {
+      fbEl.style.display='block';
+      fbEl.innerHTML=`<div class="card"><div class="card-body">
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div style="font-size:32px;font-weight:800;color:${grade.score>=70?'var(--good)':grade.score>=50?'var(--warn)':'var(--danger)'};">${grade.score}%</div>
+          <div class="flex-1"><div style="font-size:13px;color:var(--txt2);">${grade.feedback}</div></div>
+        </div>
+        ${grade.correction?`<div style="background:var(--surf2);border-radius:8px;padding:10px;font-size:13px;"><span style="color:var(--good);font-weight:700;">✓ </span>${grade.correction}</div>`:''}
+        <button onclick="S.exam._sprechenIdx++;renderExamSprechenTurn()" class="btn btn-accent w-100 rounded-3 mt-3" style="padding:10px;">Next Challenge →</button>
+      </div></div>`;
+    }
+  } catch(e) { S.exam.speaking.push(50); S.exam._sprechenIdx++; renderExamSprechenTurn(); }
+}
+
+async function examNextSection() {
+  if (S.exam.timerIv) clearInterval(S.exam.timerIv);
+  const sec = S.exam.sections[S.exam.section];
+  // Calculate score for current section
+  if (sec.type==='lesen') {
+    const qs = sec.data.questions||[];
+    let correct=0;
+    qs.forEach((_,i)=>{const a=S.exam.answers[`lesen_${i}`];if(a===qs[i].correct)correct++;});
+    S.exam.scores.lesen = qs.length ? Math.round((correct/qs.length)*100) : 0;
+  } else if (sec.type==='horen') {
+    const qs = sec.data.questions||[];
+    let correct=0;
+    qs.forEach((_,i)=>{const a=S.exam.answers[`horen_${i}`];if(a===qs[i].correct)correct++;});
+    S.exam.scores.horen = qs.length ? Math.round((correct/qs.length)*100) : 0;
+  } else if (sec.type==='schreiben') {
+    const writing = document.getElementById('exam-writing')?.value||'';
+    S.exam.writing = writing;
+    if (writing.trim().length > 20) {
+      try {
+        const res = await callAPI('You are a TELC exam writing examiner. Return JSON only.',
+          `Grade this ${examLvl} writing. Task: ${sec.data.situation}
+Student: "${writing}"
+JSON: {"score":72,"feedback":"brief feedback"}`, 300);
+        const g = JSON.parse(res.content[0].text.replace(/```json|```/g,'').trim());
+        S.exam.scores.schreiben = g.score||50;
+      } catch(e) { S.exam.scores.schreiben = 50; }
+    } else { S.exam.scores.schreiben = 0; }
+  } else if (sec.type==='sprechen') {
+    S.exam.scores.sprechen = S.exam.speaking.length ? Math.round(S.exam.speaking.reduce((a,b)=>a+b,0)/S.exam.speaking.length) : 0;
+  }
+  S.exam.section++;
+  if (S.exam.section >= S.exam.sections.length) {
+    showExamResult();
+  } else {
+    renderExamSection();
+  }
+}
+
+function showExamResult() {
+  stopTTS();
+  document.getElementById('exam-active-view').style.display='none';
+  document.getElementById('exam-result-view').style.display='block';
+  const sc = S.exam.scores;
+  const overall = Math.round(((sc.lesen||0)+(sc.horen||0)+(sc.schreiben||0)+(sc.sprechen||0))/4);
+  const grade = overall>=87?'Sehr Gut':overall>=75?'Gut':overall>=60?'Befriedigend':overall>=50?'Ausreichend':'Nicht Bestanden';
+  const seal = overall>=75?'🏆':overall>=60?'🎓':'📚';
+  const passed = overall>=60;
+  const el = document.getElementById('exam-result-content');
+  el.innerHTML = `
+    <div style="padding-bottom:40px;">
+      <div class="sec-lbl mb-3">Exam Complete</div>
+      <div class="cert-card mb-4">
+        <div class="cert-seal">${seal}</div>
+        <div style="font-size:12px;color:var(--txt3);margin-bottom:4px;">${examStd.toUpperCase()} · ${examLvl} · ${new Date().toLocaleDateString('de-DE')}</div>
+        <div class="cert-grade">${overall}%</div>
+        <div class="cert-label">${grade}</div>
+        <div style="margin-top:12px;font-size:13px;color:${passed?'var(--good)':'var(--danger)'}; font-weight:700;">${passed?'✅ BESTANDEN':'❌ Weitere Übung Empfohlen'}</div>
+      </div>
+      <div class="card mb-3"><div class="card-body">
+        <div class="sec-lbl mb-3">Section Breakdown</div>
+        ${[['📖 Lesen','lesen'],['🎧 Hören','horen'],['✍️ Schreiben','schreiben'],['🎙 Sprechen','sprechen']].map(([name,key])=>`
+          <div class="score-seg">
+            <div style="font-size:14px;font-weight:600;">${name}</div>
+            <div style="text-align:right;">
+              <div style="font-size:20px;font-weight:800;color:${(sc[key]||0)>=60?'var(--good)':(sc[key]||0)>=40?'var(--warn)':'var(--danger)'};">${sc[key]||0}%</div>
+            </div>
+          </div>`).join('')}
+      </div></div>
+      <div style="font-size:13px;color:var(--txt2);line-height:1.7;background:var(--surf2);border-radius:12px;padding:14px;margin-bottom:16px;">
+        ${overall>=75?'Excellent work! You are well-prepared for the real exam. Review any weak areas and keep practicing.':overall>=60?'Good effort! Focus on your weaker sections before the exam. Daily practice will improve your score.':'Keep practicing! Review grammar fundamentals, vocabulary, and do more listening practice. You can do it!'}
+      </div>
+      <button onclick="initExam()" class="btn btn-accent w-100 py-3 rounded-3 mb-2">🔄 Take Another Exam</button>
+      <button onclick="navTo('home')" class="btn w-100 py-3 rounded-3" style="background:var(--surf2);border:1px solid var(--bdr2);color:var(--txt2);">🏠 Back to Home</button>
+    </div>`;
+  awardXP('exam_complete');
+  if (overall > (S.stats.bestScore||0)) { S.stats.bestScore = overall; save(); }
+}
+
+/* ══════════════════════════════════════
+   STORY MODE
+══════════════════════════════════════ */
+const STORY_SCENARIOS = [
+  'Moving into a new apartment in Berlin and dealing with the landlord',
+  'First day at a German workplace — office introductions and rules',
+  'Getting lost in Munich and asking locals for directions',
+  'Visiting a German doctor with an unexpected illness',
+  'Shopping at a farmers market and cooking a German meal',
+  'Opening a bank account and navigating German bureaucracy',
+  'Attending a German birthday party and giving a toast',
+  'Taking a train across Germany and meeting fellow passengers',
+  'Enrolling a child at a German school and meeting the teacher',
+  'Negotiating a salary raise with a German boss',
+  'Visiting a German Christmas market (Weihnachtsmarkt)',
+  'Getting a parking ticket and disputing it at the Bürgeramt',
+  'Joining a German sports club (Sportverein) for the first time',
+  'Renting a car and navigating the Autobahn',
+  'Visiting a German spa (Wellness) and learning the customs',
+  'Attending a Karneval celebration in Cologne',
+  'Applying for a visa extension at the Ausländerbehörde',
+  'Going to a German cinema and discussing the film afterwards',
+  'A job interview at a German tech company in Hamburg',
+  'Cooking a traditional German meal with a host family',
+];
+
+function renderStory() {
+  const el = document.getElementById('story-episodes');
+  if (!el) return;
+  if (!S.story.episodes.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-ico">📚</div><div class="empty-title">No episodes yet</div><div class="empty-desc">Generate your first episode! Each one is a unique German scenario with Anna & Max.</div></div>`;
+    return;
+  }
+  el.innerHTML = S.story.episodes.map((ep,i) => `
+    <div class="story-card" onclick="openStoryEpisode(${i})">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="story-ep-num">Episode ${i+1}</div>
+          <div class="story-ep-title">${ep.title}</div>
+          <div class="story-ep-scenario">${ep.scenario}</div>
+        </div>
+        <span class="badge-${(ep.level||'B1').toLowerCase()}">${ep.level||'B1'}</span>
+      </div>
+      <div style="font-size:11px;color:var(--txt3);margin-top:8px;">🃏 ${ep.vocab?.length||0} vocab · 📝 ${ep.dialogue?.length||0} lines</div>
+    </div>`).join('');
+}
+
+async function generateStoryEpisode() {
+  const btn = document.getElementById('story-gen-btn');
+  if (btn) btn.textContent = '⏳ Generating…';
+  const scenario = STORY_SCENARIOS[Math.floor(Math.random()*STORY_SCENARIOS.length)];
+  const epNum = S.story.episodes.length + 1;
+  // Build context from previous episode vocab
+  const prevVocab = S.story.vocab.slice(-5).map(v=>v.word).join(', ');
+  try {
+    const sys = `You are a German story scriptwriter creating an educational podcast for ${S.level} learners. Return ONLY valid JSON.`;
+    const prompt = `Create Episode ${epNum} of an ongoing German learning story. Scenario: "${scenario}". ${prevVocab?`Previously learned words to naturally reuse: ${prevVocab}.`:''}
+Write 16-20 dialogue turns between Anna and Max navigating this situation naturally. Include a third character (a native German person relevant to the scenario).
+JSON: {"title":"Episode title in German","scenario":"${scenario}","level":"${S.level}","dialogue":[{"speaker":"Anna","text":"German...","translation":"English...","notes":"grammar note or null"}],"vocab":[{"word":"das Wort","article":"das","baseForm":"Wort","translation":"word","synonyms":["der Begriff"],"partOfSpeech":"noun","level":"${S.level}","exampleDe":"Das Wort ist wichtig.","exampleEn":"The word is important.","podcastContext":"context","module":"story"}],"culturalNote":"Interesting German cultural fact about this scenario"}`;
+    const res = await callAPI(sys, prompt, 3000);
+    const ep = JSON.parse(res.content[0].text.replace(/```json|```/g,'').trim());
+    ep.id = Date.now();
+    ep.createdAt = new Date().toISOString();
+    S.story.episodes.unshift(ep);
+    // Add new vocab to running vocab list
+    if (ep.vocab) S.story.vocab.push(...ep.vocab);
+    // Add to flashcards
+    if (ep.vocab) {
+      ep.vocab.forEach(v => {
+        if (!S.fc.all.find(c=>c.word===v.word)) {
+          S.fc.all.push({...v, id:Date.now()+Math.random(), sessionId:'story-'+ep.id, sessionTitle:'Story: '+ep.title,
+            sr:{interval:1,easeFactor:2.5,repetitions:0,nextReview:new Date().toISOString(),status:'new',lastQuality:0,totalReviews:0},
+            addedAt:new Date().toISOString()});
+        }
+      });
+    }
+    save();
+    renderStory();
+    awardXP('story_episode');
+    toast(`Episode ${epNum} ready! 📚`);
+    openStoryEpisode(0);
+  } catch(e) {
+    console.error(e);
+    toast('Error generating episode. Try again.');
+  }
+  if (btn) btn.textContent = '🎲 Generate New Episode';
+}
+
+function openStoryEpisode(idx) {
+  const ep = S.story.episodes[idx];
+  if (!ep) return;
+  S.story.active = ep;
+  S.story.play = {on:false, idx:0};
+  document.getElementById('story-ep-title').textContent = ep.title;
+  document.getElementById('story-ep-sub').textContent = `Episode ${S.story.episodes.length - idx} · ${ep.scenario}`;
+  // Render script
+  const script = document.getElementById('story-script');
+  if (script) {
+    script.innerHTML = (ep.dialogue||[]).map((l,i) => {
+      const cls = l.speaker==='Anna'?'a':'m';
+      return `<div class="diag-item" id="sdl-${i}" onclick="storyJump(${i})">
+        <div class="di-av ${cls}">${l.speaker==='Anna'?'A':'M'}</div>
+        <div class="flex-1">
+          <div class="di-name ${cls}">${l.speaker}</div>
+          <div class="di-txt">${l.text}</div>
+          <div class="di-en">${l.translation}</div>
+          ${l.notes?`<div class="di-note">💡 ${l.notes}</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  // Render vocab
+  const vocabEl = document.getElementById('story-vocab-list');
+  if (vocabEl) {
+    vocabEl.innerHTML = (ep.vocab||[]).map(v=>`
+      <div class="wl-item" onclick="speakTTS('${v.word.replace(/'/g,"\'")}','Anna',null)">
+        <div><div class="wl-de">${v.article?v.article+' ':''}<strong>${v.word}</strong></div><div class="wl-en">${v.translation}</div>${v.synonyms?.length?`<div class="wl-syn">${v.synonyms.join(' · ')}</div>`:''}</div>
+        <span class="wl-badge new">🔊</span>
+      </div>`).join('');
+  }
+  // Cultural note
+  if (ep.culturalNote) {
+    const vocabSec = document.getElementById('story-vocab-section');
+    if (vocabSec) vocabSec.innerHTML += `<div class="wotd-fact mt-3">🇩🇪 ${ep.culturalNote}</div>`;
+  }
+  go('story-player');
+}
+
+let storyPlaying = false;
+function toggleStoryPlay() {
+  if (storyPlaying) { storyPlaying=false; stopTTS(); document.getElementById('story-play-btn').textContent='▶'; }
+  else { storyPlaying=true; document.getElementById('story-play-btn').textContent='⏸'; storyPlayLine(S.story.play.idx); }
+}
+function storyPlayLine(idx) {
+  const ep = S.story.active;
+  if (!ep||!storyPlaying||idx>=ep.dialogue.length) { storyPlaying=false; document.getElementById('story-play-btn').textContent='▶'; toast('Episode finished! 🎉'); return; }
+  S.story.play.idx = idx;
+  const l = ep.dialogue[idx];
+  // Update subtitle
+  document.getElementById('story-sub-spk').textContent = l.speaker.toUpperCase();
+  document.getElementById('story-sub-spk').className = 'sub-spk '+(l.speaker==='Anna'?'a':'m');
+  document.getElementById('story-sub-txt').textContent = l.text;
+  document.getElementById('story-sub-en').textContent = l.translation||'';
+  document.getElementById('story-sub-mini').textContent = l.text;
+  // Highlight script line
+  document.querySelectorAll('[id^="sdl-"]').forEach(e=>e.classList.remove('on'));
+  const dl = document.getElementById('sdl-'+idx);
+  if (dl) { dl.classList.add('on'); dl.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  // Speaking animation
+  const annaEl = document.getElementById('story-anna');
+  const maxEl = document.getElementById('story-max');
+  if (annaEl) annaEl.classList.toggle('speaking', l.speaker==='Anna');
+  if (maxEl)  maxEl.classList.toggle('speaking', l.speaker==='Max');
+  speakTTS(l.text, l.speaker, () => { if (storyPlaying) setTimeout(()=>storyPlayLine(idx+1), 400); });
+}
+function storyNext() { stopTTS(); storyPlaying=false; const idx=Math.min((S.story.play.idx||0)+1,(S.story.active?.dialogue?.length||1)-1); S.story.play.idx=idx; storyPlaying=true; document.getElementById('story-play-btn').textContent='⏸'; storyPlayLine(idx); }
+function storyPrev() { stopTTS(); storyPlaying=false; const idx=Math.max((S.story.play.idx||0)-1,0); S.story.play.idx=idx; storyPlaying=true; document.getElementById('story-play-btn').textContent='⏸'; storyPlayLine(idx); }
+function storyJump(idx) { stopTTS(); storyPlaying=false; S.story.play.idx=idx; storyPlaying=true; document.getElementById('story-play-btn').textContent='⏸'; storyPlayLine(idx); }
+
+/* ══════════════════════════════════════
+   SHADOWING MODE
+══════════════════════════════════════ */
+function openShadowing() {
+  const p = S.activePod;
+  if (!p || !p.dialogue?.length) { toast('Open a podcast first to shadow its lines!'); return; }
+  S.shadow = {lines: p.dialogue.slice(0,10), idx:0, rec:false, chunks:[], mediaRecorder:null, stream:null, scores:[]};
+  renderShadowLine();
+  go('shadow');
+}
+
+function renderShadowLine() {
+  const el = document.getElementById('shadow-content');
+  if (!el) return;
+  const lines = S.shadow.lines;
+  el.innerHTML = lines.map((l,i) => {
+    const score = S.shadow.scores[i];
+    const isCur = i === S.shadow.idx;
+    return `<div class="shadow-line ${isCur?'':'opacity-50'}" id="sl-${i}">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div class="flex-1">
+          <div style="font-size:10px;font-weight:700;color:${l.speaker==='Anna'?'var(--anna)':'var(--max)'};margin-bottom:3px;">${l.speaker.toUpperCase()}</div>
+          <div class="shadow-de">${l.text}</div>
+          <div class="shadow-en">${l.translation||''}</div>
+        </div>
+        ${score!==undefined?`<div class="shadow-score ${score>=80?'good':score>=60?'ok':'bad'}">${score}%</div>`:''}
+      </div>
+      ${isCur?`<div class="d-flex gap-2 mt-2">
+        <button onclick="shadowListen()" style="flex:1;background:#6457ff20;border:1px solid #6457ff40;color:var(--accent2);border-radius:10px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;">▶ Listen</button>
+        <button onclick="toggleShadowRec()" id="shadow-rec-btn" style="flex:1;background:#ff4f9720;border:1px solid #ff4f9740;color:var(--anna);border-radius:10px;padding:10px;font-weight:700;font-size:13px;cursor:pointer;">🎙 Repeat</button>
+      </div>`:''}</div>`;
+  }).join('');
+}
+
+function shadowListen() {
+  const l = S.shadow.lines[S.shadow.idx];
+  if (l) speakTTS(l.text, l.speaker, null);
+}
+
+async function toggleShadowRec() {
+  const btn = document.getElementById('shadow-rec-btn');
+  if (S.shadow.rec) {
+    S.shadow.rec = false;
+    if (btn) btn.textContent = '🎙 Repeat';
+    try { if(S.shadow.mediaRecorder?.state!=='inactive')S.shadow.mediaRecorder.stop(); } catch(e){}
+  } else {
+    S.shadow.rec = true;
+    if (btn) btn.textContent = '⏹ Stop';
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      const mr = new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':'audio/webm'});
+      S.shadow.stream=stream; S.shadow.chunks=[]; S.shadow.mediaRecorder=mr;
+      mr.ondataavailable=e=>{if(e.data.size>0)S.shadow.chunks.push(e.data);};
+      mr.onstop=async()=>{
+        stream.getTracks().forEach(t=>t.stop());
+        if(!S.shadow.chunks.length)return;
+        const blob=new Blob(S.shadow.chunks,{type:'audio/webm'});
+        const fd=new FormData();fd.append('audio',blob,'audio.webm');
+        try{
+          const r=await fetch('./api/stt',{method:'POST',body:fd});
+          const d=await r.json();
+          await gradeShadowLine(d.transcript||'');
+        }catch(e){console.error(e);}
+        S.shadow.rec=false;
+      };
+      mr.start(200);
+      setTimeout(()=>{ if(S.shadow.rec&&S.shadow.mediaRecorder?.state!=='inactive')S.shadow.mediaRecorder.stop(); },8000);
+    } catch(e){toast('Mic error');S.shadow.rec=false;}
+  }
+}
+
+async function gradeShadowLine(transcript) {
+  const l = S.shadow.lines[S.shadow.idx];
+  if (!l) return;
+  try {
+    const res = await callAPI('You are a German pronunciation coach. Return ONLY valid JSON.',
+      `Target: "${l.text}"
+Student said: "${transcript}"
+Score the pronunciation similarity (0-100). JSON: {"score":78,"feedback":"brief feedback","tip":"pronunciation tip"}`, 200);
+    const g = JSON.parse(res.content[0].text.replace(/```json|```/g,'').trim());
+    S.shadow.scores[S.shadow.idx] = g.score||50;
+    toast(`Score: ${g.score}% — ${g.feedback}`);
+    awardXP('shadow_line');
+    if (g.score < 70 && l.text) addToJournal(transcript||'(unclear)', l.text, g.tip||'Practice this pronunciation', l.speaker+' line');
+    setTimeout(()=>{
+      S.shadow.idx = Math.min(S.shadow.idx+1, S.shadow.lines.length-1);
+      renderShadowLine();
+    }, 1500);
+  } catch(e) { S.shadow.scores[S.shadow.idx]=60; S.shadow.idx=Math.min(S.shadow.idx+1,S.shadow.lines.length-1); renderShadowLine(); }
+}
+
+
 /* ══════════════════════════════════════
    UTILS
 ══════════════════════════════════════ */
@@ -1906,13 +3275,11 @@ function toggleTheme() {
 ══════════════════════════════════════ */
 window.addEventListener('load',()=>{
   load();
-  speechSynthesis.getVoices();
-  speechSynthesis.onvoiceschanged=()=>{vc=null;};
   renderHome();
   document.getElementById('global-nav').style.display='block';
   document.getElementById('nt-home').classList.add('on');
   // Load saved theme
-  const savedTheme = localStorage.getItem('sp2_theme');
+  const savedTheme = localStorage.getItem('sp3_theme') || localStorage.getItem('sp2_theme');
   if (savedTheme === 'light') {
     document.body.classList.add('light-mode');
     document.getElementById('theme-btn').textContent = '☀️';
@@ -1920,6 +3287,10 @@ window.addEventListener('load',()=>{
   }
   // Set default toggles
   setStd('telc'); setLvl('A2'); setDur('medium');
+  setExamStd('telc'); setExamLvl('B1');
+  // Init daily streak
+  const today = new Date().toDateString();
+  if (S.lastActive !== today) { awardXP('daily_login'); }
 });
 </script>
 </body>
