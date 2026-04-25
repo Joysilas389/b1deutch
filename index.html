@@ -1397,7 +1397,7 @@ function isDue(c) { return c.sr.status==='new' || new Date(c.sr.nextReview) <= n
    STATE
 ══════════════════════════════════════ */
 let S = {
-  level: 'A2', duration: 'medium', standard: 'telc',
+  level: 'B1', duration: 'medium', standard: 'telc',
   activeModule: 'sprechen',
   podcasts: [], lesenSessions: [], schreibenSessions: [], horenSessions: [],
   activePod: null, activeSession: null,
@@ -1407,6 +1407,14 @@ let S = {
   fc: {all:[], deck:'all', modFilter:'all', mode:'study', studyIdx:0, flipped:false, streak:0, sessionCorrect:0, sessionTotal:0},
   stats: {podcasts:0, bestScore:0},
   lesen: {showTrans:false},
+  chat: {msgs:[], partner:'Anna', level:'B1', grammarTips:true, rec:false, chunks:[], mediaRecorder:null, stream:null},
+  exam: {phase:'idle', section:0, sections:[], timeLeft:0, timerIv:null, answers:{}, scores:{}, writing:'', speaking:'', std:'telc', lvl:'B1'},
+  journal: [],
+  story: {episodes:[], active:null, playOn:false, playIdx:0, vocab:[]},
+  shadow: {lines:[], idx:0, rec:false, chunks:[], mediaRecorder:null, stream:null, scores:[]},
+  xp: 0, xpLevel: 0, streakDays: 0, lastActive: null,
+  wotd: null,
+  examDate: null,
 };
 
 /* ══════════════════════════════════════
@@ -2550,37 +2558,22 @@ async function sendChatMsg() {
   inp.value = '';
   S.chat.msgs.push({role:'user', text});
   renderChat();
-  // Show typing
   const typing = document.getElementById('chat-typing');
-  if (typing) { typing.textContent = `${S.chat.partner} is typing…`; typing.style.display='block'; }
+  if (typing) { typing.textContent = S.chat.partner + ' is typing…'; typing.style.display='block'; }
   try {
-    const history = S.chat.msgs.slice(-8).map(m => ({
-      role: m.role==='user'?'user':'assistant',
-      content: m.text
-    }));
-    const sys = `You are ${S.chat.partner}, a friendly German conversation partner helping someone practice German for their TELC/Goethe exam at ${S.chat.level} level.
-RULES:
-- Always respond IN GERMAN at ${S.chat.level} level
-- Keep responses conversational and natural (2-4 sentences)
-- ${S.chat.grammarTips ? 'If the user made a grammar error, gently correct it with a short tip' : 'Focus on keeping the conversation flowing naturally'}
-- Be warm, encouraging and natural like a real friend
-Return JSON: {"text":"German response","translation":"English translation","tip":${S.chat.grammarTips?'"grammar tip if error, or null"':'null'}}`;
-    const res = await callAPI(sys, `Conversation so far:
-${history.map(h=>h.role+': '+h.content).join('
-')}
-User just said: "${text}"
-Respond naturally in German.`, 400);
+    const history = S.chat.msgs.slice(-8).map(m => m.role + ': ' + m.text).join(' | ');
+    const tipsRule = S.chat.grammarTips ? 'If the user made a grammar error, gently correct it in the tip field.' : 'Focus on natural conversation flow.';
+    const tipSchema = S.chat.grammarTips ? '"grammar tip if error, or null"' : 'null';
+    const sys = 'You are ' + S.chat.partner + ', a friendly German conversation partner helping someone practice German for their TELC/Goethe exam at ' + S.chat.level + ' level. Always respond IN GERMAN at ' + S.chat.level + ' level. Keep responses conversational (2-4 sentences). ' + tipsRule + ' Return ONLY valid JSON: {"text":"German response","translation":"English translation","tip":' + tipSchema + '}';
+    const prompt = 'Conversation history: ' + history + ' | User just said: "' + text + '" Respond naturally in German.';
+    const res = await callAPI(sys, prompt, 400);
     const data = JSON.parse(res.content[0].text.replace(/```json|```/g,'').trim());
     S.chat.msgs.push({role:'assistant', speaker: S.chat.partner, text: data.text, translation: data.translation, tip: data.tip||null});
-    // Auto-speak partner response
     speakTTS(data.text, S.chat.partner, null);
     awardXP('free_talk');
-    // Auto-save grammar errors to journal
-    if (data.tip && data.tip.includes('sollte')) {
-      addToJournal(text, data.tip, 'Grammar correction from Free Talk', text);
-    }
+    if (data.tip && data.tip.length > 5) addToJournal(text, data.tip, 'Grammar correction from Free Talk', text);
   } catch(e) {
-    S.chat.msgs.push({role:'assistant', speaker: S.chat.partner, text: 'Entschuldigung, ich habe einen kleinen Fehler gemacht. Kannst du das nochmal sagen?', translation: 'Sorry, I made a small error. Can you say that again?'});
+    S.chat.msgs.push({role:'assistant', speaker: S.chat.partner, text: 'Entschuldigung! Kannst du das nochmal sagen?', translation: 'Sorry! Can you say that again?'});
   }
   if (typing) typing.style.display='none';
   renderChat();
