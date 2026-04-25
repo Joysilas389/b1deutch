@@ -973,6 +973,67 @@ JSON: {"title":"Title","scriptType":"Gespräch|Durchsage|Interview|Nachricht","t
   }),
 };
 
+
+/* ══════════════════════════════════════
+   OPENAI TTS
+══════════════════════════════════════ */
+const TTS_API = './api/tts';
+const VOICE_MAP = {
+  'Anna':      { voice: 'nova',    speed: 1.0 },  // warm female
+  'Max':       { voice: 'onyx',    speed: 1.0 },  // deep male
+  'Examiner1': { voice: 'shimmer', speed: 0.95 }, // clear female
+  'Examiner2': { voice: 'echo',    speed: 0.95 }, // male
+};
+
+let ttsCache = {}; // cache audio URLs to avoid re-fetching same line
+let currentAudio = null;
+
+async function speakTTS(text, speakerName, onEnd) {
+  // Stop any playing audio
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+
+  const cacheKey = speakerName + '::' + text;
+  let audioUrl = ttsCache[cacheKey];
+
+  if (!audioUrl) {
+    try {
+      const vm = VOICE_MAP[speakerName] || VOICE_MAP['Max'];
+      const res = await fetch(TTS_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, voice: vm.voice, speed: vm.speed }),
+      });
+      if (!res.ok) throw new Error('TTS failed');
+      const blob = await res.blob();
+      audioUrl = URL.createObjectURL(blob);
+      ttsCache[cacheKey] = audioUrl;
+    } catch(e) {
+      console.error('TTS error, falling back to Web Speech', e);
+      // Fallback to Web Speech API
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = 'de-DE';
+      utt.pitch = speakerName === 'Anna' ? 1.4 : 0.5;
+      utt.rate  = speakerName === 'Anna' ? 0.92 : 1.08;
+      utt.onend = onEnd;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utt);
+      return;
+    }
+  }
+
+  const audio = new Audio(audioUrl);
+  currentAudio = audio;
+  audio.playbackRate = S.play.speed;
+  audio.onended = () => { currentAudio = null; if (onEnd) onEnd(); };
+  audio.onerror = () => { currentAudio = null; if (onEnd) onEnd(); };
+  audio.play().catch(e => { console.error(e); if (onEnd) onEnd(); });
+}
+
+function stopTTS() {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  speechSynthesis.cancel();
+}
+
 /* ══════════════════════════════════════
    SM-2
 ══════════════════════════════════════ */
@@ -1314,7 +1375,7 @@ function updateSub(idx) {
 }
 function togglePlay(){S.play.on?pausePlay():startPlay();}
 function startPlay(){S.play.on=true;document.getElementById('play-btn').textContent='⏸';document.querySelectorAll('#exam-wave .ew-bar').forEach(b=>b.classList.add('playing'));speakLine(S.play.idx);}
-function pausePlay(){S.play.on=false;document.getElementById('play-btn').textContent='▶';speechSynthesis.cancel();document.querySelectorAll('#exam-wave .ew-bar').forEach(b=>b.classList.remove('playing'));['cn-anna','cn-max'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('speaking');});}
+function pausePlay(){S.play.on=false;document.getElementById('play-btn').textContent='▶';stopTTS();document.querySelectorAll('#exam-wave .ew-bar').forEach(b=>b.classList.remove('playing'));['cn-anna','cn-max'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('speaking');});}
 let vc=null;
 function gv(){if(vc&&vc.length)return vc;vc=speechSynthesis.getVoices().filter(v=>v.lang.startsWith('de'));return vc;}
 function speakLine(idx){
@@ -1336,13 +1397,13 @@ function speakLine(idx){
   utt.onend=()=>{if(S.play.on)setTimeout(()=>speakLine(idx+1),500/S.play.speed);};
   speechSynthesis.speak(utt);
 }
-function nextLine(){speechSynthesis.cancel();const n=Math.min(S.play.idx+1,S.activePod.dialogue.length-1);S.play.idx=n;if(S.play.on)speakLine(n);else{updateSub(n);renderDiag();}}
-function prevLine(){speechSynthesis.cancel();const n=Math.max(S.play.idx-1,0);S.play.idx=n;if(S.play.on)speakLine(n);else{updateSub(n);renderDiag();}}
-function repeatLine(){speechSynthesis.cancel();if(S.play.on)speakLine(S.play.idx);else updateSub(S.play.idx);}
-function jumpTo(idx){speechSynthesis.cancel();S.play.idx=idx;if(S.play.on)speakLine(idx);else{updateSub(idx);renderDiag();}}
+function nextLine(){stopTTS();const n=Math.min(S.play.idx+1,S.activePod.dialogue.length-1);S.play.idx=n;if(S.play.on)speakLine(n);else{updateSub(n);renderDiag();}}
+function prevLine(){stopTTS();const n=Math.max(S.play.idx-1,0);S.play.idx=n;if(S.play.on)speakLine(n);else{updateSub(n);renderDiag();}}
+function repeatLine(){stopTTS();if(S.play.on)speakLine(S.play.idx);else updateSub(S.play.idx);}
+function jumpTo(idx){stopTTS();S.play.idx=idx;if(S.play.on)speakLine(idx);else{updateSub(idx);renderDiag();}}
 function seekTo(e){const bar=document.getElementById('prog-bar');const idx=Math.round((e.offsetX/bar.offsetWidth)*(S.activePod.dialogue.length-1));jumpTo(Math.max(0,Math.min(idx,S.activePod.dialogue.length-1)));}
 function toggleTrans(){S.play.showTrans=!S.play.showTrans;document.getElementById('trans-lbl').textContent=S.play.showTrans?'Translation':'Hide EN';document.getElementById('sub-en').style.display=S.play.showTrans?'':'none';document.querySelectorAll('.di-en').forEach(e=>e.style.display=S.play.showTrans?'':'none');}
-function exitPod(){speechSynthesis.cancel();S.play.on=false;navTo('home');}
+function exitPod(){stopTTS();S.play.on=false;navTo('home');}
 
 /* ══════════════════════════════════════
    HAMBURGER
@@ -1362,7 +1423,7 @@ function applyVM(mode){
   document.getElementById('pod-sub').style.display=mode==='script'?'none':'';
   document.getElementById('pod-script').style.display=mode==='subtitle'?'none':'';
 }
-function setSpd(v){S.play.speed=v;[0.5,.75,1,1.25,1.5].forEach((s,i)=>document.getElementById('hbsp-'+i).classList.toggle('on',s===v));document.getElementById('speed-chip').textContent=v+'×';if(S.play.on){speechSynthesis.cancel();speakLine(S.play.idx);}}
+function setSpd(v){S.play.speed=v;[0.5,.75,1,1.25,1.5].forEach((s,i)=>document.getElementById('hbsp-'+i).classList.toggle('on',s===v));document.getElementById('speed-chip').textContent=v+'×';if(currentAudio)currentAudio.playbackRate=v;if(S.play.on){stopTTS();speakLine(S.play.idx);}}
 function setTransHB(show){S.play.showTrans=show;document.getElementById('hbt-show').classList.toggle('on',show);document.getElementById('hbt-hide').classList.toggle('on',!show);document.getElementById('sub-en').style.display=show?'':'none';document.querySelectorAll('.di-en').forEach(e=>e.style.display=show?'':'none');document.getElementById('trans-lbl').textContent=show?'Translation':'Hide EN';}
 
 /* ══════════════════════════════════════
@@ -1557,12 +1618,10 @@ function speakHorenLine(idx){
   const isSpk2=line.speaker&&(line.speaker.includes('2')||line.speaker.toLowerCase().includes('max'));
   document.getElementById('hr-e1')?.classList.toggle('speaking',!isSpk2);
   document.getElementById('hr-e2')?.classList.toggle('speaking',isSpk2);
-  const utt=new SpeechSynthesisUtterance(line.text);
-  utt.lang='de-DE'; utt.rate=1;
-  const voices=gv();
-  if(voices.length>=2){utt.voice=isSpk2?(voices[1]||voices[0]):(voices[0]);}
-  utt.onend=()=>{if(horenPlaying)setTimeout(()=>speakHorenLine(idx+1),400);};
-  speechSynthesis.speak(utt);
+  const spkName = isSpk2 ? 'Examiner2' : 'Examiner1';
+  speakTTS(line.text, spkName, ()=>{
+    if(horenPlaying) setTimeout(()=>speakHorenLine(idx+1), 300);
+  });
 }
 function repeatHoren(){speechSynthesis.cancel();horenIdx=0;if(horenPlaying)speakHorenLine(0);else{document.getElementById('horen-prog-fill').style.width='0%';document.getElementById('h-t-cur').textContent='0:00';}}
 function seekHoren(e){const bar=document.getElementById('horen-prog-bar');const s=S.activeSession;if(!s)return;const idx=Math.round((e.offsetX/bar.offsetWidth)*(s.transcript.length-1));horenIdx=Math.max(0,Math.min(idx,s.transcript.length-1));if(horenPlaying){speechSynthesis.cancel();speakHorenLine(horenIdx);}else{document.getElementById('horen-prog-fill').style.width=(horenIdx/Math.max(s.transcript.length-1,1)*100)+'%';}}
