@@ -133,14 +133,14 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
 .exam-table { position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%); width: 85%; height: 8px; background: linear-gradient(180deg, #2e2e50, #1a1a30); border-radius: 4px; box-shadow: 0 4px 20px #0008; }
 .exam-floor { position: absolute; bottom: 36px; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, #27273d, transparent); }
 .exam-char { position: absolute; bottom: 48px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-.exam-char.e1 { left: 4%; }
-.exam-char.e2 { left: 24%; }
-.exam-char.s1 { right: 24%; }
-.exam-char.s2 { right: 4%; }
+.exam-char.e1 { left: 2%; }
+.exam-char.e2 { left: 22%; }
+.exam-char.s1 { right: 22%; }
+.exam-char.s2 { right: 2%; }
 /* Avatar wrapper — glow ring sits AROUND it, image fills inside */
-.exam-av-wrap { position: relative; width: 58px; height: 58px; flex-shrink: 0; }
-.exam-av { width: 58px; height: 58px; border-radius: 50%; overflow: hidden; position: relative; transition: transform .3s; border: 2px solid var(--bdr2); }
-.exam-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.exam-av-wrap { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
+.exam-av { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; position: relative; transition: transform .3s; border: 2px solid rgba(255,255,255,.2); }
+.exam-av img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
 .exam-glow { position: absolute; inset: -5px; border-radius: 50%; border: 2px solid transparent; opacity: 0; transition: opacity .3s; pointer-events: none; }
 .exam-char.e1 .exam-glow { border-color: var(--accent); box-shadow: 0 0 14px #6457ff55; }
 .exam-char.e2 .exam-glow { border-color: #8070ff; box-shadow: 0 0 14px #8070ff55; }
@@ -515,28 +515,28 @@ body.light-mode .hb-panel { background: #fff; }
 <div class="exam-char e1 speaking" id="cn-e1">
         <div class="exam-av-wrap">
           <div class="exam-glow"></div>
-          <div class="exam-av"><img src="https://api.multiavatar.com/Examiner1.svg" alt="Examiner 1" loading="lazy"/></div>
+          <div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Examiner1&backgroundColor=b6e3f4" alt="Examiner 1" loading="lazy"/></div>
         </div>
         <div class="exam-badge">Examiner 1</div>
       </div>
       <div class="exam-char e2" id="cn-e2">
         <div class="exam-av-wrap">
           <div class="exam-glow"></div>
-          <div class="exam-av"><img src="https://api.multiavatar.com/Examiner2.svg" alt="Examiner 2" loading="lazy"/></div>
+          <div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Examiner2&backgroundColor=c0aede" alt="Examiner 2" loading="lazy"/></div>
         </div>
         <div class="exam-badge">Examiner 2</div>
       </div>
       <div class="exam-char s1" id="cn-anna">
         <div class="exam-av-wrap">
           <div class="exam-glow"></div>
-          <div class="exam-av"><img src="https://api.multiavatar.com/Anna.svg" alt="Anna" loading="lazy"/></div>
+          <div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Anna&backgroundColor=ffdfbf" alt="Anna" loading="lazy"/></div>
         </div>
         <div class="exam-badge">Anna</div>
       </div>
       <div class="exam-char s2" id="cn-max">
         <div class="exam-av-wrap">
           <div class="exam-glow"></div>
-          <div class="exam-av"><img src="https://api.multiavatar.com/Max.svg" alt="Max" loading="lazy"/></div>
+          <div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Max&backgroundColor=d1f4d1" alt="Max" loading="lazy"/></div>
         </div>
         <div class="exam-badge">Max</div>
       </div>
@@ -610,21 +610,21 @@ body.light-mode .hb-panel { background: #fff; }
       <div class="exam-char e1" id="lr-e1">
         <div class="exam-av-wrap">
           <div class="exam-glow"></div>
-          <div class="exam-av"><img src="https://api.multiavatar.com/Examiner1.svg" alt="Examiner" loading="lazy"/></div>
+          <div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Examiner1&backgroundColor=b6e3f4" alt="Examiner" loading="lazy"/></div>
         </div>
         <div class="exam-badge">Examiner</div>
       </div>
       <div class="exam-char s1" id="lr-s1">
         <div class="exam-av-wrap">
           <div class="exam-glow"></div>
-          <div class="exam-av"><img src="https://api.multiavatar.com/Anna.svg" alt="Anna" loading="lazy"/></div>
+          <div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Anna&backgroundColor=ffdfbf" alt="Anna" loading="lazy"/></div>
         </div>
         <div class="exam-badge">Anna</div>
       </div>
       <div class="exam-char s2" id="lr-s2">
         <div class="exam-av-wrap">
           <div class="exam-glow"></div>
-          <div class="exam-av"><img src="https://api.multiavatar.com/Max.svg" alt="Max" loading="lazy"/></div>
+          <div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Max&backgroundColor=d1f4d1" alt="Max" loading="lazy"/></div>
         </div>
         <div class="exam-badge">Max</div>
       </div>
@@ -667,14 +667,14 @@ body.light-mode .hb-panel { background: #fff; }
       <div class="exam-char e1">
         <div class="exam-av-wrap">
           <div class="exam-glow"></div>
-          <div class="exam-av"><img src="https://api.multiavatar.com/Examiner1.svg" alt="Examiner" loading="lazy"/></div>
+          <div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Examiner1&backgroundColor=b6e3f4" alt="Examiner" loading="lazy"/></div>
         </div>
         <div class="exam-badge">Examiner</div>
       </div>
       <div class="exam-char s1">
         <div class="exam-av-wrap">
           <div class="exam-glow"></div>
-          <div class="exam-av"><img src="https://api.multiavatar.com/Anna.svg" alt="Anna" loading="lazy"/></div>
+          <div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Anna&backgroundColor=ffdfbf" alt="Anna" loading="lazy"/></div>
         </div>
         <div class="exam-badge">Anna</div>
       </div>
@@ -715,25 +715,25 @@ body.light-mode .hb-panel { background: #fff; }
       <div class="exam-char e1" id="hr-e1">
         <div class="exam-av-wrap">
           <div class="exam-glow"></div>
-          <div class="exam-av"><img src="https://api.multiavatar.com/Examiner1.svg" alt="Speaker 1" loading="lazy"/></div>
+          <div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Examiner1&backgroundColor=b6e3f4" alt="Speaker 1" loading="lazy"/></div>
         </div>
         <div class="exam-badge">Speaker 1</div>
       </div>
       <div class="exam-char e2" id="hr-e2">
         <div class="exam-av-wrap">
           <div class="exam-glow"></div>
-          <div class="exam-av"><img src="https://api.multiavatar.com/Examiner2.svg" alt="Speaker 2" loading="lazy"/></div>
+          <div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Examiner2&backgroundColor=c0aede" alt="Speaker 2" loading="lazy"/></div>
         </div>
         <div class="exam-badge">Speaker 2</div>
       </div>
       <div class="exam-char s1">
         <div class="exam-av-wrap">
           <div class="exam-glow"></div>
-          <div class="exam-av"><img src="https://api.multiavatar.com/Anna.svg" alt="Anna" loading="lazy"/></div>
+          <div class="exam-av"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Anna&backgroundColor=ffdfbf" alt="Anna" loading="lazy"/></div>
         </div>
         <div class="exam-badge">Anna</div>
       </div>
-      <div class="exam-char s2"><div class="exam-av" style="overflow:hidden;padding:0;background:none;"><div class="exam-glow"></div><img src="https://api.multiavatar.com/Max.svg" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/></div><div class="exam-badge">Max</div></div>
+      <div class="exam-char s2"><div class="exam-av" style="overflow:hidden;padding:0;background:none;"><div class="exam-glow"></div><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Max&backgroundColor=d1f4d1" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"/></div><div class="exam-badge">Max</div></div>
       <div class="exam-table"></div><div class="exam-floor"></div>
       <div class="exam-subtitle" id="horen-room-txt">Listening exam in progress…</div>
     </div>
