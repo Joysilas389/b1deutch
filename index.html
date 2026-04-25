@@ -1845,7 +1845,18 @@ function renderFCContent(){
     </div>`;
 }
 function nxtInt(card,q){return sm2(card,q).interval;}
-function flipCard(){if(!S.fc.flipped){const c=getQueue()[S.fc.studyIdx];if(c)speakTTS(c.baseForm||c.word,"Anna",null);}S.fc.flipped=!S.fc.flipped;renderFCContent();}
+function flipCard(){
+  if(!S.fc.flipped){
+    const c=getQueue()[S.fc.studyIdx];
+    if(c){
+      const word=(c.article?c.article+' ':'')+( c.baseForm||c.word);
+      const txt=c.exampleDe?word+'. '+c.exampleDe:word;
+      speakTTS(txt,'Anna',null);
+    }
+  }
+  S.fc.flipped=!S.fc.flipped;
+  renderFCContent();
+}
 function rateCard(q){
   const queue=getQueue(),card=queue[S.fc.studyIdx];if(!card)return;
   card.sr=sm2(card,q);S.fc.sessionTotal++;
