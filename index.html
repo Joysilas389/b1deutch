@@ -27,6 +27,7 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--fo
    SCREEN SYSTEM
 ═══════════════════════════════════════════ */
 .screen{display:none;flex-direction:column;min-height:100dvh;overflow:hidden;}
+#s-podcast{display:block !important;overflow-y:auto !important;height:100dvh !important;-webkit-overflow-scrolling:touch;}
 #s-podcast{height:auto;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .screen.active{display:flex;animation:screenIn .3s cubic-bezier(.22,1,.36,1) both;}
 @keyframes screenIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
@@ -981,7 +982,14 @@ function updateSub(idx) {
     // scroll the whole page so active line is visible
     const rect = di.getBoundingClientRect();
     const inView = rect.top >= 0 && rect.bottom <= window.innerHeight;
-    if(!inView) di.scrollIntoView({behavior:'smooth', block:'center'});
+    if(!inView) {
+    const podScreen = document.getElementById('s-podcast');
+    if(podScreen) {
+      const itemTop = di.offsetTop - podScreen.offsetTop;
+      const center  = itemTop - (podScreen.clientHeight / 2) + (di.clientHeight / 2);
+      podScreen.scrollTo({top: center, behavior: 'smooth'});
+    }
+  }
   }
 
   // Update arrows
@@ -1507,14 +1515,7 @@ function loadFromStorage() {
 ════════════════════════════════════════════════ */
 window.addEventListener('load',()=>{
   loadFromStorage();
-  // Track if user manually scrolled — stops auto-scroll hijacking
-  window._userScrolled = false;
-  let _scrollTimer;
-  document.getElementById('s-podcast').addEventListener('scroll', () => {
-    window._userScrolled = true;
-    clearTimeout(_scrollTimer);
-    _scrollTimer = setTimeout(() => { window._userScrolled = false; }, 3000);
-  });
+  // Free scroll — sync handled by podScreen.scrollTo
   speechSynthesis.getVoices();
   speechSynthesis.onvoiceschanged=()=>{voiceCache=null;};
   renderHome();
