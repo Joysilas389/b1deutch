@@ -1313,23 +1313,19 @@ const MODULE_CHIPS = {
 const MODULE_PROMPTS = {
   sprechen: (topic,lvl,std,turns) => ({
     sys: `You are a German ${std.toUpperCase()} exam podcast scriptwriter. Write realistic conversations between Anna and Max at ${lvl} level. Return ONLY valid JSON, no markdown.`,
-    user: `Create a ${turns}-turn German ${std.toUpperCase()} exam-style podcast dialogue about: "${topic}". Full natural conversation. Extract 10-14 vocab words with synonyms. Create 6 speaking challenges.
-JSON: {"title":"German title","dialogue":[{"speaker":"Anna","text":"German...","translation":"English...","notes":"grammar tip or null"}],"vocab":[{"word":"das Rezept","article":"das","baseForm":"Rezept","translation":"prescription","synonyms":["das Medikament","die Verordnung"],"partOfSpeech":"noun","level":"${lvl}","exampleDe":"Hier ist Ihr Rezept.","exampleEn":"Here is your prescription.","podcastContext":"Doctor gives prescription","module":"sprechen"}],"challenges":[{"situation":"Context","cue":"What to say","cueHint":"German hint","targetAnswer":"Full German answer","difficulty":"easy"}]}`
+    user: 'Create a ' + turns + '-turn German ' + std.toUpperCase() + ' exam-style podcast dialogue about: "' + topic + '". Full natural conversation. Extract 10-14 vocab words with synonyms. Create 6 speaking challenges. Return ONLY valid JSON: {"title":"German title","dialogue":[{"speaker":"Anna","text":"German...","translation":"English...","notes":"grammar tip or null"}],"vocab":[{"word":"das Rezept","article":"das","baseForm":"Rezept","translation":"prescription","synonyms":["das Medikament"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Hier ist Ihr Rezept.","exampleEn":"Here is your prescription.","podcastContext":"Doctor","module":"sprechen"}],"challenges":[{"situation":"Context","cue":"What to say","cueHint":"German hint","targetAnswer":"Full German answer","difficulty":"easy"}]}'
   }),
   lesen: (topic,lvl,std) => ({
     sys: `You are a German ${std.toUpperCase()} exam reading comprehension expert at ${lvl} level. Return ONLY valid JSON, no markdown.`,
-    user: `Create a ${std.toUpperCase()} ${lvl} reading comprehension exercise about: "${topic}".
-JSON: {"title":"Title","passage":[{"de":"German paragraph...","en":"English translation..."}],"questions":[{"question":"Comprehension question in German?","options":["A) option","B) option","C) option","D) option"],"correct":0,"explanation":"Why A is correct"}],"vocab":[{"word":"die Umwelt","article":"die","baseForm":"Umwelt","translation":"environment","synonyms":["die Natur","das Ökosystem"],"partOfSpeech":"noun","level":"${lvl}","exampleDe":"Die Umwelt muss geschützt werden.","exampleEn":"The environment must be protected.","podcastContext":"Found in passage","module":"lesen"}],"examTip":"Key exam strategy tip for this text type"}`
+    user: 'Create a ' + std.toUpperCase() + ' ' + lvl + ' reading comprehension exercise about: "' + topic + '". Return ONLY valid JSON: {"title":"Title","passage":[{"de":"German paragraph...","en":"English translation..."}],"questions":[{"question":"Comprehension question in German?","options":["A) option","B) option","C) option","D) option"],"correct":0,"explanation":"Why A is correct"}],"vocab":[{"word":"die Umwelt","article":"die","baseForm":"Umwelt","translation":"environment","synonyms":["die Natur"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Die Umwelt muss geschützt werden.","exampleEn":"The environment must be protected.","podcastContext":"passage","module":"lesen"}],"examTip":"Key exam strategy tip"}'
   }),
   schreiben: (topic,lvl,std) => ({
     sys: `You are a German ${std.toUpperCase()} exam writing expert at ${lvl} level. Return ONLY valid JSON, no markdown.`,
-    user: `Create a ${std.toUpperCase()} ${lvl} writing exercise: "${topic}".
-JSON: {"title":"Title","taskType":"Formeller Brief|Informeller Brief|E-Mail|Aufsatz|Bericht","situation":"Full task description in English","keyPoints":["point to cover 1","point to cover 2","point to cover 3"],"wordCount":${lvl==='A2'?80:lvl==='B1'?150:200},"modelAnswer":{"de":"Full model answer in German...","en":"English translation of model answer..."},"vocab":[{"word":"Mit freundlichen Grüßen","article":null,"baseForm":"Mit freundlichen Grüßen","translation":"Yours sincerely","synonyms":["Viele Grüße","Beste Grüße"],"partOfSpeech":"phrase","level":"${lvl}","exampleDe":"Mit freundlichen Grüßen, Anna Schmidt.","exampleEn":"Yours sincerely, Anna Schmidt.","podcastContext":"Formal letter closing","module":"schreiben"}],"examTips":["Tip 1","Tip 2","Tip 3"]}`
+    user: 'Create a ' + std.toUpperCase() + ' ' + lvl + ' writing exercise: "' + topic + '". Return ONLY valid JSON: {"title":"Title","taskType":"Formeller Brief","situation":"Full task description in English","keyPoints":["point 1","point 2","point 3"],"wordCount":' + (lvl==='A2'?80:lvl==='B1'?150:200) + ',"modelAnswer":{"de":"Full model answer in German...","en":"English translation..."},"vocab":[{"word":"Mit freundlichen Grüßen","article":null,"baseForm":"Mit freundlichen Grüßen","translation":"Yours sincerely","synonyms":["Viele Grüße"],"partOfSpeech":"phrase","level":"' + lvl + '","exampleDe":"Mit freundlichen Grüßen, Anna Schmidt.","exampleEn":"Yours sincerely, Anna Schmidt.","podcastContext":"Formal closing","module":"schreiben"}],"examTips":["Tip 1","Tip 2"]}'
   }),
   horen: (topic,lvl,std) => ({
     sys: `You are a German ${std.toUpperCase()} exam listening comprehension expert at ${lvl} level. Return ONLY valid JSON, no markdown.`,
-    user: `Create a ${std.toUpperCase()} ${lvl} listening exercise: "${topic}". Write a realistic dialogue/monologue script meant to be read aloud via TTS.
-JSON: {"title":"Title","scriptType":"Gespräch|Durchsage|Interview|Nachricht","transcript":[{"speaker":"Speaker 1","text":"German text to be read aloud...","translation":"English translation"}],"questions":[{"question":"Listening comprehension question in German?","options":["A) option","B) option","C) option","D) option"],"correct":0,"timeRef":"beginning|middle|end"}],"vocab":[{"word":"die Abfahrt","article":"die","baseForm":"Abfahrt","translation":"departure","synonyms":["das Abfahren","der Abgang"],"partOfSpeech":"noun","level":"${lvl}","exampleDe":"Die Abfahrt ist um 14:30 Uhr.","exampleEn":"Departure is at 2:30 PM.","podcastContext":"Train announcement","module":"horen"}],"examTip":"Key listening strategy tip"}`
+    user: 'Create a ' + std.toUpperCase() + ' ' + lvl + ' listening exercise: "' + topic + '". Write a realistic script to be read aloud via TTS. Return ONLY valid JSON: {"title":"Title","scriptType":"Gespräch","transcript":[{"speaker":"Speaker 1","text":"German text...","translation":"English translation"}],"questions":[{"question":"Listening comprehension question in German?","options":["A) option","B) option","C) option","D) option"],"correct":0,"timeRef":"beginning"}],"vocab":[{"word":"die Abfahrt","article":"die","baseForm":"Abfahrt","translation":"departure","synonyms":["das Abfahren"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Die Abfahrt ist um 14:30 Uhr.","exampleEn":"Departure is at 2:30 PM.","podcastContext":"Train","module":"horen"}],"examTip":"Key listening strategy tip"}'
   }),
 };
 
@@ -1628,14 +1624,25 @@ async function doGenerate() {
   runGenAnim(mod);
   const {sys, user} = MODULE_PROMPTS[mod](topic, lvl, std, TURNS[S.duration]);
   try {
-    const res  = await callAPI(sys, user, 7000);
-    const raw  = res.content[0].text.trim().replace(/```json|```/g,'').trim();
-    const data = JSON.parse(raw);
+    const res = await callAPI(sys, user, 4000);
+    if (!res.content || !res.content[0]) throw new Error('Empty response from AI');
+    const raw = res.content[0].text.trim();
+    // Robustly extract JSON — handle markdown fences, leading text, trailing text
+    let jsonStr = raw;
+    const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (fenceMatch) jsonStr = fenceMatch[1].trim();
+    else {
+      const start = raw.indexOf('{');
+      const end   = raw.lastIndexOf('}');
+      if (start !== -1 && end !== -1) jsonStr = raw.slice(start, end + 1);
+    }
+    const data = JSON.parse(jsonStr);
     finishGen(mod, data, topic, lvl, std);
   } catch(e) {
-    console.error(e);
-    toast('Generation failed — please try again');
-    navTo('home');
+    console.error('Generation error:', e);
+    const msg = e.message || 'Unknown error';
+    toast('Generation failed: ' + msg.slice(0, 80));
+    go('generate');
   }
 }
 
