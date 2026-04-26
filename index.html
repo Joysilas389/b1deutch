@@ -1407,6 +1407,58 @@ const API   = './api/claude';
 const MODEL = 'claude-sonnet-4-20250514';
 const TURNS = {short:20, medium:40, long:60};
 
+/* ── SQLite Storage Layer ─────────────────────────────────────────────────
+   Uses local SQLite server in Termux when available.
+   Falls back to localStorage automatically — fully transparent.
+─────────────────────────────────────────────────────────────────────── */
+const DB_URL = 'http://localhost:3001';
+let _dbAvailable = false, _dbChecked = false;
+
+async function checkDB() {
+  if (_dbChecked) return _dbAvailable;
+  try {
+    const r = await fetch(DB_URL + '/ping', { signal: AbortSignal.timeout(800) });
+    _dbAvailable = r.ok;
+  } catch(e) { _dbAvailable = false; }
+  _dbChecked = true;
+  console.log('[Storage]', _dbAvailable ? 'SQLite server active' : 'Using localStorage');
+  return _dbAvailable;
+}
+
+async function dbBulkSet(obj) {
+  // Always write localStorage first (instant, synchronous)
+  Object.entries(obj).forEach(([k,v]) => { if(v!==undefined&&v!==null) localStorage.setItem(k, String(v)); });
+  // Then write to SQLite in background
+  if (!await checkDB()) return;
+  try {
+    fetch(DB_URL + '/store/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(obj),
+    }).catch(()=>{});
+  } catch(e) {}
+}
+
+async function loadFromDB() {
+  if (!await checkDB()) return false;
+  try {
+    const r = await fetch(DB_URL + '/store', { signal: AbortSignal.timeout(2000) });
+    if (!r.ok) return false;
+    const all = await r.json();
+    Object.entries(all).forEach(([k,v]) => localStorage.setItem(k, v));
+    console.log('[Storage] Synced', Object.keys(all).length, 'keys from SQLite → localStorage');
+    return true;
+  } catch(e) { return false; }
+}
+
+async function dbAutoBackup() {
+  if (!await checkDB()) return;
+  try {
+    await fetch(DB_URL + '/backup', { method: 'POST' });
+    console.log('[Storage] Auto-backup saved to SQLite');
+  } catch(e) {}
+}
+
 /* ── DEUTSCH DOPPEL TOPICS CURRICULUM ── */
 const DD_TOPICS = {
   a2: {
@@ -1988,18 +2040,24 @@ let S = {
 ══════════════════════════════════════ */
 function save() {
   try {
-    localStorage.setItem('sp3_pods',  JSON.stringify(S.podcasts));
-    localStorage.setItem('sp3_lesen', JSON.stringify(S.lesenSessions));
-    localStorage.setItem('sp3_schr',  JSON.stringify(S.schreibenSessions));
-    localStorage.setItem('sp3_hor',   JSON.stringify(S.horenSessions));
-    localStorage.setItem('sp3_fc',    JSON.stringify(S.fc.all));
-    localStorage.setItem('sp3_stats', JSON.stringify(S.stats));
-    localStorage.setItem('sp3_streak',String(S.fc.streak));
-    localStorage.setItem('sp3_journal',JSON.stringify(S.journal));
-    localStorage.setItem('sp3_xp',    JSON.stringify({xp:S.xp,xpLevel:S.xpLevel,streakDays:S.streakDays,lastActive:S.lastActive}));
-    localStorage.setItem('sp3_examdate', S.examDate||'');
-    localStorage.setItem('sp3_wotd',  JSON.stringify(S.wotd));
-    localStorage.setItem('sp3_story', JSON.stringify(S.story.episodes));
+    const data = {
+      'sp3_pods':    JSON.stringify(S.podcasts),
+      'sp3_lesen':   JSON.stringify(S.lesenSessions),
+      'sp3_schr':    JSON.stringify(S.schreibenSessions),
+      'sp3_hor':     JSON.stringify(S.horenSessions),
+      'sp3_fc':      JSON.stringify(S.fc.all),
+      'sp3_stats':   JSON.stringify(S.stats),
+      'sp3_streak':  String(S.fc.streak),
+      'sp3_journal': JSON.stringify(S.journal),
+      'sp3_xp':      JSON.stringify({xp:S.xp,xpLevel:S.xpLevel,streakDays:S.streakDays,lastActive:S.lastActive}),
+      'sp3_examdate': S.examDate||'',
+      'sp3_wotd':    JSON.stringify(S.wotd),
+      'sp3_story':   JSON.stringify(S.story.episodes),
+    };
+    // Write localStorage synchronously (instant)
+    Object.entries(data).forEach(([k,v]) => localStorage.setItem(k, v));
+    // Write SQLite asynchronously in background (no await — non-blocking)
+    dbBulkSet(data).catch(()=>{});
   } catch(e) {}
 }
 function load() {
@@ -4593,7 +4651,9 @@ function toggleTheme() {
 /* ══════════════════════════════════════
    BOOT
 ══════════════════════════════════════ */
-window.addEventListener('load',()=>{
+window.addEventListener('load', async ()=>{
+  // Sync from SQLite first if server is running
+  await loadFromDB();
   load();
   // Clear stale WOTD so it regenerates on new day
   const todayISO = new Date().toISOString().slice(0,10);
@@ -4633,6 +4693,8 @@ window.addEventListener('load',()=>{
       loadWOTD();
       // Schedule next midnight
       scheduleMidnightRefresh();
+  // Daily SQLite backup (saves snapshot inside sprechen.db backups table)
+  dbAutoBackup().catch(()=>{});
     }, msUntilMidnight);
   }
   scheduleMidnightRefresh();
