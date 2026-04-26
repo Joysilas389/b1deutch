@@ -4435,8 +4435,9 @@ async function generateStoryEpisode() {
     const prompt = `Create Episode ${epNum} of an ongoing German learning story. Scenario: "${scenario}". ${prevVocab?`Previously learned words to naturally reuse: ${prevVocab}.`:''}
 Write 16-20 dialogue turns between Anna and Max navigating this situation naturally. Include a third character (a native German person relevant to the scenario).
 JSON: {"title":"Episode title in German","scenario":"${scenario}","level":"${S.level}","dialogue":[{"speaker":"Anna","text":"German...","translation":"English...","notes":"grammar note or null"}],"vocab":[{"word":"das Wort","article":"das","baseForm":"Wort","translation":"word","synonyms":["der Begriff"],"partOfSpeech":"noun","level":"${S.level}","exampleDe":"Das Wort ist wichtig.","exampleEn":"The word is important.","podcastContext":"context","module":"story"}],"culturalNote":"Interesting German cultural fact about this scenario"}`;
-    const res = await callAPI(sys, prompt, 3000);
-    const ep = JSON.parse(res.content[0].text.replace(/```json|```/g,'').trim());
+    const res = await callAPI(sys, prompt, 3500);
+    if (!res.content || !res.content[0]) throw new Error('Empty response');
+    const ep = JSON.parse(extractJSON(res.content[0].text));
     ep.id = Date.now();
     ep.createdAt = new Date().toISOString();
     S.story.episodes.unshift(ep);
