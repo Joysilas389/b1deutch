@@ -2692,6 +2692,8 @@ function renderLibrary() {
     const div=document.createElement('div');
     div.className='pod-card';
     div.style.cssText='position:relative;padding-right:56px;margin-bottom:10px;';
+    const noVocab = !s.vocab || s.vocab.length === 0;
+    const hasDialogue = s.dialogue && s.dialogue.length > 0;
     div.innerHTML=
       '<div style="cursor:pointer;" class="lib-open" data-mod="'+s.module+'" data-id="'+s.id+'">'+
         '<div class="d-flex justify-content-between align-items-start">'+
@@ -2704,23 +2706,92 @@ function renderLibrary() {
         '</div>'+
         '<div class="pc-meta mt-1">'+
           '<span style="color:'+color+';">'+s.module.charAt(0).toUpperCase()+s.module.slice(1)+'</span>'+
-          (s.vocab?.length?'<span>🃏 '+s.vocab.length+' cards</span>':'')+
+          (s.vocab?.length?'<span>🃏 '+s.vocab.length+' cards</span>':'<span style="color:var(--warn);">⚠ No cards</span>')+
           (date?'<span>📅 '+date+'</span>':'')+
           (s.bestScore?'<span>⭐ '+s.bestScore+'%</span>':'')+
         '</div>'+
+        // Add vocab button only if no vocab but has dialogue
+        (noVocab && hasDialogue ?
+          '<button class="lib-vocab" data-mod="'+s.module+'" data-id="'+s.id+'" '+
+            'style="margin-top:10px;width:100%;background:#d9775715;border:1px solid #d9775740;color:var(--accent2);border-radius:8px;padding:7px;font-size:12px;font-weight:700;cursor:pointer;">'+
+            '➕ Extract Vocabulary & Add Cards</button>' : '')+
       '</div>'+
       '<button class="lib-del" data-mod="'+s.module+'" data-id="'+s.id+'" '+
-        'style="position:absolute;top:50%;right:10px;transform:translateY(-50%);background:#ff3b3015;border:1px solid #ff3b3040;color:var(--danger);border-radius:8px;padding:6px 10px;font-size:16px;cursor:pointer;">🗑</button>';
+        'style="position:absolute;top:10px;right:10px;background:#ff3b3015;border:1px solid #ff3b3040;color:var(--danger);border-radius:8px;padding:5px 9px;font-size:14px;cursor:pointer;">🗑</button>';
     el.appendChild(div);
   });
   // Event delegation — one listener on container
   el.onclick = function(e) {
-    const open = e.target.closest('.lib-open');
-    const del  = e.target.closest('.lib-del');
-    if(open) { reopenSession(open.dataset.mod, open.dataset.id); }
-    if(del)  { e.stopPropagation(); confirmDeleteSession(del.dataset.mod, del.dataset.id); }
+    const open  = e.target.closest('.lib-open');
+    const del   = e.target.closest('.lib-del');
+    const vocab = e.target.closest('.lib-vocab');
+    if(vocab) { e.stopPropagation(); regenVocab(vocab.dataset.mod, vocab.dataset.id); return; }
+    if(open)  { reopenSession(open.dataset.mod, open.dataset.id); }
+    if(del)   { e.stopPropagation(); confirmDeleteSession(del.dataset.mod, del.dataset.id); }
   };
 }
+async function regenVocab(mod, id) {
+  // Find the session
+  const arr = mod==='sprechen'?S.podcasts:mod==='lesen'?S.lesenSessions:mod==='schreiben'?S.schreibenSessions:S.horenSessions;
+  const s = arr.find(x => String(x.id) === String(id));
+  if (!s) { toast('Session not found'); return; }
+
+  // Get sample text from dialogue or passage
+  let sampleText = '';
+  if (s.dialogue?.length) {
+    sampleText = s.dialogue.slice(0, 10).map(l => l.text).join(' ');
+  } else if (s.passage?.length) {
+    sampleText = s.passage.map(p => p.de).join(' ');
+  } else if (s.transcript?.length) {
+    sampleText = s.transcript.slice(0, 8).map(l => l.text).join(' ');
+  } else if (s.modelAnswer?.de) {
+    sampleText = s.modelAnswer.de;
+  }
+
+  if (!sampleText) { toast('No content to extract vocab from'); return; }
+
+  toast('⏳ Extracting vocabulary…');
+
+  try {
+    const sys = 'You are a German vocabulary expert. Extract key vocabulary from German text. Return ONLY valid JSON, no markdown.';
+    const user = 'Extract 8-12 key vocabulary words from this German ' + (s.level||'B1') + ' text about "' + (s.topic||s.title) + '": "' + sampleText.slice(0, 600) + '" Return ONLY: {"vocab":[{"word":"das Wort","article":"das","baseForm":"Wort","translation":"word","synonyms":["der Begriff"],"partOfSpeech":"noun","level":"' + (s.level||'B1') + '","exampleDe":"Das Wort ist wichtig.","exampleEn":"The word is important.","podcastContext":"from session","module":"' + mod + '"}]}';
+
+    const res = await callAPI(sys, user, 1500);
+    if (!res.content || !res.content[0]) throw new Error('Empty response');
+    const data = JSON.parse(extractJSON(res.content[0].text));
+    const vocab = data.vocab || [];
+
+    if (!vocab.length) { toast('No vocabulary extracted'); return; }
+
+    // Save vocab to session
+    const idx = arr.findIndex(x => String(x.id) === String(id));
+    if (idx >= 0) arr[idx].vocab = vocab;
+
+    // Add to flashcards
+    let added = 0;
+    vocab.forEach(v => {
+      const exists = S.fc.all.find(c =>
+        (c.baseForm||c.word).toLowerCase() === (v.baseForm||v.word).toLowerCase()
+      );
+      if (!exists) {
+        S.fc.all.push({...v, id: Date.now()+Math.random(), sessionId: s.id, sessionTitle: s.title,
+          sr:{interval:1,easeFactor:2.5,repetitions:0,nextReview:new Date().toISOString(),status:'new',lastQuality:0,totalReviews:0},
+          addedAt: new Date().toISOString()});
+        added++;
+      }
+    });
+
+    save();
+    toast('✅ Added ' + added + ' new cards! 🃏');
+    renderLibrary();
+    renderHome();
+
+  } catch(e) {
+    console.error('regenVocab error:', e);
+    toast('Failed to extract vocab: ' + (e.message||'').slice(0,60));
+  }
+}
+
 function setLibFilter(f){
   window._libFilter=f;
   ['all','sprechen','lesen','schreiben','horen'].forEach(x=>{
