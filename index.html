@@ -1312,8 +1312,8 @@ const MODULE_CHIPS = {
 
 const MODULE_PROMPTS = {
   sprechen: (topic,lvl,std,turns) => ({
-    sys: `You are a German ${std.toUpperCase()} exam podcast scriptwriter. Write realistic conversations between Anna and Max at ${lvl} level. Return ONLY valid JSON, no markdown.`,
-    user: 'Create a ' + turns + '-turn German ' + std.toUpperCase() + ' exam-style podcast dialogue about: "' + topic + '". Full natural conversation. Extract 10-14 vocab words with synonyms. Create 6 speaking challenges. Return ONLY valid JSON: {"title":"German title","dialogue":[{"speaker":"Anna","text":"German...","translation":"English...","notes":"grammar tip or null"}],"vocab":[{"word":"das Rezept","article":"das","baseForm":"Rezept","translation":"prescription","synonyms":["das Medikament"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Hier ist Ihr Rezept.","exampleEn":"Here is your prescription.","podcastContext":"Doctor","module":"sprechen"}],"challenges":[{"situation":"Context","cue":"What to say","cueHint":"German hint","targetAnswer":"Full German answer","difficulty":"easy"}]}'
+    sys: 'You are a German ' + std.toUpperCase() + ' exam podcast scriptwriter. Write realistic conversations between Anna and Max at ' + lvl + ' level. You MUST produce EXACTLY ' + turns + ' dialogue turns — no fewer, no more. Each turn is one speaker saying one thing. Count carefully. Return ONLY valid JSON, no markdown, no extra text.',
+    user: 'Create EXACTLY ' + turns + ' dialogue turns (count them: ' + turns + ' total) for a German ' + std.toUpperCase() + ' ' + lvl + ' podcast about: "' + topic + '". Anna and Max alternate naturally. IMPORTANT: The dialogue array must have EXACTLY ' + turns + ' items. Also extract 10-14 vocab words and create 6 speaking challenges. Return ONLY valid JSON: {"title":"German title","dialogue":[{"speaker":"Anna","text":"German...","translation":"English...","notes":"grammar tip or null"}],"vocab":[{"word":"das Rezept","article":"das","baseForm":"Rezept","translation":"prescription","synonyms":["das Medikament"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Hier ist Ihr Rezept.","exampleEn":"Here is your prescription.","podcastContext":"Doctor","module":"sprechen"}],"challenges":[{"situation":"Context","cue":"What to say","cueHint":"German hint","targetAnswer":"Full German answer","difficulty":"easy"}]}'
   }),
   lesen: (topic,lvl,std) => ({
     sys: `You are a German ${std.toUpperCase()} exam reading comprehension expert at ${lvl} level. Return ONLY valid JSON, no markdown.`,
@@ -1624,7 +1624,7 @@ async function doGenerate() {
   runGenAnim(mod);
   const {sys, user} = MODULE_PROMPTS[mod](topic, lvl, std, TURNS[S.duration]);
   try {
-    const res = await callAPI(sys, user, 2500);
+    const res = await callAPI(sys, user, mod === 'sprechen' ? 4000 : 2500);
     if (!res.content || !res.content[0]) throw new Error('Empty response from AI');
     const raw = res.content[0].text.trim();
     // Robustly extract JSON — handle markdown fences, leading text, trailing text
