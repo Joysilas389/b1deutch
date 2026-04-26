@@ -326,8 +326,8 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
    HAMBURGER SHEET
 ═══════════════════════════════════ */
 .hb-ov { display: none; position: fixed; inset: 0; background: #0009; z-index: 500; }
-.hb-ov.open { display: flex; align-items: flex-end; }
-.hb-panel { background: var(--surf); border-top: 1px solid var(--bdr); border-radius: 24px 24px 0 0; padding: 20px 20px max(env(safe-area-inset-bottom,0px),32px); width: 100%; animation: slideUp .32s cubic-bezier(.22,1,.36,1); }
+.hb-ov.open { display: flex; align-items: flex-end; justify-content: center; }
+.hb-panel { background: var(--surf); border-top: 1px solid var(--bdr); border-radius: 24px 24px 0 0; padding: 20px 20px max(env(safe-area-inset-bottom,0px),32px); width: 100%; animation: slideUp .32s cubic-bezier(.22,1,.36,1); height: 95vh; overflow-y: auto; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
 @keyframes slideUp { from{transform:translateY(100%)}to{transform:translateY(0)} }
 .hb-handle { width: 36px; height: 4px; background: var(--bdr2); border-radius: 2px; margin: 0 auto 16px; }
 .hb-pill { flex: 1; background: var(--surf2); border: 1px solid var(--bdr2); border-radius: 12px; padding: 11px 6px; text-align: center; cursor: pointer; font-family: var(--font); transition: all .2s; }
@@ -2513,12 +2513,25 @@ function exitPod(){stopTTS();S.play.on=false;navTo('home');}
    HAMBURGER
 ══════════════════════════════════════ */
 function openHB(){
+  const panel = document.getElementById('hb-ov');
+  panel.classList.add('open');
+  // Always scroll to top of settings
+  const p = panel.querySelector('.hb-panel');
+  if(p) p.scrollTop = 0;
+  // Sync font size buttons
+  const sz = localStorage.getItem('sp3_fontsize')||'medium';
+  ['small','medium','large'].forEach(s=>{ const el=document.getElementById('fs-'+s); if(el) el.classList.toggle('on',s===sz); });
   ['both','subtitle','script'].forEach(m=>document.getElementById('hbm-'+m).classList.toggle('on',m===S.play.viewMode));
   [0.5,.75,1,1.25,1.5].forEach((s,i)=>document.getElementById('hbsp-'+i).classList.toggle('on',s===S.play.speed));
   syncAIProviderUI();
   document.getElementById('hbt-show').classList.toggle('on',S.play.showTrans);
   document.getElementById('hbt-hide').classList.toggle('on',!S.play.showTrans);
   document.getElementById('hb-ov').classList.add('open');
+  // Scroll settings panel to top so title is visible
+  setTimeout(() => {
+    const panel = document.querySelector('.hb-panel');
+    if(panel) panel.scrollTop = 0;
+  }, 50);
 }
 function closeHB(){document.getElementById('hb-ov').classList.remove('open');}
 function hbOvClick(e){if(e.target===document.getElementById('hb-ov'))closeHB();}
