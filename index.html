@@ -1360,7 +1360,7 @@ body.light-mode .hb-panel { background: #fff; }
     </div>
   </div>
   <!-- Subtitle -->
-  <div class="px-3 mb-2">
+  <div class="px-3 mb-2" id="story-sub-section">
     <div class="sub-box">
       <div class="sub-spk" id="story-sub-spk">ANNA</div>
       <div class="sub-txt" id="story-sub-txt">Press play to begin the story…</div>
@@ -1376,7 +1376,7 @@ body.light-mode .hb-panel { background: #fff; }
     </div>
   </div>
   <!-- Script -->
-  <div class="px-3 mb-2">
+  <div class="px-3 mb-2" id="story-script-section">
     <div class="sec-lbl mb-2">Episode Script</div>
     <div id="story-script"></div>
   </div>
@@ -2596,9 +2596,20 @@ function closeHB(){document.getElementById('hb-ov').classList.remove('open');}
 function hbOvClick(e){if(e.target===document.getElementById('hb-ov'))closeHB();}
 function setVM(mode){S.play.viewMode=mode;['both','subtitle','script'].forEach(m=>document.getElementById('hbm-'+m).classList.toggle('on',m===mode));applyVM(mode);}
 function applyVM(mode){
-  document.getElementById('pod-studio').style.display=mode==='script'?'none':'';
-  document.getElementById('pod-sub').style.display=mode==='script'?'none':'';
-  document.getElementById('pod-script').style.display=mode==='subtitle'?'none':'';
+  // Podcast screen
+  const ps = document.getElementById('pod-studio');
+  const pb = document.getElementById('pod-sub');
+  const pc = document.getElementById('pod-script');
+  if(ps) ps.style.display = mode==='script' ? 'none' : '';
+  if(pb) pb.style.display = mode==='script' ? 'none' : '';
+  if(pc) pc.style.display = mode==='subtitle' ? 'none' : '';
+  // Story screen
+  const ss = document.getElementById('story-room');
+  const sb = document.getElementById('story-sub-section');
+  const sc = document.getElementById('story-script-section');
+  if(ss) ss.style.display = mode==='script' ? 'none' : '';
+  if(sb) sb.style.display = mode==='script' ? 'none' : '';
+  if(sc) sc.style.display = mode==='subtitle' ? 'none' : '';
 }
 function setSpd(v){S.play.speed=v;[0.5,.75,1,1.25,1.5].forEach((s,i)=>document.getElementById('hbsp-'+i).classList.toggle('on',s===v));document.getElementById('speed-chip').textContent=v+'×';if(currentAudio)currentAudio.playbackRate=v;if(S.play.on){stopTTS();speakLine(S.play.idx);}}
 function setTransHB(show){S.play.showTrans=show;document.getElementById('hbt-show').classList.toggle('on',show);document.getElementById('hbt-hide').classList.toggle('on',!show);document.getElementById('sub-en').style.display=show?'':'none';document.querySelectorAll('.di-en').forEach(e=>e.style.display=show?'':'none');document.getElementById('trans-lbl').textContent=show?'Translation':'Hide EN';}
@@ -4673,6 +4684,7 @@ function openStoryEpisode(idx) {
     if (vocabSec) vocabSec.innerHTML += `<div class="wotd-fact mt-3">🇩🇪 ${ep.culturalNote}</div>`;
   }
   go('story-player');
+  applyVM(S.play.viewMode||'both');
 }
 
 let storyPlaying = false;
