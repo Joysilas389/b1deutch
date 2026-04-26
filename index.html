@@ -1628,92 +1628,40 @@ function extractJSON(raw) {
 async function doGenerate() {
   const topic = document.getElementById('topic-in').value.trim();
   if (!topic) { toast('Please enter a topic first!'); return; }
-  const mod=S.activeModule, lvl=S.level, std=S.standard;
+  const mod = S.activeModule, lvl = S.level, std = S.standard;
   go('generating');
   document.getElementById('gen-title-txt').textContent = {sprechen:'In the Studio…',lesen:'Reading Room…',schreiben:'Writing Desk…',horen:'Listening Lab…'}[mod];
   runGenAnim(mod);
 
   try {
-    // ── SPRECHEN: chunked generation to avoid timeout on long podcasts ──
-    if (mod === 'sprechen') {
-      const totalTurns = TURNS[S.duration]; // 22, 36, or 54
-      const chunkSize  = 10; // small safe chunks — fast and reliable
-      const chunks     = Math.ceil(totalTurns / chunkSize);
-      let allDialogue  = [];
-      let sessionTitle = topic;
+    const turns = TURNS[S.duration];
+    const sys = mod === 'sprechen'
+      ? 'You are a German ' + std.toUpperCase() + ' exam podcast scriptwriter. Write rich, immersive dialogue between Anna and Max at ' + lvl + ' level. Each turn must be 2-4 full German sentences — include reactions, questions, emotions, personal details. Make it sound like a real podcast. Return ONLY valid JSON, no markdown.'
+      : MODULE_PROMPTS[mod](topic, lvl, std, turns).sys;
+    const user = mod === 'sprechen'
+      ? 'Create EXACTLY ' + turns + ' dialogue turns for a German ' + lvl + ' ' + std.toUpperCase() + ' podcast about "' + topic + '". Rules: (1) Alternate Anna/Max. (2) Each turn = 2-4 full natural German sentences. (3) Include grammar notes. Return ONLY: {"title":"German podcast title","dialogue":[{"speaker":"Anna","text":"Full German sentences...","translation":"English...","notes":"grammar tip"}],"vocab":[{"word":"das Wort","article":"das","baseForm":"Wort","translation":"word","synonyms":["der Begriff"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Das Wort ist wichtig.","exampleEn":"The word is important.","podcastContext":"general","module":"sprechen"}],"challenges":[{"situation":"Context","cue":"What to say","cueHint":"German hint","targetAnswer":"Full German answer","difficulty":"easy"}]}'
+      : MODULE_PROMPTS[mod](topic, lvl, std, turns).user;
 
-      // Helper: call API with 1 retry on failure
-      async function callWithRetry(sys, user, tokens) {
-        try { return await callAPI(sys, user, tokens); }
-        catch(e) {
-          console.warn('Chunk failed, retrying once:', e.message);
-          await new Promise(r => setTimeout(r, 1500));
-          return await callAPI(sys, user, tokens);
-        }
-      }
+    // Pass onProgress to update bar as streaming arrives
+    const tokenBudget = mod === 'sprechen' ? (S.duration === 'long' ? 6000 : S.duration === 'medium' ? 4500 : 3000) : 2500;
+    const res = await callAPI(sys, user, tokenBudget, (partial) => {
+      // Animate progress bar as tokens stream in
+      const pct = Math.min(90, Math.round((partial.length / (tokenBudget * 3)) * 90));
+      document.getElementById('gen-bar').style.width = pct + '%';
+    });
 
-      // Generate dialogue in small chunks
-      for (let c = 0; c < chunks; c++) {
-        const remaining = totalTurns - allDialogue.length;
-        const thisBatch = Math.min(chunkSize, remaining);
-        const isFirst   = c === 0;
-        const isLast    = c === chunks - 1;
-
-        document.getElementById('gen-st').textContent  = 'Writing part ' + (c+1) + ' of ' + chunks + '…';
-        document.getElementById('gen-det').textContent = allDialogue.length + ' / ' + totalTurns + ' turns written';
-        document.getElementById('gen-bar').style.width = Math.round((c / chunks) * 70) + '%';
-
-        const prevContext = allDialogue.length > 0
-          ? ' Continue naturally. Last line: "' + allDialogue[allDialogue.length-1].text + '".'
-          : '';
-        const conclusionNote = isLast ? ' Bring the conversation to a natural close.' : '';
-
-        const chunkSys = 'You are a German ' + std.toUpperCase() + ' podcast scriptwriter. Write rich, detailed dialogue between Anna and Max at ' + lvl + ' level. Each turn must be 2-4 full German sentences — not one-liners. Include reactions, questions, personal details. Return ONLY valid JSON.';
-        const chunkUser = 'Write EXACTLY ' + thisBatch + ' dialogue turns for a German ' + lvl + ' podcast about "' + topic + '".' + prevContext + conclusionNote + ' Alternate Anna/Max. Each turn: 2-4 full sentences. Return ONLY: {"title":"' + (isFirst ? 'German title' : sessionTitle) + '","dialogue":[{"speaker":"Anna","text":"Full German sentences...","translation":"English...","notes":"Grammar tip"}]}';
-
-        const res  = await callWithRetry(chunkSys, chunkUser, 2000);
-        if (!res.content || !res.content[0]) throw new Error('Empty response on chunk ' + (c+1));
-        const data = JSON.parse(extractJSON(res.content[0].text));
-        if (isFirst) sessionTitle = data.title || topic;
-        allDialogue = allDialogue.concat(data.dialogue || []);
-      }
-
-      // Generate vocab + challenges in a separate request
-      document.getElementById('gen-st').textContent  = 'Extracting vocabulary…';
-      document.getElementById('gen-det').textContent = 'Building flashcards and speaking challenges…';
-      document.getElementById('gen-bar').style.width = '80%';
-
-      const sampleLines = allDialogue.slice(0, 8).map(l => l.text).join(' ');
-      const vcSys  = 'You are a German ' + lvl + ' vocabulary and exam coach. Return ONLY valid JSON, no markdown.';
-      const vcUser = 'From this German ' + lvl + ' conversation about "' + topic + '": "' + sampleLines + '" — extract 10-14 key vocab words and create 6 speaking challenges. Return ONLY: {"vocab":[{"word":"das Rezept","article":"das","baseForm":"Rezept","translation":"prescription","synonyms":["das Medikament"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Hier ist Ihr Rezept.","exampleEn":"Here is your prescription.","podcastContext":"Doctor","module":"sprechen"}],"challenges":[{"situation":"Context in English","cue":"What to say in English","cueHint":"Hint in German","targetAnswer":"Full German answer","difficulty":"easy"}]}';
-
-      const vcRes  = await callAPI(vcSys, vcUser, 2500);
-      if (!vcRes.content || !vcRes.content[0]) throw new Error('Empty vocab response');
-      const vcData = JSON.parse(extractJSON(vcRes.content[0].text));
-
-      document.getElementById('gen-bar').style.width = '95%';
-      finishGen(mod, {
-        title:      sessionTitle,
-        dialogue:   allDialogue,
-        vocab:      vcData.vocab      || [],
-        challenges: vcData.challenges || [],
-      }, topic, lvl, std);
-
-    } else {
-      // ── ALL OTHER MODULES: single request ──
-      const {sys, user} = MODULE_PROMPTS[mod](topic, lvl, std, TURNS[S.duration]);
-      const res = await callAPI(sys, user, 2500);
-      if (!res.content || !res.content[0]) throw new Error('Empty response from AI');
-      const data = JSON.parse(extractJSON(res.content[0].text));
-      finishGen(mod, data, topic, lvl, std);
-    }
+    if (!res.content || !res.content[0]) throw new Error('Empty response from AI');
+    document.getElementById('gen-bar').style.width = '95%';
+    const data = JSON.parse(extractJSON(res.content[0].text));
+    finishGen(mod, data, topic, lvl, std);
 
   } catch(e) {
     console.error('Generation error:', e);
-    toast('Generation failed: ' + (e.message||'Unknown error').slice(0, 80));
+    toast('Generation failed: ' + (e.message || 'Unknown').slice(0, 80));
     go('generate');
   }
 }
+
 
 function finishGen(mod, data, topic, lvl, std) {
   const session = {
@@ -2345,26 +2293,58 @@ function renderWL(deck){
 /* ══════════════════════════════════════
    API
 ══════════════════════════════════════ */
-async function callAPI(system,prompt,max_tokens=1000){
-  const provider=localStorage.getItem('sp3_ai_provider')||'auto';
-  const res=await fetch(API,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      provider,
-      model:MODEL,
-      max_tokens,
-      system,
-      messages:[{role:'user',content:prompt}]
-    })
+async function callAPI(system, prompt, max_tokens=2000, onProgress=null) {
+  const provider = localStorage.getItem('sp3_ai_provider') || 'auto';
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ provider, model: MODEL, max_tokens, system, messages: [{ role: 'user', content: prompt }] }),
   });
-  if(!res.ok){
-    const errData=await res.json().catch(()=>({}));
-    throw new Error('API '+res.status+(errData.error?' — '+errData.error:''));
+
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error('API ' + res.status + (errData.error ? ' — ' + errData.error : ''));
   }
-  const data=await res.json();
-  showAIBadge(data._provider);
-  return data;
+
+  // Read SSE stream
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let fullText = '';
+  let providerName = 'claude';
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop(); // keep incomplete line in buffer
+
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const raw = line.slice(6).trim();
+      if (!raw) continue;
+      try {
+        const evt = JSON.parse(raw);
+        if (evt.error) throw new Error(evt.error);
+        if (evt.provider) providerName = evt.provider;
+        if (evt.delta) {
+          fullText += evt.delta;
+          if (onProgress) onProgress(fullText);
+        }
+        if (evt.done && evt.text) fullText = evt.text;
+      } catch(e) {
+        if (e.message && !e.message.includes('JSON')) throw e;
+      }
+    }
+  }
+
+  showAIBadge(providerName);
+  // Return in same shape as before so all existing code works unchanged
+  return {
+    content: [{ type: 'text', text: fullText }],
+    _provider: providerName,
+  };
 }
 
 let _badgeTm;
