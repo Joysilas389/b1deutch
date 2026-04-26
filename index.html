@@ -1909,23 +1909,53 @@ const MODULE_CHIPS = {
   horen:    ['📻 Radio Announcement','🎙 Interview Recording','📢 Public Announcement','🏠 Everyday Conversation','📞 Telephone Conversation','🎓 University Lecture','🗺 Travel Information','💬 Discussion / Debate'],
 };
 
+/* ── LEVEL LANGUAGE SPECIFICATIONS ─────────────────────────────────────────
+   These are injected into every prompt to enforce true grammatical complexity.
+─────────────────────────────────────────────────────────────────────────── */
+function getLevelSpec(lvl) {
+  if (lvl === 'A2') return 'Write at genuine A2 level — simple connected sentences, basic connectors, present tense with some Perfekt, everyday vocabulary.';
+  if (lvl === 'B1') return 'Write at genuine B1 level — the level expected by TELC and Goethe B1 exams. Natural flowing dialogue with appropriate complexity.';
+  if (lvl === 'B2') return 'Write at genuine B2 level — the level expected by TELC and Goethe B2 exams. Rich, nuanced language with sophisticated structures.';
+  return '';
+}
+
 const MODULE_PROMPTS = {
-  sprechen: (topic,lvl,std,turns) => ({
-    sys: 'You are a German ' + std.toUpperCase() + ' exam podcast scriptwriter. Write realistic conversations between Anna and Max at ' + lvl + ' level. You MUST produce EXACTLY ' + turns + ' dialogue turns — no fewer, no more. Each turn is one speaker saying one thing. Count carefully. Return ONLY valid JSON, no markdown, no extra text.',
-    user: 'Create EXACTLY ' + turns + ' dialogue turns (count them: ' + turns + ' total) for a German ' + std.toUpperCase() + ' ' + lvl + ' podcast about: "' + topic + '". Anna and Max alternate naturally. IMPORTANT: The dialogue array must have EXACTLY ' + turns + ' items. Also extract 10-14 vocab words and create 6 speaking challenges. Return ONLY valid JSON: {"title":"German title","dialogue":[{"speaker":"Anna","text":"German...","translation":"English...","notes":"grammar tip or null"}],"vocab":[{"word":"das Rezept","article":"das","baseForm":"Rezept","translation":"prescription","synonyms":["das Medikament"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Hier ist Ihr Rezept.","exampleEn":"Here is your prescription.","podcastContext":"Doctor","module":"sprechen"}],"challenges":[{"situation":"Context","cue":"What to say","cueHint":"German hint","targetAnswer":"Full German answer","difficulty":"easy"}]}'
-  }),
-  lesen: (topic,lvl,std) => ({
-    sys: `You are a German ${std.toUpperCase()} exam reading comprehension expert at ${lvl} level. Return ONLY valid JSON, no markdown.`,
-    user: 'Create a ' + std.toUpperCase() + ' ' + lvl + ' reading comprehension exercise about: "' + topic + '". Return ONLY valid JSON: {"title":"Title","passage":[{"de":"German paragraph...","en":"English translation..."}],"questions":[{"question":"Comprehension question in German?","options":["A) option","B) option","C) option","D) option"],"correct":0,"explanation":"Why A is correct"}],"vocab":[{"word":"die Umwelt","article":"die","baseForm":"Umwelt","translation":"environment","synonyms":["die Natur"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Die Umwelt muss geschützt werden.","exampleEn":"The environment must be protected.","podcastContext":"passage","module":"lesen"}],"examTip":"Key exam strategy tip"}'
-  }),
-  schreiben: (topic,lvl,std) => ({
-    sys: `You are a German ${std.toUpperCase()} exam writing expert at ${lvl} level. Return ONLY valid JSON, no markdown.`,
-    user: 'Create a ' + std.toUpperCase() + ' ' + lvl + ' writing exercise: "' + topic + '". Return ONLY valid JSON: {"title":"Title","taskType":"Formeller Brief","situation":"Full task description in English","keyPoints":["point 1","point 2","point 3"],"wordCount":' + (lvl==='A2'?80:lvl==='B1'?150:200) + ',"modelAnswer":{"de":"Full model answer in German...","en":"English translation..."},"vocab":[{"word":"Mit freundlichen Grüßen","article":null,"baseForm":"Mit freundlichen Grüßen","translation":"Yours sincerely","synonyms":["Viele Grüße"],"partOfSpeech":"phrase","level":"' + lvl + '","exampleDe":"Mit freundlichen Grüßen, Anna Schmidt.","exampleEn":"Yours sincerely, Anna Schmidt.","podcastContext":"Formal closing","module":"schreiben"}],"examTips":["Tip 1","Tip 2"]}'
-  }),
-  horen: (topic,lvl,std) => ({
-    sys: `You are a German ${std.toUpperCase()} exam listening comprehension expert at ${lvl} level. Return ONLY valid JSON, no markdown.`,
-    user: 'Create a ' + std.toUpperCase() + ' ' + lvl + ' listening exercise: "' + topic + '". Write a realistic script to be read aloud via TTS. Return ONLY valid JSON: {"title":"Title","scriptType":"Gespräch","transcript":[{"speaker":"Speaker 1","text":"German text...","translation":"English translation"}],"questions":[{"question":"Listening comprehension question in German?","options":["A) option","B) option","C) option","D) option"],"correct":0,"timeRef":"beginning"}],"vocab":[{"word":"die Abfahrt","article":"die","baseForm":"Abfahrt","translation":"departure","synonyms":["das Abfahren"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Die Abfahrt ist um 14:30 Uhr.","exampleEn":"Departure is at 2:30 PM.","podcastContext":"Train","module":"horen"}],"examTip":"Key listening strategy tip"}'
-  }),
+  sprechen: (topic, lvl, std, turns) => {
+    const spec = getLevelSpec(lvl);
+    return {
+      sys: 'You are an expert German ' + std.toUpperCase() + ' exam podcast scriptwriter. ' + spec + ' Write authentic, natural conversations between Anna and Max. Return ONLY valid JSON, no markdown.',
+      user: 'Create EXACTLY ' + turns + ' dialogue turns for a ' + lvl + ' ' + std.toUpperCase() + ' German podcast about: "' + topic + '". Alternate Anna/Max. Rich natural dialogue at true ' + lvl + ' level — not simplified. Notes field: name the grammar structure used. Extract 10-14 vocab words. Create 6 speaking challenges. Return ONLY valid JSON: {"title":"German title","dialogue":[{"speaker":"Anna","text":"Authentic ' + lvl + ' German...","translation":"English...","notes":"Grammar structure used"}],"vocab":[{"word":"die Gelegenheit","article":"die","baseForm":"Gelegenheit","translation":"opportunity","synonyms":["die Chance"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Das ist eine gute Gelegenheit.","exampleEn":"This is a good opportunity.","podcastContext":"' + topic + '","module":"sprechen"}],"challenges":[{"situation":"Realistic scenario","cue":"Task","cueHint":"Grammar hint","targetAnswer":"Full ' + lvl + ' German answer","difficulty":"' + (lvl==='A2'?'easy':lvl==='B1'?'medium':'hard') + '"}]}'
+    };
+  },
+
+  lesen: (topic, lvl, std) => {
+    const spec = getLevelSpec(lvl);
+    const wordCount = lvl==='A2' ? '200-250' : lvl==='B1' ? '300-380' : '400-500';
+    const qCount = lvl==='A2' ? 4 : lvl==='B1' ? 5 : 6;
+    return {
+      sys: 'You are an expert German ' + std.toUpperCase() + ' exam reading comprehension writer. ' + spec + ' Write authentic ' + lvl + ' passages — not simplified. Return ONLY valid JSON, no markdown.',
+      user: 'Create a ' + std.toUpperCase() + ' ' + lvl + ' reading comprehension exercise about: "' + topic + '". Write a substantial passage (3-4 paragraphs) at genuine ' + lvl + ' level. Create comprehension questions that test real understanding. Return ONLY valid JSON: {"title":"Title","passage":[{"de":"Authentic ' + lvl + ' German paragraph...","en":"English translation..."}],"questions":[{"question":"Comprehension question in German?","options":["A) option","B) option","C) option","D) option"],"correct":0,"explanation":"Why correct"}],"vocab":[{"word":"die Herausforderung","article":"die","baseForm":"Herausforderung","translation":"challenge","synonyms":["das Problem"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Das ist eine große Herausforderung.","exampleEn":"That is a big challenge.","podcastContext":"' + topic + '","module":"lesen"}],"examTip":"Strategy tip for ' + lvl + '"}'
+    };
+  },
+
+  schreiben: (topic, lvl, std) => {
+    const spec = getLevelSpec(lvl);
+    const wordCount = lvl==='A2' ? 80 : lvl==='B1' ? 180 : 250;
+    const taskTypes = lvl==='A2' ? 'Informeller Brief oder einfache E-Mail' : lvl==='B1' ? 'Formeller Brief, E-Mail an Behörde, oder Meinungsaufsatz' : 'Formeller Aufsatz, Erörterung, oder offizieller Brief';
+    return {
+      sys: 'You are an expert German ' + std.toUpperCase() + ' exam writing coach. ' + spec + ' Model answers must be substantial and authentic — not simplified. Return ONLY valid JSON, no markdown.',
+      user: 'Create a ' + std.toUpperCase() + ' ' + lvl + ' writing exercise: "' + topic + '". Write a realistic exam task with a full model answer at genuine ' + lvl + ' level. The model answer should be as long as a real ' + lvl + ' exam response. Return ONLY valid JSON: {"title":"Title","taskType":"Appropriate task type for ' + lvl + '","situation":"Detailed realistic task in English","keyPoints":["Point 1","Point 2","Point 3"],"wordCount":' + (lvl==='A2'?100:lvl==='B1'?180:250) + ',"modelAnswer":{"de":"Full authentic ' + lvl + ' model answer...","en":"Complete English translation..."},"vocab":[{"word":"sich beschweren","article":null,"baseForm":"sich beschweren","translation":"to complain","synonyms":["reklamieren"],"partOfSpeech":"verb","level":"' + lvl + '","exampleDe":"Ich möchte mich beschweren.","exampleEn":"I would like to complain.","podcastContext":"' + topic + '","module":"schreiben"}],"examTips":["Tip 1","Tip 2","Tip 3"]}'
+    };
+  },
+
+  horen: (topic, lvl, std) => {
+    const spec = getLevelSpec(lvl);
+    const duration = lvl==='A2' ? '3-4 speaker turns each 2-3 sentences' : lvl==='B1' ? '5-6 speaker turns each 3-4 sentences' : '6-8 speaker turns each 4-5 sentences';
+    return {
+      sys: 'You are an expert German ' + std.toUpperCase() + ' exam listening comprehension writer. ' + spec + ' Scripts must sound like real spoken German — natural, authentic, not simplified. Return ONLY valid JSON, no markdown.',
+      user: 'Create a ' + std.toUpperCase() + ' ' + lvl + ' listening exercise about: "' + topic + '". Write a substantial realistic script at genuine ' + lvl + ' level with natural spoken German. Create comprehension questions requiring careful listening. Return ONLY valid JSON: {"title":"Title","scriptType":"' + (lvl==='A2'?'Alltagsgespräch':lvl==='B1'?'Interview oder Diskussion':'Debatte oder Expertengespräch') + '","transcript":[{"speaker":"Speaker 1","text":"Authentic ' + lvl + ' German...","translation":"English"}],"questions":[{"question":"Question in German?","options":["A) option","B) option","C) option","D) option"],"correct":0,"timeRef":"beginning"}],"vocab":[{"word":"die Meinung","article":"die","baseForm":"Meinung","translation":"opinion","synonyms":["die Ansicht"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Meiner Meinung nach ist das richtig.","exampleEn":"In my opinion that is correct.","podcastContext":"' + topic + '","module":"horen"}],"examTip":"' + lvl + ' listening strategy"}'
+    };
+  },
 };
 
 
@@ -2269,12 +2299,9 @@ async function doGenerate() {
 
   try {
     const turns = TURNS[S.duration];
-    const sys = mod === 'sprechen'
-      ? 'You are a German ' + std.toUpperCase() + ' exam podcast scriptwriter. Write rich, immersive dialogue between Anna and Max at ' + lvl + ' level. Each turn must be 2-4 full German sentences — include reactions, questions, emotions, personal details. Make it sound like a real podcast. Return ONLY valid JSON, no markdown.'
-      : MODULE_PROMPTS[mod](topic, lvl, std, turns).sys;
-    const user = mod === 'sprechen'
-      ? 'Create EXACTLY ' + turns + ' dialogue turns for a German ' + lvl + ' ' + std.toUpperCase() + ' podcast about "' + topic + '". Rules: (1) Alternate Anna/Max. (2) Each turn = 2-4 full natural German sentences. (3) Include grammar notes. Return ONLY: {"title":"German podcast title","dialogue":[{"speaker":"Anna","text":"Full German sentences...","translation":"English...","notes":"grammar tip"}],"vocab":[{"word":"das Wort","article":"das","baseForm":"Wort","translation":"word","synonyms":["der Begriff"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Das Wort ist wichtig.","exampleEn":"The word is important.","podcastContext":"general","module":"sprechen"}],"challenges":[{"situation":"Context","cue":"What to say","cueHint":"German hint","targetAnswer":"Full German answer","difficulty":"easy"}]}'
-      : MODULE_PROMPTS[mod](topic, lvl, std, turns).user;
+    const _mp = MODULE_PROMPTS[mod](topic, lvl, std, turns);
+    const sys  = _mp.sys;
+    const user = _mp.user;
 
     // Pass onProgress to update bar as streaming arrives
     const tokenBudget = mod === 'sprechen' ? (S.duration === 'long' ? 7000 : S.duration === 'medium' ? 5000 : 3000) : 2500;
