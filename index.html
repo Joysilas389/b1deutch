@@ -1320,10 +1320,8 @@ body.light-mode .hb-panel { background: #fff; }
       <div class="tgl on" id="story-lvl-b1" onclick="setStoryLevel('B1')" style="flex:1;text-align:center;padding:10px;font-weight:700;">B1<div style="font-size:10px;opacity:.7;">Inter.</div></div>
       <div class="tgl" id="story-lvl-b2" onclick="setStoryLevel('B2')" style="flex:1;text-align:center;padding:10px;font-weight:700;">B2<div style="font-size:10px;opacity:.7;">Upper</div></div>
     </div>
-    <div class="wotd-card mb-3" style="cursor:default;">
-      <div class="wotd-label">How it works</div>
-      <div style="font-size:14px;color:var(--txt2);line-height:1.7;">Each episode is a fresh German scenario. Anna &amp; Max navigate real-life situations. Vocab carries forward between episodes. New episode every time!</div>
-    </div>
+    <!-- Search -->
+    <input type="text" id="story-search" class="t-input mb-3" style="font-size:14px;padding:10px 14px;" placeholder="🔍 Search episodes…" oninput="renderStory()">
     <div id="story-episodes"></div>
   </div>
   <div style="position:sticky;bottom:72px;background:var(--bg);padding:12px 16px 12px;border-top:1px solid var(--bdr);">
@@ -4427,22 +4425,61 @@ function renderStory() {
   });
   const el = document.getElementById('story-episodes');
   if (!el) return;
+
+  const search = (document.getElementById('story-search')?.value||'').toLowerCase().trim();
+  let episodes = S.story.episodes.map((ep,i) => ({...ep, _idx:i}));
+  if (search) episodes = episodes.filter(ep =>
+    (ep.title||'').toLowerCase().includes(search) ||
+    (ep.scenario||'').toLowerCase().includes(search)
+  );
+
   if (!S.story.episodes.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-ico">📚</div><div class="empty-title">No episodes yet</div><div class="empty-desc">Generate your first episode! Each one is a unique German scenario with Anna & Max.</div></div>`;
+    el.innerHTML = '<div class="empty-state"><div class="empty-ico">📚</div><div class="empty-title">No episodes yet</div><div class="empty-desc">Generate your first episode! Each one is a unique German scenario with Anna & Max.</div></div>';
     return;
   }
-  el.innerHTML = S.story.episodes.map((ep,i) => `
-    <div class="story-card" onclick="openStoryEpisode(${i})">
-      <div class="d-flex justify-content-between align-items-start">
-        <div>
-          <div class="story-ep-num">Episode ${i+1}</div>
-          <div class="story-ep-title">${ep.title}</div>
-          <div class="story-ep-scenario">${ep.scenario}</div>
-        </div>
-        <span class="badge-${(ep.level||'B1').toLowerCase()}">${ep.level||'B1'}</span>
-      </div>
-      <div style="font-size:11px;color:var(--txt3);margin-top:8px;">🃏 ${ep.vocab?.length||0} vocab · 📝 ${ep.dialogue?.length||0} lines</div>
-    </div>`).join('');
+  if (!episodes.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-ico">🔍</div><div class="empty-title">No episodes found</div><div class="empty-desc">Try a different search term.</div></div>';
+    return;
+  }
+
+  el.innerHTML = '';
+  episodes.forEach(ep => {
+    const div = document.createElement('div');
+    div.className = 'story-card';
+    div.style.cssText = 'position:relative;padding-right:50px;';
+    div.innerHTML =
+      '<div class="story-open" data-idx="' + ep._idx + '" style="cursor:pointer;">' +
+        '<div class="d-flex justify-content-between align-items-start">' +
+          '<div>' +
+            '<div class="story-ep-num">Episode ' + (ep._idx+1) + '</div>' +
+            '<div class="story-ep-title">' + ep.title + '</div>' +
+            '<div class="story-ep-scenario">' + ep.scenario + '</div>' +
+          '</div>' +
+          '<span class="badge-' + (ep.level||'B1').toLowerCase() + '">' + (ep.level||'B1') + '</span>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--txt3);margin-top:8px;">🃏 ' + (ep.vocab?.length||0) + ' vocab · 📝 ' + (ep.dialogue?.length||0) + ' lines</div>' +
+      '</div>' +
+      '<button class="story-del" data-idx="' + ep._idx + '" ' +
+        'style="position:absolute;top:50%;right:10px;transform:translateY(-50%);background:#ff3b3015;border:1px solid #ff3b3040;color:var(--danger);border-radius:8px;padding:5px 9px;font-size:14px;cursor:pointer;">🗑</button>';
+    el.appendChild(div);
+  });
+
+  el.onclick = function(e) {
+    const open = e.target.closest('.story-open');
+    const del  = e.target.closest('.story-del');
+    if(open) openStoryEpisode(parseInt(open.dataset.idx));
+    if(del)  { e.stopPropagation(); confirmDeleteEpisode(parseInt(del.dataset.idx)); }
+  };
+}
+
+function confirmDeleteEpisode(idx) {
+  const ep = S.story.episodes[idx];
+  if (!ep) return;
+  if (!confirm('Delete episode: ' + ep.title + '? This cannot be undone.')) return;
+  S.story.episodes.splice(idx, 1);
+  save();
+  toast('Episode deleted ✓');
+  renderStory();
 }
 
 async function generateStoryEpisode() {
@@ -4456,7 +4493,7 @@ async function generateStoryEpisode() {
   try {
     const sys = 'You are a German story scriptwriter creating an educational story podcast at genuine ' + lvl + ' level for TELC/Goethe exam preparation. ' + levelSpec + ' Return ONLY valid JSON, no markdown.';
     const prompt = 'Create Episode ' + epNum + ' of an ongoing German ' + lvl + ' level story. Scenario: "' + scenario + '". ' + (prevVocab ? 'Naturally reuse these previously learned words: ' + prevVocab + '.' : '') + ' Write 16-20 dialogue turns between Anna and Max plus one native German character. IMPORTANT: Language must be genuine ' + lvl + ' level — not simplified. Include cultural details authentic to German life. Return ONLY valid JSON: {"title":"Episode title in German","scenario":"' + scenario + '","level":"' + lvl + '","dialogue":[{"speaker":"Anna","text":"Authentic ' + lvl + ' German...","translation":"English...","notes":"grammar structure used"}],"vocab":[{"word":"das Beispiel","article":"das","baseForm":"Beispiel","translation":"example","synonyms":["das Muster"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Das ist ein gutes Beispiel.","exampleEn":"That is a good example.","podcastContext":"story","module":"story"}],"culturalNote":"Interesting authentic German cultural fact about this scenario"}';
-    const res = await callAPI(sys, prompt, 3500);
+    const res = await callAPI(sys, prompt, 5000);
     if (!res.content || !res.content[0]) throw new Error('Empty response');
     const ep = JSON.parse(extractJSON(res.content[0].text));
     ep.id = Date.now();
