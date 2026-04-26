@@ -1041,6 +1041,11 @@ body.light-mode .hb-panel { background: #fff; }
         <span id="curr-topics-done">0 topics fully done</span>
       </div>
     </div>
+    <!-- Channel selector -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <div class="tgl on" id="curr-ch-dd" onclick="setCurrChannel('dd')" style="font-size:12px;padding:8px;">🎙 Deutsch Doppel</div>
+      <div class="tgl"    id="curr-ch-tl" onclick="setCurrChannel('tl')" style="font-size:12px;padding:8px;">🎤 Talk Laura</div>
+    </div>
     <!-- Next suggested unit -->
     <div id="curr-suggestion" class="mb-3"></div>
     <!-- Search and filter -->
@@ -1064,6 +1069,11 @@ body.light-mode .hb-panel { background: #fff; }
         <div style="font-size:20px;font-weight:800;">🎓 Topic Curriculum</div>
         <div style="font-size:12px;color:var(--txt3);" id="topics-progress-lbl">Loading…</div>
       </div>
+    </div>
+    <!-- Channel selector -->
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <div class="tgl on" id="topics-ch-dd" onclick="setTopicsChannel('dd')" style="font-size:12px;padding:8px;">🎙 Deutsch Doppel</div>
+      <div class="tgl"    id="topics-ch-tl" onclick="setTopicsChannel('tl')" style="font-size:12px;padding:8px;">🎤 Talk Laura</div>
     </div>
     <!-- Smart Suggestion Banner -->
     <div id="topics-suggestion" class="mb-3"></div>
@@ -1520,6 +1530,202 @@ const DD_TOPICS = {
   }
 };
 
+const TL_TOPICS = {
+  conversations: {
+    label:'Conversations & Social', color:'var(--anna)', icon:'💬',
+    topics:[
+      'How to Start a Great Conversation in German',
+      'Break the Ice – 5 Important Small Talk Scenarios in German',
+      '50 Small Talk Phrases You Must Know in German',
+      'How to Have Small Talk in German',
+      'How to Talk About Small Talk Dates and Debates in German',
+      'How to Talk About Friendship in German',
+      'Talk About Friendship Vocabulary and Phrasal Verbs in German',
+      'How to Talk About Relationships and Feelings in German',
+      'Talking About Romantic Dates in German',
+      'Talking About Introverts vs Extroverts in German',
+      'How to Talk About Awkward Encounters and Best Friends in German',
+      'How to Talk About Yourself in German',
+    ]
+  },
+  daily_life: {
+    label:'Daily Life & Routine', color:'var(--max)', icon:'🌅',
+    topics:[
+      'How to Talk About Your Daily Routine in German',
+      '150 German Sentences About Daily Routines for Speaking Practice',
+      'How to Describe Your Daily Routine at Home in German',
+      'How to Talk About Your Morning Routine in German',
+      'How to Talk About Your Evening Routine in German',
+      'How to Talk About Your Weekend in German',
+      'How to Talk About Habits and Discipline in German',
+      'How to Talk About Daily Habits in German',
+      'How to Talk About Your Daily Struggles in German',
+      'How to Talk About Your Lifestyle in German',
+      'How to Talk About Your Responsibilities in German',
+      'How to Talk About a Bad Day in German',
+      'How to Talk About a Good Day in German',
+    ]
+  },
+  family: {
+    label:'Family & People', color:'var(--warn)', icon:'👨‍👩‍👧',
+    topics:[
+      'Talking About Family in German',
+      'How to Introduce Your Family in German',
+      'How to Describe Your Family Members in German',
+      'Talk About Family Problems and Daily Habits in German',
+      'How to Describe Your Personality in German',
+      'Talking About Personality Weaknesses and Virtues in German',
+    ]
+  },
+  emotions: {
+    label:'Emotions & Feelings', color:'var(--anna)', icon:'❤️',
+    topics:[
+      'Learn How to Talk About Emotions in German and Sound More Fluent',
+      'How to Talk About Human Feelings in German',
+      'How to Describe Emotions and Feelings in German',
+      'Stop Saying I Am Happy – Express Emotions Like a Native Speaker',
+      'How to Talk About Sad Feelings in German',
+      'How to Talk About Loneliness and Connection in German',
+      'How to Talk About Jealousy in German',
+      'How to Talk About Overthinking and Solutions in German',
+      'How to Talk About Your Most Beautiful Moments in German',
+      'How to Talk About Your Happy Memories in German',
+    ]
+  },
+  work: {
+    label:'Work & Career', color:'var(--accent2)', icon:'💼',
+    topics:[
+      'Everyday German in the Office',
+      'Learn Important Vocabulary for Your Job in German',
+      '25 German Business Words You Must Know',
+      'Questions and Answers in a Job Interview in German',
+      'Learn German for Job Interviews',
+      '100 Essential Phrases – Job and Workplace in German',
+      'How to Talk About Work-Life Balance in German',
+      'How to Talk About the Office and Workplace in German',
+      'How to Talk About Your Job in German',
+    ]
+  },
+  health: {
+    label:'Health & Medical', color:'var(--good)', icon:'🏥',
+    topics:[
+      'How to Speak with a Doctor in German',
+      'Talk About Medical and Dental Vocabulary in German',
+      'How to Talk About the Hospital in German',
+      'Talking About Conversations at the Doctors Office in German',
+      'How to Speak German in a Doctors Office',
+      'How to Talk About Being Sick in German',
+      'Talking About Learning Health Vocabulary in German',
+    ]
+  },
+  travel: {
+    label:'Travel & Places', color:'var(--max)', icon:'✈️',
+    topics:[
+      'Speak German for Tourists – Listening and Speaking Skills',
+      'Travel German Made Easy – Holiday and Airport Vocabulary',
+      'German Conversation at the Airport',
+      'How to Talk at the Airport in German',
+      'How to Speak German in a Hotel',
+      '100 Important Phrases – How to Talk at a Hotel in German',
+      'How to Talk About a Train Journey in German',
+      'How to Talk About Vacation Plans in German',
+      'How to Talk About Vacation in German',
+      'How to Talk About Your Country in German',
+      'How to Talk About Your Dream Travel Destination in German',
+    ]
+  },
+  food: {
+    label:'Food & Shopping', color:'var(--warn)', icon:'🍽️',
+    topics:[
+      'Start Speaking – Learn to Order Food in German with Confidence',
+      'How to Order Food in German',
+      'How to Speak German at a Restaurant',
+      'How to Talk About Your Favorite Foods in German',
+      'How to Talk About Clothes Shopping in German',
+      'How to Talk About Taste in German',
+      'How to Talk About Favorite Dishes in German',
+      'How to Talk About Cooking in German',
+    ]
+  },
+  goals: {
+    label:'Goals & Personal Growth', color:'var(--accent2)', icon:'🎯',
+    topics:[
+      'Dreams and Goals in German',
+      'How to Talk Naturally About Your Goals and Dreams in German',
+      'How to Talk About Your Successes in German',
+      'How to Talk About Your Turning Point in German',
+      'How to Stay Motivated When Learning German',
+      'How to Talk About Your Life in German',
+      'How to Talk About Your Favorites in German',
+    ]
+  },
+  grammar: {
+    label:'Grammar & Language Skills', color:'var(--sprechen)', icon:'📝',
+    topics:[
+      'How to Talk About the Present Tense in German',
+      'Learn How to Talk About Past Events in German',
+      'Ways to Express the Future and the Shadowing Technique in German',
+      'How to Connect Sentences in German',
+      '25 Phrasal Verbs You Must Know to Speak German Fluently',
+      '25 Real German Idioms You Need to Speak Naturally',
+      '50 German Idioms Every Intermediate Learner Must Know',
+      '50 Everyday German Expressions You Must Know',
+      '30 Daily German Expressions You Absolutely Must Know',
+      '50 Daily German Questions and Answers',
+      '100 German Sentences About Daily Life',
+    ]
+  },
+  practical: {
+    label:'Practical Situations', color:'var(--lesen)', icon:'🗺️',
+    topics:[
+      'How to Ask for Directions Naturally in German',
+      'How to Make an Appointment in German',
+      '50 Important Phrases – How to Talk on the Phone in German',
+      'How to Talk at the Bank in German',
+      'How to Talk About the Weather in German',
+      'How to Ask for Help in German – Polite Expressions',
+      'How to Talk About Nature and the Environment in German',
+    ]
+  },
+  interests: {
+    label:'Hobbies & Interests', color:'var(--horen)', icon:'🎬',
+    topics:[
+      'Talk About Movies and Series in German',
+      'How to Talk About Your Favorite Movies in German',
+      'How to Talk About Your Favorite Books in German',
+      'How to Talk About Sports in German',
+      'Talking About Hobbies and Free Time in German',
+      'How to Talk About Hobbies in German',
+      'How to Describe Cars or Vehicles in German',
+      'How to Talk About Technology in German',
+      'How to Talk About Favorite Pets in German',
+    ]
+  },
+  seasonal: {
+    label:'Seasonal & Special Topics', color:'var(--good)', icon:'🌸',
+    topics:[
+      'Talk About the Beach Taxi and Concerts in German',
+      'How to Talk About Valentines Day in German',
+      'Talking About Womens Day in German',
+      'How to Talk About Winter Holidays in German',
+      '50 Important Sentences About New Year in German',
+      'How to Talk About New Year Plans in German',
+      'How to Talk About the Passage of Time in German',
+      'Talking About War and Peace in German',
+    ]
+  },
+};
+
+/* ── MULTI-CHANNEL CONFIG ── */
+const CHANNELS = {
+  dd: { name: 'Deutsch Doppel', icon: '🎙', topics: DD_TOPICS },
+  tl: { name: 'Talk Laura',     icon: '🎤', topics: TL_TOPICS },
+};
+
+/* ── UNIFIED COMPLETION TRACKING ── */
+function getChannelKey(channel) { return 'sp3_dd_done_' + channel; }
+function getCurriculumKey(channel) { return 'sp3_curriculum_' + channel; }
+
 function getDDCompleted() {
   try { return JSON.parse(localStorage.getItem('sp3_dd_done')||'[]'); } catch(e){return[];}
 }
@@ -1555,7 +1761,7 @@ function getNextStageForTopic(topic) {
   return stages.find(s => !p[s]) || null;
 }
 function getCurriculumSuggestion() {
-  const allCats = Object.entries(DD_TOPICS);
+  const allCats = Object.entries(CHANNELS[ch].topics);
   for (const [cat, catData] of allCats) {
     for (const topic of catData.topics) {
       const nextStage = getNextStageForTopic(topic);
@@ -1987,8 +2193,8 @@ function finishGen(mod, data, topic, lvl, std) {
   }
   // If this was a curriculum unit, mark the stage as complete
   if (window._pendingCurriculumStage) {
-    const { topic, mod } = window._pendingCurriculumStage;
-    markStageComplete(topic, mod);
+    const { topic, mod, channel: stageCh } = window._pendingCurriculumStage;
+    markStageCompleteForChannel(stageCh||'dd', topic, mod);
     window._pendingCurriculumStage = null;
     const stageName = {horen:'Hören',sprechen:'Sprechen',lesen:'Lesen',schreiben:'Schreiben'}[mod];
     toast('✅ ' + stageName + ' stage complete! 🎓');
@@ -2946,9 +3152,10 @@ function removeJournalItem(id) {
 }
 
 function renderTopics() {
+  const ch      = window._topicsChannel || 'dd';
   const done    = getDDCompleted();
   const search  = (document.getElementById('topics-search')?.value||'').toLowerCase().trim();
-  const allCats = Object.entries(DD_TOPICS);
+  const allCats = Object.entries(CHANNELS[ch].topics);
   const allTopics = allCats.flatMap(([cat,d])=>d.topics);
   const totalDone = done.filter(t=>allTopics.includes(t)).length;
   const pct = Math.round((totalDone/allTopics.length)*100);
@@ -3038,6 +3245,91 @@ function renderTopics() {
 }
 
 /* ── CURRICULUM RENDER ── */
+/* ── CHANNEL SWITCHING ── */
+function setTopicsChannel(ch) {
+  window._topicsChannel = ch;
+  ['dd','tl'].forEach(c => {
+    const el = document.getElementById('topics-ch-'+c);
+    if(el) el.classList.toggle('on', c===ch);
+  });
+  renderTopics();
+}
+
+function setCurrChannel(ch) {
+  window._currChannel = ch;
+  ['dd','tl'].forEach(c => {
+    const el = document.getElementById('curr-ch-'+c);
+    if(el) el.classList.toggle('on', c===ch);
+  });
+  renderCurriculum();
+}
+
+function getActiveTopics() {
+  const ch = window._topicsChannel || 'dd';
+  return CHANNELS[ch].topics;
+}
+
+function getActiveCurrTopics() {
+  const ch = window._currChannel || 'dd';
+  return CHANNELS[ch].topics;
+}
+
+function getActiveCurriculumProgress(ch) {
+  try { return JSON.parse(localStorage.getItem(getCurriculumKey(ch))||'{}'); } catch(e){return{};}
+}
+
+function saveActiveCurriculumProgress(ch, data) {
+  localStorage.setItem(getCurriculumKey(ch), JSON.stringify(data));
+}
+
+function markStageCompleteForChannel(ch, topic, stage) {
+  const prog = getActiveCurriculumProgress(ch);
+  if (!prog[topic]) prog[topic] = {};
+  prog[topic][stage] = true;
+  prog[topic].lastUpdated = new Date().toISOString();
+  saveActiveCurriculumProgress(ch, prog);
+}
+
+function getTopicProgressForChannel(ch, topic) {
+  const prog = getActiveCurriculumProgress(ch);
+  return prog[topic] || {};
+}
+
+function isTopicFullyCompleteForChannel(ch, topic) {
+  const p = getTopicProgressForChannel(ch, topic);
+  return p.sprechen && p.lesen && p.schreiben && p.horen;
+}
+
+function getNextStageForTopicChannel(ch, topic) {
+  const p = getTopicProgressForChannel(ch, topic);
+  return ['horen','sprechen','lesen','schreiben'].find(s => !p[s]) || null;
+}
+
+function getCurriculumSuggestionForChannel(ch) {
+  const cats = CHANNELS[ch].topics;
+  for (const [cat, catData] of Object.entries(cats)) {
+    for (const topic of catData.topics) {
+      const nextStage = getNextStageForTopicChannel(ch, topic);
+      if (nextStage) return { topic, stage: nextStage, cat, ...catData };
+    }
+  }
+  return null;
+}
+
+function getTotalCurriculumStatsForChannel(ch) {
+  const cats = CHANNELS[ch].topics;
+  const allTopics = Object.values(cats).flatMap(d => d.topics);
+  const stages = ['horen','sprechen','lesen','schreiben'];
+  let totalUnits=allTopics.length*stages.length, doneUnits=0, doneTopics=0;
+  allTopics.forEach(t => {
+    const p = getTopicProgressForChannel(ch, t);
+    const done = stages.filter(s => p[s]).length;
+    doneUnits += done;
+    if(done===4) doneTopics++;
+  });
+  return { totalUnits, doneUnits, totalTopics: allTopics.length, doneTopics };
+}
+
 function setCurrFilter(f) {
   window._currFilter = f;
   ['all','inprogress','complete','notstarted'].forEach(x => {
@@ -3048,7 +3340,8 @@ function setCurrFilter(f) {
 }
 
 function renderCurriculum() {
-  const stats  = getTotalCurriculumStats();
+  const ch     = window._currChannel || 'dd';
+  const stats  = getTotalCurriculumStatsForChannel(ch);
   const search = (document.getElementById('curr-search')?.value||'').toLowerCase().trim();
   const filter = window._currFilter || 'all';
   const stages = ['horen','sprechen','lesen','schreiben'];
@@ -3069,7 +3362,7 @@ function renderCurriculum() {
   if(td) td.textContent = stats.doneTopics + ' topics fully done';
 
   // Smart suggestion
-  const sug = getCurriculumSuggestion();
+  const sug = getCurriculumSuggestionForChannel(ch);
   const sb = document.getElementById('curr-suggestion');
   if(sb) {
     if(sug && !search) {
@@ -3100,7 +3393,7 @@ function renderCurriculum() {
   if(!el) return;
   el.innerHTML = '';
 
-  const allCats = Object.entries(DD_TOPICS);
+  const allCats = Object.entries(CHANNELS[ch].topics);
   allCats.forEach(([cat, catData]) => {
     let topics = catData.topics;
     if(search) topics = topics.filter(t => t.toLowerCase().includes(search));
@@ -3128,7 +3421,7 @@ function renderCurriculum() {
 
     // Topic cards
     topics.forEach(topic => {
-      const p = getTopicProgress(topic);
+      const p = getTopicProgressForChannel(ch, topic);
       const doneStages = stages.filter(s => p[s]).length;
       const isComplete = doneStages === 4;
       const pctDone = Math.round((doneStages/4)*100);
@@ -3180,9 +3473,10 @@ function renderCurriculum() {
 
 function launchCurriculumUnit(topicEncoded, mod) {
   const topic = decodeURIComponent(topicEncoded);
+  const ch = window._currChannel || 'dd';
   S.activeModule = mod;
   window._pendingDDTopic = topic;
-  window._pendingCurriculumStage = { topic, mod };
+  window._pendingCurriculumStage = { topic, mod, channel: ch };
   go('generate');
   const ti = document.getElementById('topic-in');
   if(ti) ti.value = topic;
@@ -3198,7 +3492,9 @@ function launchCurriculumUnit(topicEncoded, mod) {
 }
 
 function showCurriculumStats() {
-  const stats = getTotalCurriculumStats();
+  const ch = window._currChannel || 'dd';
+  const channelName = CHANNELS[ch].name;
+  const stats = getTotalCurriculumStatsForChannel(ch);
   const stages = ['horen','sprechen','lesen','schreiben'];
   const stageIco = {horen:'🎧',sprechen:'🎙',lesen:'📖',schreiben:'✍️'};
   const stageName = {horen:'Hören',sprechen:'Sprechen',lesen:'Lesen',schreiben:'Schreiben'};
@@ -3207,7 +3503,7 @@ function showCurriculumStats() {
   stages.forEach(s => {
     stageCounts[s] = allTopics.filter(t => getTopicProgress(t)[s]).length;
   });
-  const msg = '📊 Curriculum Stats\n\n'+
+  const msg = '📊 '+channelName+' Curriculum Stats\n\n'+
     '✅ Topics fully done: '+stats.doneTopics+'/'+stats.totalTopics+'\n'+
     '⚡ Total units done: '+stats.doneUnits+'/'+stats.totalUnits+'\n\n'+
     'By skill:\n'+
