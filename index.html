@@ -1311,7 +1311,7 @@ body.light-mode .hb-panel { background: #fff; }
 <div id="s-story" class="screen">
   <div class="safe-top px-3 pb-2 d-flex align-items-center gap-3">
     <div class="back-btn" onclick="navTo('home')">←</div>
-    <div><div style="font-size:19px;font-weight:800;">📚 Story Mode</div><div style="font-size:12px;color:var(--txt3);">Dynamic episodes · Random scenarios</div></div>
+    <div><div style="font-size:19px;font-weight:800;">📚 Story Mode</div><div style="font-size:12px;color:var(--txt3);">Dynamic episodes · <span id="story-level-lbl">B1</span> level</div></div>
   </div>
   <div class="px-3" style="padding-bottom:100px;">
     <div class="wotd-card mb-3" style="cursor:default;">
@@ -4403,6 +4403,10 @@ const STORY_SCENARIOS = [
 ];
 
 function renderStory() {
+  const lbl = document.getElementById('story-level-lbl');
+  if(lbl) lbl.textContent = S.level || 'B1';
+  const btn = document.getElementById('story-gen-btn');
+  if(btn) btn.textContent = '🎲 Generate ' + (S.level||'B1') + ' Episode';
   const el = document.getElementById('story-episodes');
   if (!el) return;
   if (!S.story.episodes.length) {
@@ -4428,13 +4432,12 @@ async function generateStoryEpisode() {
   if (btn) btn.textContent = '⏳ Generating…';
   const scenario = STORY_SCENARIOS[Math.floor(Math.random()*STORY_SCENARIOS.length)];
   const epNum = S.story.episodes.length + 1;
-  // Build context from previous episode vocab
+  const lvl = S.level || 'B1';
+  const levelSpec = getLevelSpec(lvl);
   const prevVocab = S.story.vocab.slice(-5).map(v=>v.word).join(', ');
   try {
-    const sys = `You are a German story scriptwriter creating an educational podcast for ${S.level} learners. Return ONLY valid JSON.`;
-    const prompt = `Create Episode ${epNum} of an ongoing German learning story. Scenario: "${scenario}". ${prevVocab?`Previously learned words to naturally reuse: ${prevVocab}.`:''}
-Write 16-20 dialogue turns between Anna and Max navigating this situation naturally. Include a third character (a native German person relevant to the scenario).
-JSON: {"title":"Episode title in German","scenario":"${scenario}","level":"${S.level}","dialogue":[{"speaker":"Anna","text":"German...","translation":"English...","notes":"grammar note or null"}],"vocab":[{"word":"das Wort","article":"das","baseForm":"Wort","translation":"word","synonyms":["der Begriff"],"partOfSpeech":"noun","level":"${S.level}","exampleDe":"Das Wort ist wichtig.","exampleEn":"The word is important.","podcastContext":"context","module":"story"}],"culturalNote":"Interesting German cultural fact about this scenario"}`;
+    const sys = 'You are a German story scriptwriter creating an educational story podcast at genuine ' + lvl + ' level for TELC/Goethe exam preparation. ' + levelSpec + ' Return ONLY valid JSON, no markdown.';
+    const prompt = 'Create Episode ' + epNum + ' of an ongoing German ' + lvl + ' level story. Scenario: "' + scenario + '". ' + (prevVocab ? 'Naturally reuse these previously learned words: ' + prevVocab + '.' : '') + ' Write 16-20 dialogue turns between Anna and Max plus one native German character. IMPORTANT: Language must be genuine ' + lvl + ' level — not simplified. Include cultural details authentic to German life. Return ONLY valid JSON: {"title":"Episode title in German","scenario":"' + scenario + '","level":"' + lvl + '","dialogue":[{"speaker":"Anna","text":"Authentic ' + lvl + ' German...","translation":"English...","notes":"grammar structure used"}],"vocab":[{"word":"das Beispiel","article":"das","baseForm":"Beispiel","translation":"example","synonyms":["das Muster"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Das ist ein gutes Beispiel.","exampleEn":"That is a good example.","podcastContext":"story","module":"story"}],"culturalNote":"Interesting authentic German cultural fact about this scenario"}';
     const res = await callAPI(sys, prompt, 3500);
     if (!res.content || !res.content[0]) throw new Error('Empty response');
     const ep = JSON.parse(extractJSON(res.content[0].text));
