@@ -444,6 +444,12 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
 .shadow-score.ok   { color: var(--warn); }
 .shadow-score.bad  { color: var(--danger); }
 
+/* ── AI PROVIDER BADGE ── */
+#ai-provider-badge { position:fixed; top:8px; right:8px; z-index:9999; font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px; opacity:0; transition:opacity .4s; pointer-events:none; letter-spacing:.05em; }
+#ai-provider-badge.claude  { background:#d9775720; border:1px solid #d9775740; color:var(--accent2); opacity:1; }
+#ai-provider-badge.openai  { background:#10a37f20; border:1px solid #10a37f40; color:#10a37f;       opacity:1; }
+#ai-provider-badge.error   { background:#e06c6c20; border:1px solid #e06c6c40; color:var(--danger); opacity:1; }
+
 /* ── LIGHT MODE ── */
 body.light-mode {
   --bg: #f4f4f8;
@@ -1268,6 +1274,7 @@ body.light-mode .hb-panel { background: #fff; }
 <!-- Exam Std for exam screen -->
 <script>let examStd='telc', examLvl='B1';</script>
 
+<div id="ai-provider-badge"></div>
 <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
@@ -2248,7 +2255,19 @@ function renderWL(deck){
 async function callAPI(system,prompt,max_tokens=1000){
   const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens,system,messages:[{role:'user',content:prompt}]})});
   if(!res.ok)throw new Error('API '+res.status);
-  return res.json();
+  const data=await res.json();
+  showAIBadge(data._provider);
+  return data;
+}
+
+let _badgeTm;
+function showAIBadge(provider){
+  const el=document.getElementById('ai-provider-badge');if(!el)return;
+  el.className='';
+  if(provider==='claude') {el.textContent='⚡ Claude';el.classList.add('claude');}
+  else if(provider==='openai'){el.textContent='🤖 GPT-4o';el.classList.add('openai');}
+  else{el.textContent='⚠ AI Offline';el.classList.add('error');}
+  clearTimeout(_badgeTm);_badgeTm=setTimeout(()=>{el.className='';},4000);
 }
 
 
