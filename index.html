@@ -7,6 +7,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 <style>
 :root {
+  --base-font: 15px;
   --font: -apple-system,'SF Pro Display','SF Pro Text','Helvetica Neue',Arial,sans-serif;
   --mono: 'SF Mono','Menlo','Monaco','Courier New',monospace;
   --bg: #1a1a1a;
@@ -30,7 +31,7 @@
   --horen: #cf8e6d;
 }
 *,*::before,*::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; background: var(--bg) !important; color: var(--txt) !important; font-family: var(--font) !important; overflow: hidden; -webkit-font-smoothing: antialiased; }
+html, body { height: 100%; background: var(--bg) !important; color: var(--txt) !important; font-family: var(--font) !important; font-size: var(--base-font); overflow: hidden; -webkit-font-smoothing: antialiased; }
 
 /* ── SCREEN SYSTEM ── */
 .screen { display: none; position: fixed; inset: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; background: var(--bg); z-index: 1; }
@@ -478,7 +479,7 @@ body.light-mode .hb-panel { background: #fff; }
 ════════════════════════════════════════ -->
 <div id="s-home" class="screen active">
   <div class="safe-top px-3 pb-3" style="background:linear-gradient(180deg,#111111,var(--bg));">
-    <div class="d-flex justify-content-between align-items-center"><div class="logo">Sprechen</div><div class="d-flex gap-2"><button onclick="openHB()" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:6px 12px;font-size:18px;cursor:pointer;">⚙️</button><button onclick="toggleTheme()" id="theme-btn" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:6px 12px;font-size:18px;cursor:pointer;">🌙</button></div></div>
+    <div class="d-flex justify-content-between align-items-center"><div class="logo">Sprechen</div><div class="d-flex gap-2"><button onclick="openHB()" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:6px 12px;font-size:18px;cursor:pointer;">⚙️</button></div></div>
     <div class="logo-tag">German Exam Prep · TELC &amp; Goethe</div>
   </div>
 
@@ -1116,8 +1117,8 @@ body.light-mode .hb-panel { background: #fff; }
 <div class="hb-ov" id="hb-ov" onclick="hbOvClick(event)">
   <div class="hb-panel">
     <div class="hb-handle"></div>
-    <div style="font-size:18px;font-weight:800;margin-bottom:3px;">Podcast Settings</div>
-    <div style="font-size:12px;color:var(--txt3);margin-bottom:18px;">Customise your listening experience</div>
+    <div class="d-flex justify-content-between align-items-center mb-1"><div style="font-size:18px;font-weight:800;">⚙️ Settings</div><button onclick="closeHB()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--txt3);">✕</button></div>
+    <div style="font-size:12px;color:var(--txt3);margin-bottom:18px;">Customise your experience</div>
     <div class="sec-lbl mb-2">View Mode</div>
     <div class="d-flex gap-2 mb-4">
       <div class="hb-pill on" id="hbm-both" onclick="setVM('both')"><div class="hb-pill-ico">📺</div><div class="hb-pill-lbl">Both</div></div>
@@ -1153,6 +1154,16 @@ body.light-mode .hb-panel { background: #fff; }
       </div>
     </div>
     <div style="font-size:11px;color:var(--txt3);margin-top:-12px;margin-bottom:16px;line-height:1.6;" id="ai-provider-desc">Auto: Claude first, GPT-4o as backup if Claude is unavailable.</div>
+    <div class="sec-lbl mb-2">Appearance</div>
+    <div class="d-flex gap-2 mb-2">
+      <button onclick="toggleTheme()" id="theme-btn-hb" style="flex:1;background:var(--surf2);border:1px solid var(--bdr);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;color:var(--txt2);">🌙 Dark / ☀️ Light</button>
+    </div>
+    <div class="sec-lbl mb-2 mt-3">Font Size</div>
+    <div class="d-flex gap-2 mb-4">
+      <button onclick="setFontSize('small')"  id="fs-small"  class="tgl" style="flex:1;padding:10px;font-size:12px;">A</button>
+      <button onclick="setFontSize('medium')" id="fs-medium" class="tgl on" style="flex:1;padding:10px;font-size:15px;">A</button>
+      <button onclick="setFontSize('large')"  id="fs-large"  class="tgl" style="flex:1;padding:10px;font-size:19px;">A</button>
+    </div>
     <div class="sec-lbl mb-2">Data Backup</div>
     <div class="d-flex gap-2 mb-3">
       <button onclick="exportData()" class="btn flex-1 py-2 rounded-3" style="background:#30d15815;border:1px solid #30d15840;color:var(--good);font-weight:700;">📤 Export</button>
@@ -2120,6 +2131,10 @@ function load() {
    ROUTING
 ══════════════════════════════════════ */
 function go(id) {
+  // Save current screen for refresh persistence
+  if (!['generating','generate'].includes(id)) {
+    localStorage.setItem('sp3_last_screen', id);
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('s-'+id);
   if (el) { el.classList.add('active'); el.scrollTop = 0; }
@@ -3707,7 +3722,7 @@ function renderLibrary() {
     div.className='pod-card';
     div.style.cssText='position:relative;padding-right:56px;margin-bottom:10px;';
     const noVocab = !s.vocab || s.vocab.length === 0;
-    const hasDialogue = s.dialogue && s.dialogue.length > 0;
+    const hasContent = s.dialogue?.length || s.passage?.length || s.transcript?.length || s.modelAnswer?.de;
     div.innerHTML=
       '<div style="cursor:pointer;" class="lib-open" data-mod="'+s.module+'" data-id="'+s.id+'">'+
         '<div class="d-flex justify-content-between align-items-start">'+
@@ -3725,7 +3740,7 @@ function renderLibrary() {
           (s.bestScore?'<span>⭐ '+s.bestScore+'%</span>':'')+
         '</div>'+
         // Add vocab button only if no vocab but has dialogue
-        (noVocab && hasDialogue ?
+        (noVocab && hasContent ?
           '<button class="lib-vocab" data-mod="'+s.module+'" data-id="'+s.id+'" '+
             'style="margin-top:10px;width:100%;background:#d9775715;border:1px solid #d9775740;color:var(--accent2);border-radius:8px;padding:7px;font-size:12px;font-weight:700;cursor:pointer;">'+
             '➕ Extract Vocabulary & Add Cards</button>' : '')+
@@ -3750,17 +3765,13 @@ async function regenVocab(mod, id) {
   const s = arr.find(x => String(x.id) === String(id));
   if (!s) { toast('Session not found'); return; }
 
-  // Get sample text from dialogue or passage
+  // Get sample text from any module type
   let sampleText = '';
-  if (s.dialogue?.length) {
-    sampleText = s.dialogue.slice(0, 10).map(l => l.text).join(' ');
-  } else if (s.passage?.length) {
-    sampleText = s.passage.map(p => p.de).join(' ');
-  } else if (s.transcript?.length) {
-    sampleText = s.transcript.slice(0, 8).map(l => l.text).join(' ');
-  } else if (s.modelAnswer?.de) {
-    sampleText = s.modelAnswer.de;
-  }
+  if (s.dialogue?.length)   sampleText = s.dialogue.slice(0,10).map(l=>l.text).join(' ');
+  else if (s.passage?.length)    sampleText = s.passage.map(p=>p.de).join(' ');
+  else if (s.transcript?.length) sampleText = s.transcript.slice(0,8).map(l=>l.text).join(' ');
+  else if (s.modelAnswer?.de)    sampleText = s.modelAnswer.de;
+  else if (s.questions?.length)  sampleText = s.questions.map(q=>q.question).join(' ');
 
   if (!sampleText) { toast('No content to extract vocab from'); return; }
 
@@ -4668,9 +4679,24 @@ function importData() {
   document.body.removeChild(input);
 }
 
+function setFontSize(size) {
+  localStorage.setItem('sp3_fontsize', size);
+  const sizes = { small: '13px', medium: '15px', large: '17px' };
+  document.documentElement.style.setProperty('--base-font', sizes[size]||'15px');
+  ['small','medium','large'].forEach(s => {
+    const el = document.getElementById('fs-'+s);
+    if(el) el.classList.toggle('on', s===size);
+  });
+}
+
+function applyFontSize() {
+  const size = localStorage.getItem('sp3_fontsize') || 'medium';
+  setFontSize(size);
+}
+
 function toggleTheme() {
   const isLight = document.body.classList.toggle('light-mode');
-  document.getElementById('theme-btn').textContent = isLight ? '☀️' : '🌙';
+  // theme button moved to settings panel
   document.documentElement.setAttribute('data-bs-theme', isLight ? 'light' : 'dark');
   localStorage.setItem('sp2_theme', isLight ? 'light' : 'dark');
 }
@@ -4682,6 +4708,15 @@ window.addEventListener('load', async ()=>{
   // Sync from SQLite first if server is running
   await loadFromDB();
   load();
+  applyFontSize();
+  // Restore last screen after refresh
+  const lastScreen = localStorage.getItem('sp3_last_screen') || 'home';
+  const safeScreens = ['home','flash','story','chat','exam','journal','library','topics','curriculum'];
+  if (safeScreens.includes(lastScreen)) {
+    navTo(lastScreen);
+  } else {
+    navTo('home');
+  }
   // Clear stale WOTD so it regenerates on new day
   const todayISO = new Date().toISOString().slice(0,10);
   if (S.wotd && S.wotd.date !== todayISO) {
@@ -4695,7 +4730,7 @@ window.addEventListener('load', async ()=>{
   const savedTheme = localStorage.getItem('sp3_theme') || localStorage.getItem('sp2_theme');
   if (savedTheme === 'light') {
     document.body.classList.add('light-mode');
-    document.getElementById('theme-btn').textContent = '☀️';
+    // theme applied via class
     document.documentElement.setAttribute('data-bs-theme', 'light');
   }
   // Set default toggles
