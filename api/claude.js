@@ -1,11 +1,9 @@
-// api/claude.js — Smart Dual-AI Proxy with Manual Override + Auto Fallback
-// Primary:  Anthropic Claude
-// Fallback: OpenAI GPT-4o
-// Header x-ai-provider: 'auto' | 'claude' | 'openai'
+// api/claude.js — Dual-AI Proxy: Claude primary, GPT-4o fallback
+// Provider passed in request body as { provider: 'auto'|'claude'|'openai' }
 
 const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
 const OPENAI_MODEL = 'gpt-4o';
-const TIMEOUT_MS   = 10000;
+const TIMEOUT_MS   = 12000;
 
 function fetchWithTimeout(url, options, ms) {
   const controller = new AbortController();
@@ -14,7 +12,7 @@ function fetchWithTimeout(url, options, ms) {
     .finally(() => clearTimeout(timer));
 }
 
-async function callClaude(apiKey, { model, max_tokens, system, messages }) {
+async function callClaude(apiKey, body) {
   const res = await fetchWithTimeout(
     'https://api.anthropic.com/v1/messages',
     {
@@ -24,25 +22,32 @@ async function callClaude(apiKey, { model, max_tokens, system, messages }) {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
-      body: JSON.stringify({ model: model || CLAUDE_MODEL, max_tokens, system, messages }),
+      body: JSON.stringify({
+        model: body.model || CLAUDE_MODEL,
+        max_tokens: body.max_tokens || 1000,
+        system: body.system,
+        messages: body.messages,
+      }),
     },
     TIMEOUT_MS
   );
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error('Claude ' + res.status + ': ' + JSON.stringify(err));
+    const err = await res.text();
+    throw new Error('Claude ' + res.status + ': ' + err.slice(0, 200));
   }
   const data = await res.json();
   data._provider = 'claude';
   return data;
 }
 
-async function callOpenAI(apiKey, { max_tokens, system, messages }) {
-  const openaiMessages = [];
-  if (system) openaiMessages.push({ role: 'system', content: system });
-  for (const msg of messages) {
-    openaiMessages.push({ role: msg.role, content: msg.content });
+async function callOpenAI(apiKey, body) {
+  // Build OpenAI messages from Claude format
+  const messages = [];
+  if (body.system) messages.push({ role: 'system', content: body.system });
+  for (const m of (body.messages || [])) {
+    messages.push({ role: m.role, content: m.content });
   }
+
   const res = await fetchWithTimeout(
     'https://api.openai.com/v1/chat/completions',
     {
@@ -53,28 +58,29 @@ async function callOpenAI(apiKey, { max_tokens, system, messages }) {
       },
       body: JSON.stringify({
         model: OPENAI_MODEL,
-        max_tokens: max_tokens || 1000,
-        messages: openaiMessages,
+        max_tokens: body.max_tokens || 1000,
+        messages,
         temperature: 0.7,
       }),
     },
     TIMEOUT_MS
   );
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error('OpenAI ' + res.status + ': ' + JSON.stringify(err));
+    const err = await res.text();
+    throw new Error('OpenAI ' + res.status + ': ' + err.slice(0, 200));
   }
   const data = await res.json();
   const text = data.choices?.[0]?.message?.content || '';
+  // Return in Claude response shape so frontend needs no changes
   return {
     id: data.id,
     type: 'message',
     role: 'assistant',
     content: [{ type: 'text', text }],
     model: OPENAI_MODEL,
-    stop_reason: data.choices?.[0]?.finish_reason || 'end_turn',
+    stop_reason: 'end_turn',
     usage: {
-      input_tokens:  data.usage?.prompt_tokens     || 0,
+      input_tokens: data.usage?.prompt_tokens || 0,
       output_tokens: data.usage?.completion_tokens || 0,
     },
     _provider: 'openai',
@@ -82,70 +88,78 @@ async function callOpenAI(apiKey, { max_tokens, system, messages }) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin',  '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-ai-provider');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const claudeKey  = process.env.ANTHROPIC_API_KEY;
-  const openaiKey  = process.env.OPENAI_TTS_KEY;
-  const { model, max_tokens, system, messages } = req.body;
+  const claudeKey = process.env.ANTHROPIC_API_KEY;
+  const openaiKey = process.env.OPENAI_TTS_KEY;
 
-  // Read user preference from header — default to 'auto'
-  const preference = (req.headers['x-ai-provider'] || 'auto').toLowerCase();
-  console.log('[AI Router] Provider preference:', preference);
+  // Provider comes in the body — no custom headers needed
+  const { provider = 'auto', ...body } = req.body;
+  console.log('[AI Router] provider=' + provider + ' max_tokens=' + body.max_tokens);
 
-  // ── CLAUDE ONLY ──────────────────────────────────────────────────────────
-  if (preference === 'claude') {
-    if (!claudeKey) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set.', _provider: 'none' });
+  // ── CLAUDE ONLY ────────────────────────────────────────────────────────
+  if (provider === 'claude') {
+    if (!claudeKey) {
+      return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured on server.', _provider: 'none' });
+    }
     try {
-      const data = await callClaude(claudeKey, { model, max_tokens, system, messages });
+      const data = await callClaude(claudeKey, body);
       console.log('[AI Router] Claude OK (manual)');
       return res.status(200).json(data);
     } catch (err) {
-      console.error('[AI Router] Claude failed (manual, no fallback):', err.message);
-      return res.status(503).json({ error: 'Claude is currently unavailable: ' + err.message, _provider: 'none' });
+      console.error('[AI Router] Claude failed (manual):', err.message);
+      return res.status(503).json({ error: 'Claude unavailable: ' + err.message, _provider: 'none' });
     }
   }
 
-  // ── OPENAI ONLY ──────────────────────────────────────────────────────────
-  if (preference === 'openai') {
-    if (!openaiKey) return res.status(500).json({ error: 'OPENAI_TTS_KEY not set.', _provider: 'none' });
+  // ── OPENAI ONLY ────────────────────────────────────────────────────────
+  if (provider === 'openai') {
+    if (!openaiKey) {
+      return res.status(500).json({ error: 'OPENAI_TTS_KEY not configured on server.', _provider: 'none' });
+    }
     try {
-      const data = await callOpenAI(openaiKey, { max_tokens, system, messages });
+      const data = await callOpenAI(openaiKey, body);
       console.log('[AI Router] OpenAI OK (manual)');
       return res.status(200).json(data);
     } catch (err) {
-      console.error('[AI Router] OpenAI failed (manual, no fallback):', err.message);
-      return res.status(503).json({ error: 'GPT-4o is currently unavailable: ' + err.message, _provider: 'none' });
+      console.error('[AI Router] OpenAI failed (manual):', err.message);
+      return res.status(503).json({ error: 'GPT-4o unavailable: ' + err.message, _provider: 'none' });
     }
   }
 
-  // ── AUTO: Claude first → OpenAI fallback ─────────────────────────────────
+  // ── AUTO: Claude first → OpenAI fallback ──────────────────────────────
   if (claudeKey) {
     try {
-      const data = await callClaude(claudeKey, { model, max_tokens, system, messages });
+      const data = await callClaude(claudeKey, body);
       console.log('[AI Router] Claude OK (auto)');
       return res.status(200).json(data);
     } catch (err) {
-      console.warn('[AI Router] Claude failed, switching to GPT-4o:', err.message);
+      console.warn('[AI Router] Claude failed, trying OpenAI:', err.message);
     }
+  } else {
+    console.warn('[AI Router] No ANTHROPIC_API_KEY — skipping Claude');
   }
 
   if (openaiKey) {
     try {
-      const data = await callOpenAI(openaiKey, { max_tokens, system, messages });
-      console.log('[AI Router] GPT-4o fallback OK (auto)');
+      const data = await callOpenAI(openaiKey, body);
+      console.log('[AI Router] OpenAI fallback OK (auto)');
       return res.status(200).json(data);
     } catch (err) {
-      console.warn('[AI Router] GPT-4o also failed:', err.message);
+      console.warn('[AI Router] OpenAI also failed:', err.message);
     }
+  } else {
+    console.warn('[AI Router] No OPENAI_TTS_KEY — skipping OpenAI fallback');
   }
 
   // Both down
-  console.error('[AI Router] Both providers unavailable');
+  console.error('[AI Router] Both providers failed');
   return res.status(503).json({
-    error: 'AI temporarily unavailable. Both Claude and GPT-4o are unreachable. Please try again shortly.',
+    error: 'Both Claude and GPT-4o are currently unreachable. Please try again in a moment.',
     _provider: 'none',
   });
 }

@@ -2278,8 +2278,21 @@ function renderWL(deck){
 ══════════════════════════════════════ */
 async function callAPI(system,prompt,max_tokens=1000){
   const provider=localStorage.getItem('sp3_ai_provider')||'auto';
-  const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','x-ai-provider':provider},body:JSON.stringify({model:MODEL,max_tokens,system,messages:[{role:'user',content:prompt}]})});
-  if(!res.ok)throw new Error('API '+res.status);
+  const res=await fetch(API,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      provider,
+      model:MODEL,
+      max_tokens,
+      system,
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  if(!res.ok){
+    const errData=await res.json().catch(()=>({}));
+    throw new Error('API '+res.status+(errData.error?' — '+errData.error:''));
+  }
   const data=await res.json();
   showAIBadge(data._provider);
   return data;
