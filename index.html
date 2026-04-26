@@ -4514,7 +4514,7 @@ function openStoryEpisode(idx) {
   if (vocabEl) {
     vocabEl.innerHTML = (ep.vocab||[]).map(v=>`
       <div class="wl-item" onclick="speakTTS('${v.word.replace(/'/g,"\'")}','Anna',null)">
-        <div><div class="wl-de">${v.article?v.article+' ':''}<strong>${v.word}</strong></div><div class="wl-en">${v.translation}</div>${v.synonyms?.length?`<div class="wl-syn">${v.synonyms.join(' · ')}</div>`:''}</div>
+        <div><div class="wl-de">${v.article?v.article+' ':''}<strong>${v.baseForm||v.word}</strong></div><div class="wl-en">${v.translation}</div>${v.synonyms?.length?`<div class="wl-syn">${v.synonyms.join(' · ')}</div>`:''}</div>
         <span class="wl-badge new">🔊</span>
       </div>`).join('');
   }
