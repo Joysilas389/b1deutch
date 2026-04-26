@@ -4523,6 +4523,37 @@ async function generateStoryEpisode() {
   if (btn) btn.textContent = '🎲 Generate New Episode';
 }
 
+async function regenStoryVocab(idx) {
+  const ep = S.story.episodes[idx];
+  if (!ep) return;
+  const sampleText = (ep.dialogue||[]).slice(0,8).map(l=>l.text).join(' ');
+  if (!sampleText) { toast('No dialogue to extract from'); return; }
+  toast('⏳ Extracting vocabulary…');
+  try {
+    const sys = 'You are a German ' + (ep.level||'B1') + ' vocabulary expert. Return ONLY valid JSON.';
+    const user = 'Extract 8-12 key vocab words from this German ' + (ep.level||'B1') + ' story about "' + ep.scenario + '": "' + sampleText.slice(0,600) + '" Return ONLY: {"vocab":[{"word":"das Wort","article":"das","baseForm":"Wort","translation":"word","synonyms":["der Begriff"],"partOfSpeech":"noun","level":"' + (ep.level||'B1') + '","exampleDe":"Das Wort ist wichtig.","exampleEn":"The word is important.","podcastContext":"story","module":"story"}]}';
+    const res = await callAPI(sys, user, 1500);
+    if (!res.content || !res.content[0]) throw new Error('Empty response');
+    const data = JSON.parse(extractJSON(res.content[0].text));
+    const vocab = data.vocab || [];
+    if (!vocab.length) { toast('No vocabulary found'); return; }
+    S.story.episodes[idx].vocab = vocab;
+    // Add to flashcards
+    let added = 0;
+    vocab.forEach(v => {
+      if (!S.fc.all.find(c=>(c.baseForm||c.word).toLowerCase()===(v.baseForm||v.word).toLowerCase())) {
+        S.fc.all.push({...v, id:Date.now()+Math.random(), sessionId:'story-'+ep.id, sessionTitle:'Story: '+ep.title,
+          sr:{interval:1,easeFactor:2.5,repetitions:0,nextReview:new Date().toISOString(),status:'new',lastQuality:0,totalReviews:0},
+          addedAt:new Date().toISOString()});
+        added++;
+      }
+    });
+    save();
+    toast('✅ ' + added + ' vocab words extracted!');
+    openStoryEpisode(idx);
+  } catch(e) { toast('Failed: ' + e.message); }
+}
+
 function openStoryEpisode(idx) {
   const ep = S.story.episodes[idx];
   if (!ep) return;
@@ -4549,11 +4580,21 @@ function openStoryEpisode(idx) {
   // Render vocab
   const vocabEl = document.getElementById('story-vocab-list');
   if (vocabEl) {
-    vocabEl.innerHTML = (ep.vocab||[]).map(v=>`
-      <div class="wl-item" onclick="speakTTS('${v.word.replace(/'/g,"\'")}','Anna',null)">
-        <div><div class="wl-de">${v.article?v.article+' ':''}<strong>${v.baseForm||v.word}</strong></div><div class="wl-en">${v.translation}</div>${v.synonyms?.length?`<div class="wl-syn">${v.synonyms.join(' · ')}</div>`:''}</div>
-        <span class="wl-badge new">🔊</span>
-      </div>`).join('');
+    if (!ep.vocab || ep.vocab.length === 0) {
+      vocabEl.innerHTML =
+        '<div style="color:var(--txt3);font-size:13px;margin-bottom:10px;">No vocabulary extracted for this episode.</div>' +
+        '<button onclick="regenStoryVocab(' + idx + ')" class="btn w-100 py-2 rounded-3" ' +
+          'style="background:#d9775715;border:1px solid #d9775740;color:var(--accent2);font-weight:700;font-size:13px;">' +
+          '➕ Extract Vocabulary from this Episode</button>';
+    } else {
+      vocabEl.innerHTML = ep.vocab.map(v =>
+        '<div class="wl-item" onclick="speakTTS(\'' + v.word.replace(/'/g,"\'") + '\',\'Anna\',null)">' +
+          '<div><div class="wl-de">' + (v.article?v.article+' ':'') + '<strong>' + (v.baseForm||v.word) + '</strong></div>' +
+          '<div class="wl-en">' + v.translation + '</div>' +
+          (v.synonyms?.length ? '<div class="wl-syn">' + v.synonyms.join(' · ') + '</div>' : '') +
+          '</div><span class="wl-badge new">🔊</span></div>'
+      ).join('');
+    }
   }
   // Cultural note
   if (ep.culturalNote) {
