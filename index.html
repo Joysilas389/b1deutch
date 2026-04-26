@@ -485,7 +485,7 @@ body.light-mode .hb-panel { background: #fff; }
   <!-- Stats -->
   <div class="px-3 pb-3">
     <div class="row g-2">
-      <div class="col-4"><div class="stat-card"><div class="stat-v" id="st-pods">0</div><div class="stat-l">Podcasts</div></div></div>
+      <div class="col-4"><div class="stat-card" onclick="navTo('library')" style="cursor:pointer;"><div class="stat-v" id="st-pods">0</div><div class="stat-l">Sessions 📂</div></div></div>
       <div class="col-4"><div class="stat-card"><div class="stat-v" id="st-cards">0</div><div class="stat-l">Vocab Cards</div></div></div>
       <div class="col-4"><div class="stat-card"><div class="stat-v" id="st-score">—</div><div class="stat-l">Best Score</div></div></div>
     </div>
@@ -551,7 +551,7 @@ body.light-mode .hb-panel { background: #fff; }
   </div>
 
   <!-- Recent Podcasts -->
-  <div class="px-3 mb-1 mt-2"><div class="sec-lbl">Recent Sessions</div></div>
+  <div class="px-3 mb-1 mt-2"><div class="d-flex justify-content-between align-items-center"><div class="sec-lbl">Recent Sessions</div><div onclick="navTo('library')" style="font-size:12px;color:var(--accent2);cursor:pointer;font-weight:700;">View All →</div></div></div>
   <div class="px-3" style="padding-bottom:90px;"><div id="pod-list"></div></div>
 </div>
 
@@ -1014,6 +1014,30 @@ body.light-mode .hb-panel { background: #fff; }
 <!-- ════════════════════════════════════════
      HAMBURGER BOTTOM SHEET
 ════════════════════════════════════════ -->
+<!-- SESSION LIBRARY SCREEN -->
+<div id="s-library" class="screen">
+  <div class="safe-top px-3 pb-2">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="back-btn" onclick="navTo('home')">←</div>
+        <div>
+          <div style="font-size:20px;font-weight:800;">📂 All Sessions</div>
+          <div style="font-size:12px;color:var(--txt3);" id="lib-count">0 sessions</div>
+        </div>
+      </div>
+    </div>
+    <input type="text" id="lib-search" class="t-input mb-2" style="font-size:14px;padding:10px 14px;" placeholder="🔍 Search by title or topic…" oninput="renderLibrary()">
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;">
+      <div class="deck-tab on" id="lib-f-all"       onclick="setLibFilter('all')">All</div>
+      <div class="deck-tab"   id="lib-f-sprechen"   onclick="setLibFilter('sprechen')">🎙 Sprechen</div>
+      <div class="deck-tab"   id="lib-f-lesen"      onclick="setLibFilter('lesen')">📖 Lesen</div>
+      <div class="deck-tab"   id="lib-f-schreiben"  onclick="setLibFilter('schreiben')">✍️ Schreiben</div>
+      <div class="deck-tab"   id="lib-f-horen"      onclick="setLibFilter('horen')">🎧 Hören</div>
+    </div>
+  </div>
+  <div class="px-3" style="padding-bottom:90px;" id="lib-list"></div>
+</div>
+
 <div class="hb-ov" id="hb-ov" onclick="hbOvClick(event)">
   <div class="hb-panel">
     <div class="hb-handle"></div>
@@ -1488,7 +1512,7 @@ function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('s-'+id);
   if (el) { el.classList.add('active'); el.scrollTop = 0; }
-  const navScreens = ['home','flash','story','chat','exam','journal'];
+  const navScreens = ['home','flash','story','chat','exam','journal','library'];
   const nav = document.getElementById('global-nav');
   nav.style.display = navScreens.includes(id) ? 'block' : 'none';
 }
@@ -1503,6 +1527,7 @@ function navTo(id) {
   if (id==='chat')    initChat();
   if (id==='exam')    initExam();
   if (id==='journal') renderJournal();
+  if (id==='library') renderLibrary();
 }
 
 /* ══════════════════════════════════════
@@ -2640,6 +2665,84 @@ function addJournalToCards(id) {
 function removeJournalItem(id) {
   S.journal = S.journal.filter(j=>j.id!==id);
   save(); renderJournal();
+}
+
+function renderLibrary() {
+  const search = (document.getElementById('lib-search')?.value||'').toLowerCase().trim();
+  const filter = window._libFilter||'all';
+  const modIcos   = {sprechen:'🎙',lesen:'📖',schreiben:'✍️',horen:'🎧'};
+  const modColors = {sprechen:'var(--sprechen)',lesen:'var(--lesen)',schreiben:'var(--schreiben)',horen:'var(--horen)'};
+  let all = [
+    ...S.podcasts.map(p=>({...p,module:'sprechen'})),
+    ...S.lesenSessions.map(p=>({...p,module:'lesen'})),
+    ...S.schreibenSessions.map(p=>({...p,module:'schreiben'})),
+    ...S.horenSessions.map(p=>({...p,module:'horen'})),
+  ].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  if(filter!=='all') all=all.filter(s=>s.module===filter);
+  if(search) all=all.filter(s=>(s.title||'').toLowerCase().includes(search)||(s.topic||'').toLowerCase().includes(search));
+  const ce=document.getElementById('lib-count');
+  if(ce) ce.textContent=all.length+' session'+(all.length!==1?'s':'');
+  const el=document.getElementById('lib-list'); if(!el)return;
+  if(!all.length){el.innerHTML='<div class="empty-state"><div class="empty-ico">📂</div><div class="empty-title">No sessions found</div><div class="empty-desc">Try a different filter or search term.</div></div>';return;}
+  el.innerHTML='';
+  all.forEach(s=>{
+    const ico=modIcos[s.module]||'🎙';
+    const color=modColors[s.module]||'var(--accent2)';
+    const date=s.createdAt?new Date(s.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
+    const div=document.createElement('div');
+    div.className='pod-card';
+    div.style.cssText='position:relative;padding-right:56px;margin-bottom:10px;';
+    div.innerHTML=
+      '<div style="cursor:pointer;" class="lib-open" data-mod="'+s.module+'" data-id="'+s.id+'">'+
+        '<div class="d-flex justify-content-between align-items-start">'+
+          '<div class="d-flex align-items-center gap-2">'+
+            '<span style="font-size:20px;">'+ico+'</span>'+
+            '<div><div class="pc-title">'+s.title+'</div>'+
+            '<div style="font-size:11px;color:var(--txt3);">'+(s.topic||'')+'</div></div>'+
+          '</div>'+
+          '<span class="badge-'+(s.level||'b1').toLowerCase()+'">'+(s.level||'B1')+'</span>'+
+        '</div>'+
+        '<div class="pc-meta mt-1">'+
+          '<span style="color:'+color+';">'+s.module.charAt(0).toUpperCase()+s.module.slice(1)+'</span>'+
+          (s.vocab?.length?'<span>🃏 '+s.vocab.length+' cards</span>':'')+
+          (date?'<span>📅 '+date+'</span>':'')+
+          (s.bestScore?'<span>⭐ '+s.bestScore+'%</span>':'')+
+        '</div>'+
+      '</div>'+
+      '<button class="lib-del" data-mod="'+s.module+'" data-id="'+s.id+'" '+
+        'style="position:absolute;top:50%;right:10px;transform:translateY(-50%);background:#ff3b3015;border:1px solid #ff3b3040;color:var(--danger);border-radius:8px;padding:6px 10px;font-size:16px;cursor:pointer;">🗑</button>';
+    el.appendChild(div);
+  });
+  // Event delegation — one listener on container
+  el.onclick = function(e) {
+    const open = e.target.closest('.lib-open');
+    const del  = e.target.closest('.lib-del');
+    if(open) { reopenSession(open.dataset.mod, open.dataset.id); }
+    if(del)  { e.stopPropagation(); confirmDeleteSession(del.dataset.mod, del.dataset.id); }
+  };
+}
+function setLibFilter(f){
+  window._libFilter=f;
+  ['all','sprechen','lesen','schreiben','horen'].forEach(x=>{
+    const el=document.getElementById('lib-f-'+x);
+    if(el) el.classList.toggle('on',x===f);
+  });
+  renderLibrary();
+}
+
+function confirmDeleteSession(mod,id){
+  const arr=mod==='sprechen'?S.podcasts:mod==='lesen'?S.lesenSessions:mod==='schreiben'?S.schreibenSessions:S.horenSessions;
+  const s=arr.find(x=>String(x.id)===String(id)); if(!s)return;
+  if(!confirm('Delete "'+s.title+'"?\n\nThis cannot be undone.'))return;
+  deleteSession(mod,id);
+}
+
+function deleteSession(mod,id){
+  if(mod==='sprechen')  S.podcasts          =S.podcasts.filter(x=>String(x.id)!==String(id));
+  if(mod==='lesen')     S.lesenSessions     =S.lesenSessions.filter(x=>String(x.id)!==String(id));
+  if(mod==='schreiben') S.schreibenSessions =S.schreibenSessions.filter(x=>String(x.id)!==String(id));
+  if(mod==='horen')     S.horenSessions     =S.horenSessions.filter(x=>String(x.id)!==String(id));
+  save(); toast('Session deleted ✓'); renderLibrary(); renderHome();
 }
 
 function clearJournal() {
