@@ -1153,6 +1153,12 @@ body.light-mode .hb-panel { background: #fff; }
       </div>
     </div>
     <div style="font-size:11px;color:var(--txt3);margin-top:-12px;margin-bottom:16px;line-height:1.6;" id="ai-provider-desc">Auto: Claude first, GPT-4o as backup if Claude is unavailable.</div>
+    <div class="sec-lbl mb-2">Data Backup</div>
+    <div class="d-flex gap-2 mb-3">
+      <button onclick="exportData()" class="btn flex-1 py-2 rounded-3" style="background:#30d15815;border:1px solid #30d15840;color:var(--good);font-weight:700;">📤 Export</button>
+      <button onclick="importData()" class="btn flex-1 py-2 rounded-3" style="background:#d9775715;border:1px solid #d9775740;color:var(--accent2);font-weight:700;">📥 Import</button>
+    </div>
+    <div style="font-size:11px;color:var(--txt3);margin-bottom:16px;line-height:1.6;">Export saves all your data as a JSON file. Import restores it. Do this regularly to protect your progress.</div>
     <button class="btn w-100 py-3 rounded-3" style="background:var(--surf2);border:1px solid var(--bdr2);color:var(--txt2);font-weight:600;" onclick="closeHB()">Done</button>
   </div>
 </div>
@@ -4518,6 +4524,65 @@ function toast(msg){const el=document.getElementById('toast');el.textContent=msg
 /* ══════════════════════════════════════
    THEME TOGGLE
 ══════════════════════════════════════ */
+function exportData() {
+  try {
+    const keys = [
+      'sp3_pods','sp3_lesen','sp3_schr','sp3_hor',
+      'sp3_fc','sp3_stats','sp3_streak','sp3_journal',
+      'sp3_xp','sp3_examdate','sp3_wotd','sp3_story',
+      'sp3_dd_done','sp3_curriculum',
+      'sp3_dd_done_dd','sp3_dd_done_tl','sp3_dd_done_lg',
+      'sp3_curriculum_dd','sp3_curriculum_tl','sp3_curriculum_lg',
+      'sp3_ai_provider','sp3_theme'
+    ];
+    const data = { version: 1, exportedAt: new Date().toISOString(), data: {} };
+    keys.forEach(k => {
+      const v = localStorage.getItem(k);
+      if (v) data.data[k] = v;
+    });
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'sprechen-backup-' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('✅ Backup exported! Save the file safely.');
+  } catch(e) {
+    toast('Export failed: ' + e.message);
+  }
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type  = 'file';
+  input.accept = '.json';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        const backup = JSON.parse(ev.target.result);
+        if (!backup.data || !backup.version) throw new Error('Invalid backup file');
+        if (!confirm('Restore backup from ' + (backup.exportedAt||'unknown date') + '?\n\nThis will REPLACE all current data. Cannot be undone.')) return;
+        Object.entries(backup.data).forEach(([k, v]) => localStorage.setItem(k, v));
+        toast('✅ Backup restored! Reloading…');
+        setTimeout(() => window.location.reload(), 1500);
+      } catch(e) {
+        toast('Import failed: ' + e.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  document.body.appendChild(input);
+  input.click();
+  document.body.removeChild(input);
+}
+
 function toggleTheme() {
   const isLight = document.body.classList.toggle('light-mode');
   document.getElementById('theme-btn').textContent = isLight ? '☀️' : '🌙';
@@ -4571,6 +4636,48 @@ window.addEventListener('load',()=>{
     }, msUntilMidnight);
   }
   scheduleMidnightRefresh();
+
+  // ── AUTO BACKUP ──────────────────────────────────────────────────────────
+  // Triggers silently on first user interaction if 24h have passed
+  const BACKUP_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
+  const lastBackup = parseInt(localStorage.getItem('sp3_last_backup') || '0');
+  const now = Date.now();
+
+  if (now - lastBackup > BACKUP_INTERVAL_MS) {
+    // Wait for first user interaction then silently backup
+    function doAutoBackup() {
+      document.removeEventListener('click', doAutoBackup);
+      document.removeEventListener('touchstart', doAutoBackup);
+      try {
+        const keys = [
+          'sp3_pods','sp3_lesen','sp3_schr','sp3_hor',
+          'sp3_fc','sp3_stats','sp3_streak','sp3_journal',
+          'sp3_xp','sp3_examdate','sp3_wotd','sp3_story',
+          'sp3_dd_done','sp3_curriculum',
+          'sp3_dd_done_dd','sp3_dd_done_tl','sp3_dd_done_lg',
+          'sp3_curriculum_dd','sp3_curriculum_tl','sp3_curriculum_lg',
+          'sp3_ai_provider','sp3_theme'
+        ];
+        const data = { version: 1, exportedAt: new Date().toISOString(), auto: true, data: {} };
+        keys.forEach(k => { const v = localStorage.getItem(k); if(v) data.data[k] = v; });
+        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = 'sprechen-backup-' + new Date().toISOString().slice(0,10) + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        localStorage.setItem('sp3_last_backup', String(Date.now()));
+        console.log('[Auto Backup] Saved successfully');
+      } catch(e) {
+        console.warn('[Auto Backup] Failed:', e.message);
+      }
+    }
+    document.addEventListener('click',      doAutoBackup, { once: true });
+    document.addEventListener('touchstart', doAutoBackup, { once: true });
+  }
 });
 </script>
 </body>
