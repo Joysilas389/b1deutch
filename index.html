@@ -547,6 +547,8 @@ body.light-mode .hb-panel { background: #fff; }
       <div class="col-6"><div onclick="navTo('exam')" style="background:linear-gradient(135deg,#d9775720,#e8956d10);border:1px solid #d9775730;border-radius:14px;padding:14px;cursor:pointer;text-align:center;"><div style="font-size:24px;">📝</div><div style="font-size:13px;font-weight:700;color:var(--accent2);margin-top:4px;">Mock Exam</div><div style="font-size:11px;color:var(--txt3);">Full 4-section test</div></div></div>
       <div class="col-6"><div onclick="navTo('story')" style="background:linear-gradient(135deg,#22d3a420,#06b6d410);border:1px solid #22d3a430;border-radius:14px;padding:14px;cursor:pointer;text-align:center;"><div style="font-size:24px;">📚</div><div style="font-size:13px;font-weight:700;color:var(--max);margin-top:4px;">Story Mode</div><div style="font-size:11px;color:var(--txt3);">Dynamic episodes</div></div></div>
       <div class="col-6"><div onclick="navTo('journal')" style="background:linear-gradient(135deg,#ff9f0a20,#ff6b0010);border:1px solid #ff9f0a30;border-radius:14px;padding:14px;cursor:pointer;text-align:center;"><div style="font-size:24px;">📔</div><div style="font-size:13px;font-weight:700;color:var(--warn);margin-top:4px;">Mistake Journal</div><div style="font-size:11px;color:var(--txt3);">Auto-saved errors</div></div></div>
+      <div class="col-6"><div onclick="navTo('topics')" style="background:linear-gradient(135deg,#6457ff20,#8070ff10);border:1px solid #6457ff30;border-radius:14px;padding:14px;cursor:pointer;text-align:center;"><div style="font-size:24px;">🎓</div><div style="font-size:13px;font-weight:700;color:var(--accent2);margin-top:4px;">Topic Browser</div><div style="font-size:11px;color:var(--txt3);">106 Deutsch Doppel topics</div></div></div>
+      <div class="col-6"><div onclick="navTo('curriculum')" style="background:linear-gradient(135deg,#22d3a420,#06b6d410);border:1px solid #22d3a430;border-radius:14px;padding:14px;cursor:pointer;text-align:center;"><div style="font-size:24px;">🏫</div><div style="font-size:13px;font-weight:700;color:var(--max);margin-top:4px;">Full Curriculum</div><div style="font-size:11px;color:var(--txt3);">4 skills × 106 topics</div></div></div>
     </div>
   </div>
 
@@ -1014,6 +1016,67 @@ body.light-mode .hb-panel { background: #fff; }
 <!-- ════════════════════════════════════════
      HAMBURGER BOTTOM SHEET
 ════════════════════════════════════════ -->
+<!-- CURRICULUM MODE SCREEN -->
+<div id="s-curriculum" class="screen">
+  <div class="safe-top px-3 pb-2">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <div class="back-btn" onclick="navTo('home')">←</div>
+      <div style="flex:1;">
+        <div style="font-size:20px;font-weight:800;">🏫 Full Curriculum</div>
+        <div style="font-size:12px;color:var(--txt3);" id="curr-progress-lbl">Loading…</div>
+      </div>
+      <button onclick="showCurriculumStats()" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--txt2);cursor:pointer;">📊 Stats</button>
+    </div>
+    <!-- Overall progress -->
+    <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:14px;margin-bottom:12px;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div style="font-size:13px;font-weight:700;">Overall Progress</div>
+        <div style="font-size:13px;font-weight:800;color:var(--accent2);" id="curr-pct">0%</div>
+      </div>
+      <div style="background:var(--bdr2);border-radius:3px;height:8px;overflow:hidden;margin-bottom:8px;">
+        <div id="curr-bar" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .6s;width:0%;"></div>
+      </div>
+      <div class="d-flex gap-3" style="font-size:11px;color:var(--txt3);">
+        <span id="curr-units">0 / 0 units</span>
+        <span id="curr-topics-done">0 topics fully done</span>
+      </div>
+    </div>
+    <!-- Next suggested unit -->
+    <div id="curr-suggestion" class="mb-3"></div>
+    <!-- Search and filter -->
+    <input type="text" id="curr-search" class="t-input mb-2" style="font-size:14px;padding:10px 14px;" placeholder="🔍 Search topics…" oninput="renderCurriculum()">
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;" id="curr-filter-tabs">
+      <div class="deck-tab on" id="currf-all"       onclick="setCurrFilter('all')">All</div>
+      <div class="deck-tab"   id="currf-inprogress" onclick="setCurrFilter('inprogress')">In Progress</div>
+      <div class="deck-tab"   id="currf-complete"   onclick="setCurrFilter('complete')">✅ Complete</div>
+      <div class="deck-tab"   id="currf-notstarted" onclick="setCurrFilter('notstarted')">Not Started</div>
+    </div>
+  </div>
+  <div class="px-3" style="padding-bottom:90px;" id="curr-list"></div>
+</div>
+
+<!-- DEUTSCH DOPPEL TOPICS SCREEN -->
+<div id="s-topics" class="screen">
+  <div class="safe-top px-3 pb-2">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <div class="back-btn" onclick="navTo('home')">←</div>
+      <div style="flex:1;">
+        <div style="font-size:20px;font-weight:800;">🎓 Topic Curriculum</div>
+        <div style="font-size:12px;color:var(--txt3);" id="topics-progress-lbl">Loading…</div>
+      </div>
+    </div>
+    <!-- Smart Suggestion Banner -->
+    <div id="topics-suggestion" class="mb-3"></div>
+    <!-- Search -->
+    <input type="text" id="topics-search" class="t-input mb-2" style="font-size:14px;padding:10px 14px;" placeholder="🔍 Search topics…" oninput="renderTopics()">
+    <!-- Progress bar -->
+    <div style="background:var(--bdr2);border-radius:3px;height:5px;overflow:hidden;margin-bottom:4px;">
+      <div id="topics-progress-bar" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .6s;width:0%;"></div>
+    </div>
+  </div>
+  <div class="px-3" style="padding-bottom:90px;" id="topics-list"></div>
+</div>
+
 <!-- SESSION LIBRARY SCREEN -->
 <div id="s-library" class="screen">
   <div class="safe-top px-3 pb-2">
@@ -1325,6 +1388,206 @@ body.light-mode .hb-panel { background: #fff; }
 const API   = './api/claude';
 const MODEL = 'claude-sonnet-4-20250514';
 const TURNS = {short:20, medium:40, long:60};
+
+/* ── DEUTSCH DOPPEL TOPICS CURRICULUM ── */
+const DD_TOPICS = {
+  a2: {
+    label:'A2', color:'var(--good)', icon:'🌱',
+    topics:[
+      'My Morning Starts Chaotically – How the Day Really Goes',
+      'The Dative Finally Explained!',
+      'How to Speak Correctly on the Bus',
+      'Funny Stories about Pets',
+      'Understand Everyday Conversations Easily',
+      'Family in German – Speak Like a Native',
+      'Talk About Weather – Simple and Slow',
+      'Weekend Plans – What Are You Doing?',
+      'The Tastiest Food – German Podcast',
+      'Shop Like a Pro! Clothes and Tech Made Easy',
+      'How to Talk About Hobbies and Sports',
+      'How to Introduce Yourself in German',
+      'My Daily Routine in German',
+      'German Made Easy – Vacation',
+      'Movies and Series – Listening Practice',
+    ]
+  },
+  a2b1: {
+    label:'A2–B1', color:'var(--accent2)', icon:'📚',
+    topics:[
+      '50 Sentences for Visiting a Doctor in Germany',
+      '40 Phrases for Finding an Apartment in Germany',
+      '40 Important Phrases for Working in Germany',
+      '30 German Phone Call Phrases',
+      'Doctor Visit – Typical Questions and Answers',
+      'How to Introduce Yourself Perfectly – German Exam A2/B1',
+      'New in Germany? Sentences You Need in Everyday Life',
+      'Visiting Germans? These Are the Sentences You Need',
+      'Speak German in a Shop – Typical Phrases Step by Step',
+      'How Germans Ask for Directions – Everyday German',
+      'My Morning in Germany – What Real German Sounds Like',
+      'How to Talk About Time and Appointments',
+      'Calling in German Without Fear',
+      'New Year Resolutions and Traditions in Germany',
+      'My First Year in a New Country',
+      'My First Trip to Germany',
+      'Things That Surprised Me in Germany',
+      'Small Talk Mistakes Many People Make',
+      'How Germans Really Talk About Hobbies and Free Time',
+      'Not Feeling Well? These German Phrases Will Help',
+      'Expressing Feelings in German',
+      'When Something Goes Wrong – Talk About Problems in German',
+      'Share Your Opinion and Disagree in German',
+      'Speak German Fluently Without Perfect Grammar',
+      'German Small Talk Made Easy',
+      'German Idioms Explained Simply',
+      'Pure Everyday German – Phrases No Course Will Teach You',
+      '50 German Sentences Missing in Every Language Course',
+      'Daily Routine in German – Easy Listening Practice',
+      'Finding an Apartment in Germany Made Easy',
+      'German Family Life – Real Everyday Language',
+      'Waste Separation in Germany – Simple Tips',
+      'Health Insurance and Doctor Visits in Germany',
+      'How to Get Your First Job in Germany',
+      'Online Shopping in Germany',
+      'Spring – How Germans Talk About Changes in Everyday Life',
+      'How Germans Really Celebrate Birthdays',
+      'How Do Germans Celebrate Halloween',
+      'Why Do Germans Love Autumn',
+      'My First Workday in Germany',
+      'I Understand German But I Am Afraid to Speak',
+      'Spending Too Much Time on Your Phone',
+      'Why Weekends Always Feel Too Short',
+      'Healthy Habits – Phrases Germans Use',
+      'Spring Cleaning and Home',
+      'Spring Festivals in Germany',
+      'Essential Sentences About Spring in Everyday Life',
+      'Making Your Home Cozy',
+      'Everyday Life in Spring',
+      'Working in Germany – Chatting with Colleagues',
+    ]
+  },
+  b1b2: {
+    label:'B1–B2', color:'var(--anna)', icon:'🎯',
+    topics:[
+      'AI – Help or Danger? Artificial Intelligence in Everyday Life',
+      'Home – A Place or a Feeling? How Germans Talk About It',
+      'Lost Your Motivation? How Germans Talk About It',
+      'City or Countryside? Pros and Cons in German',
+      'Life in the City or Countryside – Authentic Conversation',
+      'Phrases Germans Use When They Fear Change',
+      'How Germans Say I Need Some Space – Polite and Clear',
+      'How Germans Say No – Without Sounding Rude',
+      'Is Work Eating Your Life? Find the Balance',
+      'Working Hours and Work-Life Balance in Germany',
+      'Dreams Goals Future – The Most Honest Talk in German',
+      'Essential B2 Words You Need Right Now',
+      'Why Being Alone Makes You Stronger',
+      'Can We Live Without Technology?',
+      'Buying a Car in Germany',
+      'Museum or Exhibition – How Germans Talk About Art',
+      'Why Spring Makes You Happy',
+      'Phrases Germans Use When They Have No Motivation',
+      'How Germans Talk About Learning Frustration',
+    ]
+  },
+  practical: {
+    label:'Practical Life', color:'var(--max)', icon:'🏙',
+    topics:[
+      'Train Travel in Germany – Seats Quiet Zones and Mistakes',
+      'The Truth About Electronics – Warranty and Repairs',
+      'German Cuisine for Beginners – Traditional Dishes Explained',
+      'Vacation in Germany – Hotel Phrases You Must Know',
+      'Learn German with Oktoberfest',
+      'Christmas Like in Germany – Experience the Real Holiday Spirit',
+      'What a Salesperson Everyday Life Really Looks Like',
+      'Favorite Music – Explained Simply and Slowly',
+      'German in Winter – How People Really Speak Every Day',
+      'Magical Winter Moments – German with Real Childhood Stories',
+      'Always Late? The Real Reasons Explained in Simple German',
+      'Learn German with Skiing and Snow Conversations',
+    ]
+  },
+  tips: {
+    label:'Learning Tips', color:'var(--warn)', icon:'💡',
+    topics:[
+      'You Learn German But Freeze When Speaking – Here is Why',
+      'Learn German Faster – These Methods Really Work',
+      'Fluent in German in 90 Days? Here is How It Really Works',
+      'Common Mistakes That Are Blocking Your German',
+      'Why You Worry Too Much – How to Calm Down',
+      'I Understand German But Why Can I Not Speak',
+    ]
+  }
+};
+
+function getDDCompleted() {
+  try { return JSON.parse(localStorage.getItem('sp3_dd_done')||'[]'); } catch(e){return[];}
+}
+function markDDDone(topic) {
+  const done = getDDCompleted();
+  if (!done.includes(topic)) { done.push(topic); localStorage.setItem('sp3_dd_done', JSON.stringify(done)); }
+}
+/* ── CURRICULUM MODE TRACKING ── */
+function getCurriculumProgress() {
+  try { return JSON.parse(localStorage.getItem('sp3_curriculum')||'{}'); } catch(e){return{};}
+}
+function saveCurriculumProgress(data) {
+  localStorage.setItem('sp3_curriculum', JSON.stringify(data));
+}
+function markStageComplete(topic, stage) {
+  const prog = getCurriculumProgress();
+  if (!prog[topic]) prog[topic] = {};
+  prog[topic][stage] = true;
+  prog[topic].lastUpdated = new Date().toISOString();
+  saveCurriculumProgress(prog);
+}
+function getTopicProgress(topic) {
+  const prog = getCurriculumProgress();
+  return prog[topic] || {};
+}
+function isTopicFullyComplete(topic) {
+  const p = getTopicProgress(topic);
+  return p.sprechen && p.lesen && p.schreiben && p.horen;
+}
+function getNextStageForTopic(topic) {
+  const p = getTopicProgress(topic);
+  const stages = ['horen','sprechen','lesen','schreiben'];
+  return stages.find(s => !p[s]) || null;
+}
+function getCurriculumSuggestion() {
+  const allCats = Object.entries(DD_TOPICS);
+  for (const [cat, catData] of allCats) {
+    for (const topic of catData.topics) {
+      const nextStage = getNextStageForTopic(topic);
+      if (nextStage) return { topic, stage: nextStage, cat, ...catData };
+    }
+  }
+  return null; // All complete!
+}
+function getTotalCurriculumStats() {
+  const allTopics = Object.values(DD_TOPICS).flatMap(d => d.topics);
+  const stages = ['horen','sprechen','lesen','schreiben'];
+  let totalUnits = allTopics.length * stages.length;
+  let doneUnits  = 0;
+  let doneTopics = 0;
+  allTopics.forEach(t => {
+    const p = getTopicProgress(t);
+    const stageDone = stages.filter(s => p[s]).length;
+    doneUnits += stageDone;
+    if (stageDone === 4) doneTopics++;
+  });
+  return { totalUnits, doneUnits, totalTopics: allTopics.length, doneTopics };
+}
+
+function getDDSuggestion() {
+  const done = getDDCompleted();
+  // Suggest from A2→A2B1→B1B2→Practical, first uncompleted topic
+  for (const cat of ['a2','a2b1','b1b2','practical','tips']) {
+    const found = DD_TOPICS[cat].topics.find(t => !done.includes(t));
+    if (found) return {topic: found, cat, ...DD_TOPICS[cat]};
+  }
+  return null;
+}
 const DUR_LBL = {short:'Basic', medium:'Standard', long:'Extended'};
 
 const MODULE_CHIPS = {
@@ -1512,7 +1775,7 @@ function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const el = document.getElementById('s-'+id);
   if (el) { el.classList.add('active'); el.scrollTop = 0; }
-  const navScreens = ['home','flash','story','chat','exam','journal','library'];
+  const navScreens = ['home','flash','story','chat','exam','journal','library','topics','curriculum'];
   const nav = document.getElementById('global-nav');
   nav.style.display = navScreens.includes(id) ? 'block' : 'none';
 }
@@ -1528,6 +1791,8 @@ function navTo(id) {
   if (id==='exam')    initExam();
   if (id==='journal') renderJournal();
   if (id==='library') renderLibrary();
+  if (id==='topics')     renderTopics();
+  if (id==='curriculum') renderCurriculum();
 }
 
 /* ══════════════════════════════════════
@@ -1715,6 +1980,19 @@ async function doGenerate() {
 
 
 function finishGen(mod, data, topic, lvl, std) {
+  // If this was a Deutsch Doppel topic, mark it as completed
+  if (window._pendingDDTopic) {
+    markDDDone(window._pendingDDTopic);
+    window._pendingDDTopic = null;
+  }
+  // If this was a curriculum unit, mark the stage as complete
+  if (window._pendingCurriculumStage) {
+    const { topic, mod } = window._pendingCurriculumStage;
+    markStageComplete(topic, mod);
+    window._pendingCurriculumStage = null;
+    const stageName = {horen:'Hören',sprechen:'Sprechen',lesen:'Lesen',schreiben:'Schreiben'}[mod];
+    toast('✅ ' + stageName + ' stage complete! 🎓');
+  }
   const session = {
     id: Date.now(), title: data.title||topic, topic, level: lvl, standard: std,
     module: mod, durLabel: DUR_LBL[S.duration],
@@ -2665,6 +2943,307 @@ function addJournalToCards(id) {
 function removeJournalItem(id) {
   S.journal = S.journal.filter(j=>j.id!==id);
   save(); renderJournal();
+}
+
+function renderTopics() {
+  const done    = getDDCompleted();
+  const search  = (document.getElementById('topics-search')?.value||'').toLowerCase().trim();
+  const allCats = Object.entries(DD_TOPICS);
+  const allTopics = allCats.flatMap(([cat,d])=>d.topics);
+  const totalDone = done.filter(t=>allTopics.includes(t)).length;
+  const pct = Math.round((totalDone/allTopics.length)*100);
+
+  // Progress
+  const pb=document.getElementById('topics-progress-bar');
+  if(pb) pb.style.width=pct+'%';
+  const pl=document.getElementById('topics-progress-lbl');
+  if(pl) pl.textContent=totalDone+' of '+allTopics.length+' topics completed · '+pct+'%';
+
+  // Smart suggestion banner
+  const sug=getDDSuggestion();
+  const sb=document.getElementById('topics-suggestion');
+  if(sb && sug && !search) {
+    sb.innerHTML='<div style="background:linear-gradient(135deg,var(--surf),var(--surf2));border:1px solid var(--accent);border-radius:16px;padding:14px;">' +
+      '<div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--accent2);margin-bottom:6px;">⚡ SUGGESTED NEXT</div>' +
+      '<div style="font-size:14px;font-weight:700;margin-bottom:10px;">'+sug.topic+'</div>' +
+      '<div style="font-size:11px;color:var(--txt3);margin-bottom:10px;">'+sug.icon+' '+sug.label+' · Tap a module to generate</div>' +
+      '<div class="d-flex gap-2">' +
+        ['sprechen','lesen','schreiben','horen'].map(mod=>
+          '<button class="dd-sug-btn" data-topic="'+encodeURIComponent(sug.topic)+'" data-mod="'+mod+'" ' +
+          'style="flex:1;background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;color:var(--txt2);">' +
+          ({sprechen:'🎙',lesen:'📖',schreiben:'✍️',horen:'🎧'}[mod])+'<br>'+mod.charAt(0).toUpperCase()+mod.slice(1)+'</button>'
+        ).join('') +
+      '</div>' +
+    '</div>';
+  } else if(sb) sb.innerHTML='';
+
+  // Wire suggestion buttons via delegation
+  if(sb) sb.onclick = function(e) {
+    const btn = e.target.closest('.dd-sug-btn');
+    if(btn) generateDDTopic(btn.dataset.topic, btn.dataset.mod);
+  };
+
+  // Topic list
+  const el=document.getElementById('topics-list'); if(!el)return;
+  el.innerHTML='';
+
+  allCats.forEach(([cat,catData])=>{
+    let topics=catData.topics;
+    if(search) topics=topics.filter(t=>t.toLowerCase().includes(search));
+    if(!topics.length) return;
+
+    // Category header
+    const header=document.createElement('div');
+    const catDone=topics.filter(t=>done.includes(t)).length;
+    header.innerHTML='<div class="d-flex justify-content-between align-items-center mb-2 mt-3">' +
+      '<div style="font-size:13px;font-weight:800;color:'+catData.color+';">'+catData.icon+' '+catData.label+'</div>' +
+      '<div style="font-size:11px;color:var(--txt3);">'+catDone+'/'+topics.length+'</div>' +
+    '</div>';
+    el.appendChild(header);
+
+    // Topics in this category
+    topics.forEach(topic=>{
+      const isDone=done.includes(topic);
+      const card=document.createElement('div');
+      card.style.cssText='background:var(--surf);border:1px solid '+(isDone?catData.color.replace(')',',0.4)').replace('var(','rgba(').replace('--',''):'var(--bdr)')+';border-radius:14px;padding:12px 14px;margin-bottom:8px;';
+      card.innerHTML=
+        '<div class="d-flex justify-content-between align-items-start mb-2">' +
+          '<div style="font-size:13px;font-weight:'+(isDone?'600':'700')+';color:'+(isDone?'var(--txt3)':'var(--txt)')+';flex:1;padding-right:8px;">'+
+            (isDone?'✅ ':'')+ topic +
+          '</div>' +
+          (isDone?'<button class="dd-undo-btn" data-topic="'+encodeURIComponent(topic)+'" style="font-size:10px;color:var(--txt3);background:none;border:none;cursor:pointer;white-space:nowrap;">↩ Undo</button>':'')+
+        '</div>' +
+        '<div class="d-flex gap-2">' +
+          ['sprechen','lesen','schreiben','horen'].map(mod=>
+            '<button class="dd-gen-btn" data-topic="'+encodeURIComponent(topic)+'" data-mod="'+mod+'" ' +
+            'style="flex:1;background:var(--surf2);border:1px solid var(--bdr2);border-radius:8px;padding:6px 2px;font-size:10px;font-weight:700;cursor:pointer;color:var(--txt2);">' +
+            ({sprechen:'🎙',lesen:'📖',schreiben:'✍️',horen:'🎧'}[mod])+'</button>'
+          ).join('') +
+        '</div>';
+      el.appendChild(card);
+    });
+  });
+
+  // Event delegation for all topic buttons
+  el.onclick = function(e) {
+    const gen  = e.target.closest('.dd-gen-btn');
+    const undo = e.target.closest('.dd-undo-btn');
+    if(gen)  { e.stopPropagation(); generateDDTopic(gen.dataset.topic, gen.dataset.mod); }
+    if(undo) { e.stopPropagation(); unmarkDDTopic(undo.dataset.topic); }
+  };
+
+  if(!el.children.length) {
+    el.innerHTML='<div class="empty-state"><div class="empty-ico">🔍</div><div class="empty-title">No topics found</div><div class="empty-desc">Try a different search term.</div></div>';
+  }
+}
+
+/* ── CURRICULUM RENDER ── */
+function setCurrFilter(f) {
+  window._currFilter = f;
+  ['all','inprogress','complete','notstarted'].forEach(x => {
+    const el = document.getElementById('currf-'+x);
+    if(el) el.classList.toggle('on', x===f);
+  });
+  renderCurriculum();
+}
+
+function renderCurriculum() {
+  const stats  = getTotalCurriculumStats();
+  const search = (document.getElementById('curr-search')?.value||'').toLowerCase().trim();
+  const filter = window._currFilter || 'all';
+  const stages = ['horen','sprechen','lesen','schreiben'];
+  const stageIco = {horen:'🎧', sprechen:'🎙', lesen:'📖', schreiben:'✍️'};
+  const stageName = {horen:'Hören', sprechen:'Sprechen', lesen:'Lesen', schreiben:'Schreiben'};
+
+  // Update stats bar
+  const pct = stats.totalUnits ? Math.round((stats.doneUnits/stats.totalUnits)*100) : 0;
+  const bar = document.getElementById('curr-bar');
+  if(bar) bar.style.width = pct+'%';
+  const pctEl = document.getElementById('curr-pct');
+  if(pctEl) pctEl.textContent = pct+'%';
+  const lbl = document.getElementById('curr-progress-lbl');
+  if(lbl) lbl.textContent = stats.doneTopics + ' of ' + stats.totalTopics + ' topics fully completed';
+  const ul = document.getElementById('curr-units');
+  if(ul) ul.textContent = stats.doneUnits + ' / ' + stats.totalUnits + ' units';
+  const td = document.getElementById('curr-topics-done');
+  if(td) td.textContent = stats.doneTopics + ' topics fully done';
+
+  // Smart suggestion
+  const sug = getCurriculumSuggestion();
+  const sb = document.getElementById('curr-suggestion');
+  if(sb) {
+    if(sug && !search) {
+      const p = getTopicProgress(sug.topic);
+      const doneCount = stages.filter(s=>p[s]).length;
+      sb.innerHTML = '<div style="background:linear-gradient(135deg,var(--surf),var(--surf2));border:2px solid var(--accent);border-radius:16px;padding:14px;">' +
+        '<div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--accent2);margin-bottom:6px;">⚡ UP NEXT</div>' +
+        '<div style="font-size:14px;font-weight:800;margin-bottom:4px;">' + sug.topic + '</div>' +
+        '<div style="font-size:11px;color:var(--txt3);margin-bottom:10px;">' + sug.icon + ' ' + sug.label + ' · ' + doneCount + '/4 stages done</div>' +
+        '<div style="font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:8px;">Next stage: ' + stageIco[sug.stage] + ' ' + stageName[sug.stage] + '</div>' +
+        '<button class="btn btn-accent w-100 rounded-3 py-2" id="curr-sug-btn" data-topic="'+encodeURIComponent(sug.topic)+'" data-mod="'+sug.stage+'">' +
+          'Start ' + stageIco[sug.stage] + ' ' + stageName[sug.stage] + ' →' +
+        '</button>' +
+      '</div>';
+      sb.onclick = function(e) {
+        const btn = e.target.closest('#curr-sug-btn');
+        if(btn) launchCurriculumUnit(btn.dataset.topic, btn.dataset.mod);
+      };
+    } else if(sug === null) {
+      sb.innerHTML = '<div style="text-align:center;padding:16px;background:var(--surf);border:1px solid var(--good);border-radius:16px;"><div style="font-size:32px;">🏆</div><div style="font-size:16px;font-weight:800;color:var(--good);margin-top:8px;">Curriculum Complete!</div><div style="font-size:13px;color:var(--txt3);margin-top:4px;">You have completed all 106 topics × 4 skills!</div></div>';
+    } else {
+      sb.innerHTML = '';
+    }
+  }
+
+  // Build topic list
+  const el = document.getElementById('curr-list');
+  if(!el) return;
+  el.innerHTML = '';
+
+  const allCats = Object.entries(DD_TOPICS);
+  allCats.forEach(([cat, catData]) => {
+    let topics = catData.topics;
+    if(search) topics = topics.filter(t => t.toLowerCase().includes(search));
+
+    // Apply status filter
+    topics = topics.filter(t => {
+      const p = getTopicProgress(t);
+      const done = stages.filter(s=>p[s]).length;
+      if(filter==='complete')   return done === 4;
+      if(filter==='inprogress') return done > 0 && done < 4;
+      if(filter==='notstarted') return done === 0;
+      return true;
+    });
+
+    if(!topics.length) return;
+
+    // Category header
+    const hdr = document.createElement('div');
+    const catDone = topics.filter(t => isTopicFullyComplete(t)).length;
+    hdr.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2 mt-3">' +
+      '<div style="font-size:13px;font-weight:800;color:'+catData.color+';">'+catData.icon+' '+catData.label+'</div>' +
+      '<div style="font-size:11px;color:var(--txt3);">'+catDone+'/'+topics.length+' complete</div>' +
+    '</div>';
+    el.appendChild(hdr);
+
+    // Topic cards
+    topics.forEach(topic => {
+      const p = getTopicProgress(topic);
+      const doneStages = stages.filter(s => p[s]).length;
+      const isComplete = doneStages === 4;
+      const pctDone = Math.round((doneStages/4)*100);
+
+      const card = document.createElement('div');
+      card.style.cssText = 'background:var(--surf);border:1px solid '+(isComplete?catData.color.replace('var(--','').replace(')',''):'var(--bdr)')+';border-radius:16px;padding:14px;margin-bottom:10px;';
+      if(isComplete) card.style.borderColor = 'var(--good)';
+
+      card.innerHTML =
+        '<div class="d-flex justify-content-between align-items-start mb-2">' +
+          '<div style="font-size:13px;font-weight:'+(isComplete?'600':'700')+';color:'+(isComplete?'var(--txt3)':'var(--txt)')+';flex:1;padding-right:8px;">'+
+            (isComplete?'✅ ':doneStages>0?'⏳ ':'')+topic+
+          '</div>'+
+          '<div style="font-size:11px;font-weight:800;color:'+(isComplete?'var(--good)':'var(--accent2)')+';">'+pctDone+'%</div>'+
+        '</div>'+
+        // Progress bar
+        '<div style="background:var(--bdr2);border-radius:2px;height:3px;overflow:hidden;margin-bottom:10px;">'+
+          '<div style="height:100%;width:'+pctDone+'%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;"></div>'+
+        '</div>'+
+        // Stage buttons
+        '<div class="d-flex gap-2">'+
+          stages.map(stage => {
+            const done = !!p[stage];
+            return '<button class="curr-stage-btn" data-topic="'+encodeURIComponent(topic)+'" data-mod="'+stage+'" '+
+              'style="flex:1;border-radius:10px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;text-align:center;'+
+              'background:'+(done?'var(--good)15':'var(--surf2)')+';'+
+              'border:1px solid '+(done?'var(--good)50':'var(--bdr2)')+';'+
+              'color:'+(done?'var(--good)':'var(--txt3)')+';">'+
+              stageIco[stage]+'<br><span style="font-size:9px;">'+stageName[stage]+'</span>'+
+              (done?'<br><span style="font-size:9px;">✓</span>':'') +
+            '</button>';
+          }).join('') +
+        '</div>';
+
+      el.appendChild(card);
+    });
+  });
+
+  // Event delegation
+  el.onclick = function(e) {
+    const btn = e.target.closest('.curr-stage-btn');
+    if(btn) launchCurriculumUnit(btn.dataset.topic, btn.dataset.mod);
+  };
+
+  if(!el.children.length && !el.querySelector('.curr-stage-btn')) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-ico">🔍</div><div class="empty-title">No topics match</div><div class="empty-desc">Try a different filter or search term.</div></div>';
+  }
+}
+
+function launchCurriculumUnit(topicEncoded, mod) {
+  const topic = decodeURIComponent(topicEncoded);
+  S.activeModule = mod;
+  window._pendingDDTopic = topic;
+  window._pendingCurriculumStage = { topic, mod };
+  go('generate');
+  const ti = document.getElementById('topic-in');
+  if(ti) ti.value = topic;
+  const titles = {sprechen:'Create Podcast',lesen:'Create Reading',schreiben:'Create Writing',horen:'Create Listening'};
+  const gt = document.getElementById('gen-screen-title');
+  if(gt) gt.textContent = titles[mod]||'Create Session';
+  const dur = document.getElementById('dur-section');
+  if(dur) dur.style.display = mod==='sprechen'?'block':'none';
+  const chips = MODULE_CHIPS[mod]||[];
+  const tc = document.getElementById('topic-chips');
+  if(tc) tc.innerHTML = chips.map(c=>'<span class="chip" onclick="setTopic(this.textContent)">'+c+'</span>').join('');
+  toast(({horen:'🎧',sprechen:'🎙',lesen:'📖',schreiben:'✍️'}[mod])+' '+topic+' loaded! Tap Generate.');
+}
+
+function showCurriculumStats() {
+  const stats = getTotalCurriculumStats();
+  const stages = ['horen','sprechen','lesen','schreiben'];
+  const stageIco = {horen:'🎧',sprechen:'🎙',lesen:'📖',schreiben:'✍️'};
+  const stageName = {horen:'Hören',sprechen:'Sprechen',lesen:'Lesen',schreiben:'Schreiben'};
+  const allTopics = Object.values(DD_TOPICS).flatMap(d=>d.topics);
+  const stageCounts = {};
+  stages.forEach(s => {
+    stageCounts[s] = allTopics.filter(t => getTopicProgress(t)[s]).length;
+  });
+  const msg = '📊 Curriculum Stats\n\n'+
+    '✅ Topics fully done: '+stats.doneTopics+'/'+stats.totalTopics+'\n'+
+    '⚡ Total units done: '+stats.doneUnits+'/'+stats.totalUnits+'\n\n'+
+    'By skill:\n'+
+    stages.map(s=>stageIco[s]+' '+stageName[s]+': '+stageCounts[s]+'/'+allTopics.length).join('\n');
+  alert(msg);
+}
+
+function setTopic(txt){const el=document.getElementById('topic-in');if(el)el.value=txt;}
+function generateDDTopic(topicEncoded, mod) {
+  const topic = decodeURIComponent(topicEncoded);
+  // Set module and navigate to generate
+  S.activeModule = mod;
+  S.level = S.level || 'B1';
+  go('generate');
+  const ti = document.getElementById('topic-in');
+  if(ti) ti.value = topic;
+  // Update generate screen title
+  const titles = {sprechen:'Create Podcast',lesen:'Create Reading',schreiben:'Create Writing',horen:'Create Listening'};
+  const gtitle = document.getElementById('gen-screen-title');
+  if(gtitle) gtitle.textContent = titles[mod]||'Create Session';
+  const dur = document.getElementById('dur-section');
+  if(dur) dur.style.display = mod==='sprechen'?'block':'none';
+  // Show chips for this module
+  const chips = MODULE_CHIPS[mod]||[];
+  const tc = document.getElementById('topic-chips');
+  if(tc) tc.innerHTML = chips.map(c=>'<span class="chip" onclick="setTopic(this.textContent)">'+c+'</span>').join('');
+  // Mark as done when they generate
+  window._pendingDDTopic = topic;
+  toast('Topic loaded! Tap 🚀 Generate to start.');
+}
+
+function unmarkDDTopic(topicEncoded) {
+  const topic = decodeURIComponent(topicEncoded);
+  const done = getDDCompleted().filter(t=>t!==topic);
+  localStorage.setItem('sp3_dd_done', JSON.stringify(done));
+  renderTopics();
 }
 
 function renderLibrary() {
