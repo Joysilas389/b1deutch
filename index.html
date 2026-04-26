@@ -1993,9 +1993,21 @@ const VOICE_MAP = {
 let ttsCache = {}; // cache audio URLs to avoid re-fetching same line
 let currentAudio = null;
 
-async function speakTTS(text, speakerName, onEnd) {
-  // Stop any playing audio
-  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+let _ttsRequestId = 0; // cancel stale requests
+let _ttsLoading = false;
+
+async function speakTTS(text, speakerName, onEnd, triggerEl) {
+  // Stop any playing audio immediately
+  stopTTS();
+
+  // Prevent double-tap: if same text already loading, ignore
+  if (_ttsLoading) { _ttsRequestId++; } // cancel previous pending request
+  _ttsLoading = true;
+  const myId = ++_ttsRequestId;
+
+  // Show loading state on trigger element
+  const origHTML = triggerEl ? triggerEl.innerHTML : null;
+  if (triggerEl) { triggerEl.innerHTML = '⏳'; triggerEl.disabled = true; }
 
   const cacheKey = speakerName + '::' + text;
   let audioUrl = ttsCache[cacheKey];
@@ -2014,7 +2026,9 @@ async function speakTTS(text, speakerName, onEnd) {
       ttsCache[cacheKey] = audioUrl;
     } catch(e) {
       console.error('TTS error, falling back to Web Speech', e);
-      // Fallback to Web Speech API
+      _ttsLoading = false;
+      if (triggerEl && origHTML) { triggerEl.innerHTML = origHTML; triggerEl.disabled = false; }
+      if (myId !== _ttsRequestId) return; // stale request
       const utt = new SpeechSynthesisUtterance(text);
       utt.lang = 'de-DE';
       utt.pitch = speakerName === 'Anna' ? 1.4 : 0.5;
@@ -2025,6 +2039,12 @@ async function speakTTS(text, speakerName, onEnd) {
       return;
     }
   }
+
+  _ttsLoading = false;
+  if (triggerEl && origHTML) { triggerEl.innerHTML = origHTML; triggerEl.disabled = false; }
+
+  // If a newer request came in while we were loading, abort
+  if (myId !== _ttsRequestId) return;
 
   const audio = new Audio(audioUrl);
   currentAudio = audio;
@@ -2037,6 +2057,36 @@ async function speakTTS(text, speakerName, onEnd) {
 function stopTTS() {
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
   speechSynthesis.cancel();
+}
+
+/* ── PRE-WARM TTS ─────────────────────────────────────────────────────────
+   Fetches TTS audio in the background so it's ready instantly when tapped.
+   Called after rendering flashcards and Word of the Day.
+─────────────────────────────────────────────────────────────────────────── */
+async function prewarmTTS(text, speakerName) {
+  if (!text) return;
+  const cacheKey = speakerName + '::' + text;
+  if (ttsCache[cacheKey]) return; // already cached
+  try {
+    const vm = VOICE_MAP[speakerName] || VOICE_MAP['Max'];
+    const res = await fetch(TTS_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voice: vm.voice, speed: vm.speed }),
+    });
+    if (!res.ok) return;
+    const blob = await res.blob();
+    ttsCache[cacheKey] = URL.createObjectURL(blob);
+    console.log('[TTS Cache] Pre-warmed:', text.slice(0, 30));
+  } catch(e) { /* silent fail — will load on demand */ }
+}
+
+function prewarmCard(card) {
+  if (!card) return;
+  const front = (card.article ? card.article + ' ' : '') + (card.baseForm || card.word);
+  const back  = card.exampleDe || '';
+  prewarmTTS(front, 'Anna');
+  if (back) prewarmTTS(back, 'Anna');
 }
 
 /* ══════════════════════════════════════
@@ -2928,6 +2978,12 @@ function renderFCContent(){
   if(S.fc.mode==='list'){el.innerHTML='<div class="px-3">'+renderWL(deck)+'</div>';return;}
   if(!queue.length){el.innerHTML=`<div class="session-done px-3"><div class="session-ico">🎉</div><div style="font-size:20px;font-weight:800;margin-bottom:8px;">All caught up!</div><div style="font-size:14px;color:var(--txt2);">Come back later for your next session.</div></div><div class="px-3">${renderWL(deck)}</div>`;return;}
   const idx=Math.min(S.fc.studyIdx,queue.length-1),card=queue[idx];S.fc.studyIdx=idx;
+  // Pre-warm current card + next 2 so they're instant when reached
+  setTimeout(() => {
+    prewarmCard(card);
+    if(queue[idx+1]) prewarmCard(queue[idx+1]);
+    if(queue[idx+2]) prewarmCard(queue[idx+2]);
+  }, 200);
   const reps=Math.min(card.sr.repetitions,5),R=16,circ=2*Math.PI*R;
   const modColors={sprechen:'var(--sprechen)',lesen:'var(--lesen)',schreiben:'var(--schreiben)',horen:'var(--horen)'};
   const modIcos={sprechen:'🎙',lesen:'📖',schreiben:'✍️',horen:'🎧'};
@@ -3170,11 +3226,17 @@ async function loadWOTD(force) {
 }
 
 function renderWOTD() {
+  // Pre-warm WOTD audio immediately after render
+  if (S.wotd && S.wotd.word) {
+    setTimeout(() => {
+      prewarmTTS(S.wotd.word + '. ' + (S.wotd.exampleDe||''), 'Anna');
+    }, 300);
+  }
   const el = document.getElementById('wotd-section');
   if (!el || !S.wotd) return;
   const w = S.wotd;
   el.innerHTML = `
-    <div class="wotd-card" onclick="speakTTS('${w.word.replace(/'/g,"\'")}. ${w.exampleDe.replace(/'/g,"\'")}','Anna',null)">
+    <div class="wotd-card" onclick="speakTTS('${w.word.replace(/'/g,"\'")}. ${w.exampleDe.replace(/'/g,"\'")}','Anna',null,this)">
       <div class="wotd-label">✨ Word of the Day · ${w.date}</div>
       <div class="wotd-word">${w.word} <span style="font-size:16px;color:var(--txt3);">🔊</span></div>
       <div class="wotd-ipa">${w.ipa||''} · <span style="color:var(--txt3);">${w.partOfSpeech}</span></div>
@@ -3299,7 +3361,7 @@ function renderJournal() {
       <div class="ji-correct">✓ ${j.correct}</div>
       ${j.note?`<div class="ji-note">💡 ${j.note}</div>`:''}
       <div class="ji-actions">
-        <button onclick="speakTTS('${j.correct.replace(/'/g,"\'")}','Anna',null)" style="background:#30d15815;border:1px solid #30d15840;color:var(--good);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex:1;">🔊 Hear Correct</button>
+        <button onclick="speakTTS('${j.correct.replace(/'/g,"\'")}','Anna',null,this)" style="background:#30d15815;border:1px solid #30d15840;color:var(--good);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex:1;">🔊 Hear Correct</button>
         <button onclick="addJournalToCards(${j.id})" style="background:#d9775715;border:1px solid #d9775740;color:var(--accent2);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex:1;">🃏 Add to Cards</button>
         <button onclick="removeJournalItem(${j.id})" style="background:#ff3b3010;border:1px solid #ff3b3030;color:var(--danger);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;">✕</button>
       </div>
@@ -4458,17 +4520,21 @@ function renderStory() {
           '<span class="badge-' + (ep.level||'B1').toLowerCase() + '">' + (ep.level||'B1') + '</span>' +
         '</div>' +
         '<div style="font-size:11px;color:var(--txt3);margin-top:8px;">🃏 ' + (ep.vocab?.length||0) + ' vocab · 📝 ' + (ep.dialogue?.length||0) + ' lines</div>' +
+      ((!ep.vocab || ep.vocab.length === 0) ?
+        '<button class="story-exvoc" data-idx="' + ep._idx + '" style="margin-top:8px;width:100%;background:#d9775715;border:1px solid #d9775740;color:var(--accent2);border-radius:8px;padding:6px;font-size:12px;font-weight:700;cursor:pointer;">➕ Extract Vocabulary</button>' : '') +
       '</div>' +
       '<button class="story-del" data-idx="' + ep._idx + '" ' +
-        'style="position:absolute;top:50%;right:10px;transform:translateY(-50%);background:#ff3b3015;border:1px solid #ff3b3040;color:var(--danger);border-radius:8px;padding:5px 9px;font-size:14px;cursor:pointer;">🗑</button>';
+        'style="position:absolute;top:10px;right:10px;background:#ff3b3015;border:1px solid #ff3b3040;color:var(--danger);border-radius:8px;padding:5px 9px;font-size:14px;cursor:pointer;">🗑</button>';
     el.appendChild(div);
   });
 
   el.onclick = function(e) {
-    const open = e.target.closest('.story-open');
-    const del  = e.target.closest('.story-del');
-    if(open) openStoryEpisode(parseInt(open.dataset.idx));
-    if(del)  { e.stopPropagation(); confirmDeleteEpisode(parseInt(del.dataset.idx)); }
+    const open  = e.target.closest('.story-open');
+    const del   = e.target.closest('.story-del');
+    const exvoc = e.target.closest('.story-exvoc');
+    if(exvoc) { e.stopPropagation(); regenStoryVocab(parseInt(exvoc.dataset.idx)); return; }
+    if(open)  openStoryEpisode(parseInt(open.dataset.idx));
+    if(del)   { e.stopPropagation(); confirmDeleteEpisode(parseInt(del.dataset.idx)); }
   };
 }
 
@@ -4559,6 +4625,11 @@ function openStoryEpisode(idx) {
   if (!ep) return;
   S.story.active = ep;
   S.story.play = {on:false, idx:0};
+  // Pre-warm first few dialogue lines and vocab
+  setTimeout(() => {
+    (ep.dialogue||[]).slice(0,3).forEach(l => prewarmTTS(l.text, l.speaker));
+    (ep.vocab||[]).forEach(v => prewarmTTS((v.article?v.article+' ':'')+(v.baseForm||v.word), 'Anna'));
+  }, 400);
   document.getElementById('story-ep-title').textContent = ep.title;
   document.getElementById('story-ep-sub').textContent = `Episode ${S.story.episodes.length - idx} · ${ep.scenario}`;
   // Render script
@@ -4588,7 +4659,7 @@ function openStoryEpisode(idx) {
           '➕ Extract Vocabulary from this Episode</button>';
     } else {
       vocabEl.innerHTML = ep.vocab.map(v =>
-        '<div class="wl-item" onclick="speakTTS(\'' + v.word.replace(/'/g,"\'") + '\',\'Anna\',null)">' +
+        '<div class="wl-item" onclick="speakTTS(\'' + v.word.replace(/'/g,"\'") + '\',\'Anna\',null,this)">' +
           '<div><div class="wl-de">' + (v.article?v.article+' ':'') + '<strong>' + (v.baseForm||v.word) + '</strong></div>' +
           '<div class="wl-en">' + v.translation + '</div>' +
           (v.synonyms?.length ? '<div class="wl-syn">' + v.synonyms.join(' · ') + '</div>' : '') +
