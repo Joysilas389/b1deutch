@@ -1,47 +1,43 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# Sprechen SQLite Server Setup Script
+# Sprechen DB Server Setup — no dependencies needed!
 # Run once: bash setup-db.sh
 
 echo ""
 echo "╔═══════════════════════════════════════╗"
-echo "║   Sprechen SQLite Server Setup        ║"
+echo "║   Sprechen DB Server Setup            ║"
 echo "╚═══════════════════════════════════════╝"
 echo ""
 
 cd ~/sprechen-v3
 
-echo "→ Installing better-sqlite3..."
-npm install better-sqlite3 --save
+# No npm install needed — server.js uses only built-in Node.js modules
 
-echo ""
-echo "→ Creating auto-start script..."
-cat > ~/start-sprechen-db.sh << 'STARTEOF'
-#!/data/data/com.termux/files/usr/bin/bash
-cd ~/sprechen-v3
-node server.js
-STARTEOF
-chmod +x ~/start-sprechen-db.sh
+echo "→ Setting up auto-start..."
 
-echo ""
-echo "→ Adding auto-start to .bashrc..."
-# Only add if not already there
-if ! grep -q "start-sprechen-db" ~/.bashrc; then
+# Create .bashrc if it doesn't exist
+touch ~/.bashrc
+
+# Add auto-start only if not already there
+if ! grep -q "sprechen-v3/server.js" ~/.bashrc 2>/dev/null; then
   echo "" >> ~/.bashrc
   echo "# Auto-start Sprechen DB server" >> ~/.bashrc
-  echo "node ~/sprechen-v3/server.js &" >> ~/.bashrc
-  echo "Added to .bashrc"
+  echo "if ! curl -s http://localhost:3001/ping > /dev/null 2>&1; then" >> ~/.bashrc
+  echo "  node ~/sprechen-v3/server.js &" >> ~/.bashrc
+  echo "  echo '[Sprechen] DB server started in background'" >> ~/.bashrc
+  echo "fi" >> ~/.bashrc
+  echo "✅ Auto-start added to .bashrc"
 else
-  echo "Already in .bashrc"
+  echo "✅ Auto-start already configured"
 fi
 
 echo ""
 echo "╔═══════════════════════════════════════╗"
-echo "║   Setup Complete!                     ║"
+echo "║   Setup Complete! No install needed.  ║"
 echo "║                                       ║"
-echo "║   To start server now:                ║"
+echo "║   Start server now:                   ║"
 echo "║   node server.js                      ║"
 echo "║                                       ║"
-echo "║   Auto-starts next time you           ║"
-echo "║   open Termux.                        ║"
+echo "║   Data saved to: sprechen.db.json     ║"
+echo "║   Auto-starts when you open Termux    ║"
 echo "╚═══════════════════════════════════════╝"
 echo ""
