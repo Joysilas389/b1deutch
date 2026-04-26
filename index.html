@@ -1045,6 +1045,8 @@ body.light-mode .hb-panel { background: #fff; }
     <div style="display:flex;gap:8px;margin-bottom:12px;">
       <div class="tgl on" id="curr-ch-dd" onclick="setCurrChannel('dd')" style="font-size:12px;padding:8px;">🎙 Deutsch Doppel</div>
       <div class="tgl"    id="curr-ch-tl" onclick="setCurrChannel('tl')" style="font-size:12px;padding:8px;">🎤 Talk Laura</div>
+      <div class="tgl"    id="curr-ch-lg" onclick="setCurrChannel('lg')" style="font-size:12px;padding:8px;">🎓 Lengura</div>
+      <div class="tgl"    id="curr-ch-lg" onclick="setCurrChannel('lg')" style="font-size:12px;padding:8px;">🎓 Lengura</div>
     </div>
     <!-- Next suggested unit -->
     <div id="curr-suggestion" class="mb-3"></div>
@@ -1074,6 +1076,8 @@ body.light-mode .hb-panel { background: #fff; }
     <div style="display:flex;gap:8px;margin-bottom:12px;">
       <div class="tgl on" id="topics-ch-dd" onclick="setTopicsChannel('dd')" style="font-size:12px;padding:8px;">🎙 Deutsch Doppel</div>
       <div class="tgl"    id="topics-ch-tl" onclick="setTopicsChannel('tl')" style="font-size:12px;padding:8px;">🎤 Talk Laura</div>
+      <div class="tgl"    id="topics-ch-lg" onclick="setTopicsChannel('lg')" style="font-size:12px;padding:8px;">🎓 Lengura</div>
+      <div class="tgl"    id="topics-ch-lg" onclick="setTopicsChannel('lg')" style="font-size:12px;padding:8px;">🎓 Lengura</div>
     </div>
     <!-- Smart Suggestion Banner -->
     <div id="topics-suggestion" class="mb-3"></div>
@@ -1717,9 +1721,55 @@ const TL_TOPICS = {
 };
 
 /* ── MULTI-CHANNEL CONFIG ── */
+const LG_TOPICS = {
+  dialogues: {
+    label:'A1–A2 Dialogues', color:'var(--good)', icon:'🌱',
+    topics:[
+      'Easy and Slow German Podcast for Beginners – Real-life Dialogue',
+      'German Dialogue – The 17 Most Important Questions for Beginners',
+      'Audiobook – Lina ist neu in Deutschland Part 1 A1.1',
+      'Audiobook – Lina ist neu in Deutschland Part 2 A1.2',
+      'Audiobook – Lina ist neu in Deutschland Part 3 A2.1',
+      'Audiobook – Lina ist neu in Deutschland Part 4 A2.2',
+      'Audiobook – Lina ist neu in Deutschland Part 5 B1.1',
+      'Easy German Dialogue for Beginners A1 – Reading Listening and Vocabulary',
+      'German Conversation A2 with Native Speakers – Listening and Reading',
+      'German Story for Beginners – Improve Listening and Reading Comprehension',
+      'Beginner German Conversation Easy and Slow',
+      'Book in German A2 B1 B2 – Listening and Reading Practice',
+    ]
+  },
+  situations: {
+    label:'Real Situations A2–B2', color:'var(--accent2)', icon:'🎯',
+    topics:[
+      'Ask for Directions and Travel by Train in German',
+      'German Conversation at the Bank – Talk About Money and Banking',
+      'Telephone Conversation in German – Phone Call with Customer Support and Complaint',
+      'Job Interview in German – Successful Conversation with Essential Questions',
+      'German Conversation for Supermarket – Food Counter Finding Products Checkout',
+      'German Dialogue for Renting Apartment – Make Appointment and View Apartment',
+      'German Dialogue in Restaurant – Ordering Food and Drinks and Payment',
+      'German Conversation for Doctors Visit – Make Appointment and Consultation',
+      'German Conversation for Hotels – Phone Call Reservation Reception Check-in',
+      'Conversation in German B1 B2 with Native Speakers',
+      'German Conversation Practice – Learn to Better Understand Native Speakers',
+    ]
+  },
+  grammar: {
+    label:'Grammar Focus', color:'var(--warn)', icon:'📝',
+    topics:[
+      'Präsens Perfekt Plusquamperfekt Futur 1 – The 4 Most Important German Tenses',
+      'How to Answer Wie Geht Es Dir – German Grammar Tip',
+      'Easy and Slow German Podcast for Beginners – Learn German A1 A2',
+    ]
+  },
+};
+
+
 const CHANNELS = {
   dd: { name: 'Deutsch Doppel', icon: '🎙', topics: DD_TOPICS },
   tl: { name: 'Talk Laura',     icon: '🎤', topics: TL_TOPICS },
+  lg: { name: 'Lengura',         icon: '🎓', topics: LG_TOPICS },
 };
 
 /* ── UNIFIED COMPLETION TRACKING ── */
@@ -3248,7 +3298,7 @@ function renderTopics() {
 /* ── CHANNEL SWITCHING ── */
 function setTopicsChannel(ch) {
   window._topicsChannel = ch;
-  ['dd','tl'].forEach(c => {
+  ['dd','tl','lg'].forEach(c => {
     const el = document.getElementById('topics-ch-'+c);
     if(el) el.classList.toggle('on', c===ch);
   });
@@ -3257,7 +3307,7 @@ function setTopicsChannel(ch) {
 
 function setCurrChannel(ch) {
   window._currChannel = ch;
-  ['dd','tl'].forEach(c => {
+  ['dd','tl','lg'].forEach(c => {
     const el = document.getElementById('curr-ch-'+c);
     if(el) el.classList.toggle('on', c===ch);
   });
