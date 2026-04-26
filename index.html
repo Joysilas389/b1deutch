@@ -1618,11 +1618,37 @@ function setDur(d) {
 function extractJSON(raw) {
   let jsonStr = raw.trim();
   const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fenceMatch) return fenceMatch[1].trim();
+  if (fenceMatch) jsonStr = fenceMatch[1].trim();
   const start = jsonStr.indexOf('{');
-  const end   = jsonStr.lastIndexOf('}');
-  if (start !== -1 && end !== -1) return jsonStr.slice(start, end + 1);
-  return jsonStr;
+  if (start !== -1) jsonStr = jsonStr.slice(start);
+  const end = jsonStr.lastIndexOf('}');
+  if (end !== -1) jsonStr = jsonStr.slice(0, end + 1);
+  // If JSON is truncated, try to repair it
+  try {
+    JSON.parse(jsonStr);
+    return jsonStr;
+  } catch(e) {
+    // Try closing open arrays/objects to salvage partial JSON
+    let repaired = jsonStr;
+    // Count unclosed braces/brackets
+    let braces = 0, brackets = 0, inStr = false, escape = false;
+    for (const ch of repaired) {
+      if (escape) { escape = false; continue; }
+      if (ch === '\\' && inStr) { escape = true; continue; }
+      if (ch === '"' && !escape) { inStr = !inStr; continue; }
+      if (inStr) continue;
+      if (ch === '{') braces++;
+      else if (ch === '}') braces--;
+      else if (ch === '[') brackets++;
+      else if (ch === ']') brackets--;
+    }
+    // Close any open string
+    if (inStr) repaired += '"';
+    // Close any open arrays and objects
+    for (let i = 0; i < brackets; i++) repaired += ']';
+    for (let i = 0; i < braces; i++) repaired += '}';
+    return repaired;
+  }
 }
 
 async function doGenerate() {
@@ -1643,7 +1669,7 @@ async function doGenerate() {
       : MODULE_PROMPTS[mod](topic, lvl, std, turns).user;
 
     // Pass onProgress to update bar as streaming arrives
-    const tokenBudget = mod === 'sprechen' ? (S.duration === 'long' ? 6000 : S.duration === 'medium' ? 4500 : 3000) : 2500;
+    const tokenBudget = mod === 'sprechen' ? (S.duration === 'long' ? 8000 : S.duration === 'medium' ? 6000 : 4000) : 2500;
     const res = await callAPI(sys, user, tokenBudget, (partial) => {
       // Animate progress bar as tokens stream in
       const pct = Math.min(90, Math.round((partial.length / (tokenBudget * 3)) * 90));
