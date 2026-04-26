@@ -126,7 +126,7 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
    EXAM ATMOSPHERE ANIMATION
 ═══════════════════════════════════ */
 .exam-room {
-  background: linear-gradient(180deg, #111111 0%, #1a1a1a 100%);
+  background: linear-gradient(180deg, var(--surf2) 0%, var(--surf) 100%);
   border: 1px solid var(--bdr); border-radius: 20px;
   position: relative; overflow: hidden; height: 200px; margin-bottom: 12px;
 }
@@ -225,7 +225,7 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
 /* ═══════════════════════════════════
    SCHREIBEN MODULE
 ═══════════════════════════════════ */
-.prompt-box { background: linear-gradient(135deg, #1e1e1e, #252525); border: 1px solid #d9775730; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+.prompt-box { background: var(--surf2); border: 1px solid var(--bdr); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
 .prompt-type { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--accent2); text-transform: uppercase; margin-bottom: 6px; }
 .prompt-text { font-size: 15px; line-height: 1.65; }
 .prompt-hints { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
@@ -266,7 +266,7 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
 .fc-card-inner.flipped { transform: rotateY(180deg); }
 .fc-face { position: absolute; inset: 0; border-radius: 20px; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
 .fc-front { background: var(--surf); border: 1px solid var(--bdr); }
-.fc-back { background: linear-gradient(135deg, #1e1e1e, #252525); border: 1px solid #d9775740; transform: rotateY(180deg); }
+.fc-back { background: var(--surf2); border: 1px solid var(--bdr); transform: rotateY(180deg); }
 .fc-module-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 8px; margin-bottom: 8px; }
 .fc-article { font-size: 14px; color: var(--accent2); font-weight: 700; margin-bottom: 3px; }
 .fc-word { font-size: 28px; font-weight: 800; letter-spacing: -.5px; margin-bottom: 4px; }
@@ -368,7 +368,7 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
 /* ═══════════════════════════════════
    WORD OF THE DAY
 ═══════════════════════════════════ */
-.wotd-card { background: linear-gradient(135deg, #1e1e1e, #252525); border: 1px solid #d9775735; border-radius: 18px; padding: 18px; margin-bottom: 12px; cursor: pointer; }
+.wotd-card { background: var(--surf); border: 1px solid var(--bdr); border-radius: 18px; padding: 18px; margin-bottom: 12px; cursor: pointer; }
 .wotd-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; color: var(--accent2); text-transform: uppercase; margin-bottom: 6px; }
 .wotd-word { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
 .wotd-ipa { font-size: 13px; color: var(--accent2); margin: 2px 0 4px; font-style: italic; }
@@ -408,7 +408,7 @@ textarea.t-input::placeholder, input.t-input::placeholder { color: var(--txt3); 
 .exam-timer { font-size: 32px; font-weight: 900; font-family: var(--mono); letter-spacing: -1px; }
 .exam-timer.urgent { color: var(--danger); animation: timerPulse 1s infinite; }
 @keyframes timerPulse { 0%,100%{opacity:1}50%{opacity:.5} }
-.cert-card { background: linear-gradient(135deg, #1e1e1e, #252525); border: 2px solid #d9775750; border-radius: 24px; padding: 28px 20px; text-align: center; }
+.cert-card { background: var(--surf); border: 2px solid var(--accent); border-radius: 24px; padding: 28px 20px; text-align: center; }
 .cert-seal { font-size: 64px; margin-bottom: 12px; }
 .cert-grade { font-size: 48px; font-weight: 900; letter-spacing: -2px; background: linear-gradient(135deg, var(--accent2), #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .cert-label { font-size: 13px; color: var(--txt3); margin-top: 4px; }
