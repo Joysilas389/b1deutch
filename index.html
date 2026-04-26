@@ -1159,10 +1159,15 @@ body.light-mode .hb-panel { background: #fff; }
       <button onclick="toggleTheme()" id="theme-btn-hb" style="flex:1;background:var(--surf2);border:1px solid var(--bdr);border-radius:12px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;color:var(--txt2);">🌙 Dark / ☀️ Light</button>
     </div>
     <div class="sec-lbl mb-2 mt-3">Font Size</div>
-    <div class="d-flex gap-2 mb-4">
-      <button onclick="setFontSize('small')"  id="fs-small"  class="tgl" style="flex:1;padding:10px;font-size:12px;">A</button>
-      <button onclick="setFontSize('medium')" id="fs-medium" class="tgl on" style="flex:1;padding:10px;font-size:15px;">A</button>
-      <button onclick="setFontSize('large')"  id="fs-large"  class="tgl" style="flex:1;padding:10px;font-size:19px;">A</button>
+    <div class="mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span style="font-size:12px;color:var(--txt3);">A</span>
+        <span id="fs-label" style="font-size:13px;color:var(--accent2);font-weight:700;">Medium</span>
+        <span style="font-size:20px;color:var(--txt3);">A</span>
+      </div>
+      <input type="range" id="fs-slider" min="12" max="20" step="1" value="15"
+        oninput="applyFontSizeSlider(this.value)"
+        style="width:100%;accent-color:var(--accent2);cursor:pointer;height:6px;">
     </div>
     <div class="sec-lbl mb-2">Data Backup</div>
     <div class="d-flex gap-2 mb-3">
@@ -4692,19 +4697,24 @@ function importData() {
   document.body.removeChild(input);
 }
 
-function setFontSize(size) {
-  localStorage.setItem('sp3_fontsize', size);
-  const sizes = { small: '13px', medium: '15px', large: '17px' };
-  document.documentElement.style.setProperty('--base-font', sizes[size]||'15px');
-  ['small','medium','large'].forEach(s => {
-    const el = document.getElementById('fs-'+s);
-    if(el) el.classList.toggle('on', s===size);
-  });
+function applyFontSizeSlider(val) {
+  const v = parseInt(val);
+  localStorage.setItem('sp3_fontsize_px', v);
+  document.documentElement.style.setProperty('--base-font', v + 'px');
+  const slider = document.getElementById('fs-slider');
+  if(slider) slider.value = v;
+  const label = document.getElementById('fs-label');
+  if(label) label.textContent = v <= 13 ? 'Small' : v <= 15 ? 'Medium' : v <= 17 ? 'Large' : 'X-Large';
 }
 
 function applyFontSize() {
-  const size = localStorage.getItem('sp3_fontsize') || 'medium';
-  setFontSize(size);
+  const saved = parseInt(localStorage.getItem('sp3_fontsize_px') || '15');
+  applyFontSizeSlider(saved);
+}
+
+function setFontSize(size) {
+  const map = { small: 13, medium: 15, large: 17 };
+  applyFontSizeSlider(map[size] || 15);
 }
 
 function toggleTheme() {
