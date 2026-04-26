@@ -3,7 +3,7 @@
 
 const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
 const OPENAI_MODEL = 'gpt-4o';
-const TIMEOUT_MS   = 12000;
+const TIMEOUT_MS   = 25000;
 
 function fetchWithTimeout(url, options, ms) {
   const controller = new AbortController();

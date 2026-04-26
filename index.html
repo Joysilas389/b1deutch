@@ -1624,7 +1624,7 @@ async function doGenerate() {
   runGenAnim(mod);
   const {sys, user} = MODULE_PROMPTS[mod](topic, lvl, std, TURNS[S.duration]);
   try {
-    const res = await callAPI(sys, user, 4000);
+    const res = await callAPI(sys, user, 2500);
     if (!res.content || !res.content[0]) throw new Error('Empty response from AI');
     const raw = res.content[0].text.trim();
     // Robustly extract JSON — handle markdown fences, leading text, trailing text

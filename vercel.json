@@ -1,9 +1,14 @@
 {
   "version": 2,
+  "functions": {
+    "api/claude.js": { "maxDuration": 30 },
+    "api/tts.js":    { "maxDuration": 30 },
+    "api/stt.js":    { "maxDuration": 30 }
+  },
   "routes": [
     { "src": "/api/claude", "dest": "/api/claude.js" },
-    { "src": "/api/tts", "dest": "/api/tts.js" },
-    { "src": "/api/stt", "dest": "/api/stt.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/api/tts",    "dest": "/api/tts.js" },
+    { "src": "/api/stt",    "dest": "/api/stt.js" },
+    { "src": "/(.*)",       "dest": "/index.html" }
   ]
 }
