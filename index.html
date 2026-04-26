@@ -1314,6 +1314,12 @@ body.light-mode .hb-panel { background: #fff; }
     <div><div style="font-size:19px;font-weight:800;">📚 Story Mode</div><div style="font-size:12px;color:var(--txt3);">Dynamic episodes · <span id="story-level-lbl">B1</span> level</div></div>
   </div>
   <div class="px-3" style="padding-bottom:100px;">
+    <!-- Level selector -->
+    <div class="d-flex gap-2 mb-3">
+      <div class="tgl" id="story-lvl-a2" onclick="setStoryLevel('A2')" style="flex:1;text-align:center;padding:10px;font-weight:700;">A2<div style="font-size:10px;opacity:.7;">Basic</div></div>
+      <div class="tgl on" id="story-lvl-b1" onclick="setStoryLevel('B1')" style="flex:1;text-align:center;padding:10px;font-weight:700;">B1<div style="font-size:10px;opacity:.7;">Inter.</div></div>
+      <div class="tgl" id="story-lvl-b2" onclick="setStoryLevel('B2')" style="flex:1;text-align:center;padding:10px;font-weight:700;">B2<div style="font-size:10px;opacity:.7;">Upper</div></div>
+    </div>
     <div class="wotd-card mb-3" style="cursor:default;">
       <div class="wotd-label">How it works</div>
       <div style="font-size:14px;color:var(--txt2);line-height:1.7;">Each episode is a fresh German scenario. Anna &amp; Max navigate real-life situations. Vocab carries forward between episodes. New episode every time!</div>
@@ -1321,7 +1327,7 @@ body.light-mode .hb-panel { background: #fff; }
     <div id="story-episodes"></div>
   </div>
   <div style="position:sticky;bottom:72px;background:var(--bg);padding:12px 16px 12px;border-top:1px solid var(--bdr);">
-    <button class="btn btn-accent w-100 py-3 rounded-3 fs-6" id="story-gen-btn" onclick="generateStoryEpisode()">🎲 Generate New Episode</button>
+    <button class="btn btn-accent w-100 py-3 rounded-3 fs-6" id="story-gen-btn" onclick="generateStoryEpisode()">🎲 Generate B1 Episode</button>
   </div>
 </div>
 
@@ -4402,11 +4408,23 @@ const STORY_SCENARIOS = [
   'Cooking a traditional German meal with a host family',
 ];
 
+function setStoryLevel(lvl) {
+  S.level = lvl;
+  save();
+  renderStory();
+}
+
 function renderStory() {
+  const lvl = S.level || 'B1';
   const lbl = document.getElementById('story-level-lbl');
-  if(lbl) lbl.textContent = S.level || 'B1';
+  if(lbl) lbl.textContent = lvl;
   const btn = document.getElementById('story-gen-btn');
-  if(btn) btn.textContent = '🎲 Generate ' + (S.level||'B1') + ' Episode';
+  if(btn) btn.textContent = '🎲 Generate ' + lvl + ' Episode';
+  // Sync level tabs
+  ['A2','B1','B2'].forEach(l => {
+    const el = document.getElementById('story-lvl-' + l.toLowerCase());
+    if(el) el.classList.toggle('on', l === lvl);
+  });
   const el = document.getElementById('story-episodes');
   if (!el) return;
   if (!S.story.episodes.length) {
