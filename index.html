@@ -1615,6 +1615,16 @@ function setDur(d) {
 /* ══════════════════════════════════════
    GENERATE
 ══════════════════════════════════════ */
+function extractJSON(raw) {
+  let jsonStr = raw.trim();
+  const fenceMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch) return fenceMatch[1].trim();
+  const start = jsonStr.indexOf('{');
+  const end   = jsonStr.lastIndexOf('}');
+  if (start !== -1 && end !== -1) return jsonStr.slice(start, end + 1);
+  return jsonStr;
+}
+
 async function doGenerate() {
   const topic = document.getElementById('topic-in').value.trim();
   if (!topic) { toast('Please enter a topic first!'); return; }
@@ -1622,26 +1632,75 @@ async function doGenerate() {
   go('generating');
   document.getElementById('gen-title-txt').textContent = {sprechen:'In the Studio…',lesen:'Reading Room…',schreiben:'Writing Desk…',horen:'Listening Lab…'}[mod];
   runGenAnim(mod);
-  const {sys, user} = MODULE_PROMPTS[mod](topic, lvl, std, TURNS[S.duration]);
+
   try {
-    const res = await callAPI(sys, user, mod === 'sprechen' ? 4000 : 2500);
-    if (!res.content || !res.content[0]) throw new Error('Empty response from AI');
-    const raw = res.content[0].text.trim();
-    // Robustly extract JSON — handle markdown fences, leading text, trailing text
-    let jsonStr = raw;
-    const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (fenceMatch) jsonStr = fenceMatch[1].trim();
-    else {
-      const start = raw.indexOf('{');
-      const end   = raw.lastIndexOf('}');
-      if (start !== -1 && end !== -1) jsonStr = raw.slice(start, end + 1);
+    // ── SPRECHEN: chunked generation to avoid timeout on long podcasts ──
+    if (mod === 'sprechen') {
+      const totalTurns = TURNS[S.duration]; // 22, 36, or 54
+      const chunkSize  = 18; // safe chunk that won't timeout
+      const chunks     = Math.ceil(totalTurns / chunkSize);
+      let allDialogue  = [];
+      let sessionTitle = topic;
+
+      // Generate dialogue in chunks
+      for (let c = 0; c < chunks; c++) {
+        const remaining = totalTurns - allDialogue.length;
+        const thisBatch = Math.min(chunkSize, remaining);
+        const isFirst   = c === 0;
+        const isLast    = c === chunks - 1;
+
+        document.getElementById('gen-st').textContent  = 'Writing dialogue part ' + (c+1) + ' of ' + chunks + '…';
+        document.getElementById('gen-det').textContent = allDialogue.length + ' / ' + totalTurns + ' turns written';
+        document.getElementById('gen-bar').style.width = Math.round((c / chunks) * 70) + '%';
+
+        const prevContext = allDialogue.length > 0
+          ? ' Continue the conversation naturally from where it left off. Last line was: "' + allDialogue[allDialogue.length-1].text + '".'
+          : '';
+        const conclusionNote = isLast ? ' This is the final part — bring the conversation to a natural close.' : '';
+
+        const chunkSys = 'You are a German ' + std.toUpperCase() + ' exam podcast scriptwriter. Write realistic dialogue between Anna and Max at ' + lvl + ' level about "' + topic + '". Return ONLY valid JSON, no markdown.';
+        const chunkUser = 'Write EXACTLY ' + thisBatch + ' dialogue turns' + (isFirst ? ' to START' : '') + ' a German ' + lvl + ' conversation about "' + topic + '".' + prevContext + conclusionNote + ' Each turn: one speaker says one thing. Speakers alternate Anna/Max. Return ONLY: {"title":"' + (isFirst ? 'German podcast title' : sessionTitle) + '","dialogue":[{"speaker":"Anna","text":"German...","translation":"English...","notes":"grammar note or null"}]}';
+
+        const res  = await callAPI(chunkSys, chunkUser, 3000);
+        if (!res.content || !res.content[0]) throw new Error('Empty response on chunk ' + (c+1));
+        const data = JSON.parse(extractJSON(res.content[0].text));
+        if (isFirst) sessionTitle = data.title || topic;
+        allDialogue = allDialogue.concat(data.dialogue || []);
+      }
+
+      // Generate vocab + challenges in a separate request
+      document.getElementById('gen-st').textContent  = 'Extracting vocabulary…';
+      document.getElementById('gen-det').textContent = 'Building flashcards and speaking challenges…';
+      document.getElementById('gen-bar').style.width = '80%';
+
+      const sampleLines = allDialogue.slice(0, 8).map(l => l.text).join(' ');
+      const vcSys  = 'You are a German ' + lvl + ' vocabulary and exam coach. Return ONLY valid JSON, no markdown.';
+      const vcUser = 'From this German ' + lvl + ' conversation about "' + topic + '": "' + sampleLines + '" — extract 10-14 key vocab words and create 6 speaking challenges. Return ONLY: {"vocab":[{"word":"das Rezept","article":"das","baseForm":"Rezept","translation":"prescription","synonyms":["das Medikament"],"partOfSpeech":"noun","level":"' + lvl + '","exampleDe":"Hier ist Ihr Rezept.","exampleEn":"Here is your prescription.","podcastContext":"Doctor","module":"sprechen"}],"challenges":[{"situation":"Context in English","cue":"What to say in English","cueHint":"Hint in German","targetAnswer":"Full German answer","difficulty":"easy"}]}';
+
+      const vcRes  = await callAPI(vcSys, vcUser, 2500);
+      if (!vcRes.content || !vcRes.content[0]) throw new Error('Empty vocab response');
+      const vcData = JSON.parse(extractJSON(vcRes.content[0].text));
+
+      document.getElementById('gen-bar').style.width = '95%';
+      finishGen(mod, {
+        title:      sessionTitle,
+        dialogue:   allDialogue,
+        vocab:      vcData.vocab      || [],
+        challenges: vcData.challenges || [],
+      }, topic, lvl, std);
+
+    } else {
+      // ── ALL OTHER MODULES: single request ──
+      const {sys, user} = MODULE_PROMPTS[mod](topic, lvl, std, TURNS[S.duration]);
+      const res = await callAPI(sys, user, 2500);
+      if (!res.content || !res.content[0]) throw new Error('Empty response from AI');
+      const data = JSON.parse(extractJSON(res.content[0].text));
+      finishGen(mod, data, topic, lvl, std);
     }
-    const data = JSON.parse(jsonStr);
-    finishGen(mod, data, topic, lvl, std);
+
   } catch(e) {
     console.error('Generation error:', e);
-    const msg = e.message || 'Unknown error';
-    toast('Generation failed: ' + msg.slice(0, 80));
+    toast('Generation failed: ' + (e.message||'Unknown error').slice(0, 80));
     go('generate');
   }
 }
