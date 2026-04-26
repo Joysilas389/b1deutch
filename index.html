@@ -589,9 +589,9 @@ body.light-mode .hb-panel { background: #fff; }
     <div id="dur-section">
       <div class="sec-lbl mb-2">Podcast Length</div>
       <div class="tgl-row mb-3">
-        <div class="tgl" id="d-short" onclick="setDur('short')">Short<span style="font-size:10px;font-weight:400;display:block;opacity:.7">~5 min</span></div>
-        <div class="tgl on" id="d-medium" onclick="setDur('medium')">Medium<span style="font-size:10px;font-weight:400;display:block;opacity:.7">~10 min</span></div>
-        <div class="tgl" id="d-long" onclick="setDur('long')">Long<span style="font-size:10px;font-weight:400;display:block;opacity:.7">~15 min</span></div>
+        <div class="tgl" id="d-short" onclick="setDur('short')">Short<span style="font-size:10px;font-weight:400;display:block;opacity:.7">Basic</span></div>
+        <div class="tgl on" id="d-medium" onclick="setDur('medium')">Medium<span style="font-size:10px;font-weight:400;display:block;opacity:.7">Standard</span></div>
+        <div class="tgl" id="d-long" onclick="setDur('long')">Long<span style="font-size:10px;font-weight:400;display:block;opacity:.7">Extended</span></div>
       </div>
     </div>
   </div>
@@ -1300,8 +1300,8 @@ body.light-mode .hb-panel { background: #fff; }
 ══════════════════════════════════════ */
 const API   = './api/claude';
 const MODEL = 'claude-sonnet-4-20250514';
-const TURNS = {short:15, medium:25, long:36};
-const DUR_LBL = {short:'~5 min', medium:'~10 min', long:'~15 min'};
+const TURNS = {short:20, medium:40, long:60};
+const DUR_LBL = {short:'Basic', medium:'Standard', long:'Extended'};
 
 const MODULE_CHIPS = {
   sprechen: ['☀️ Morning Routine','🏥 Doctor Visit','🛒 Supermarket','🚂 Train Station','🏠 Apartment','🍽 Restaurant','💼 Job Interview','✂️ Hairdresser','🎂 Birthday Party','📦 Post Office','🏦 Bank','✈️ Holiday'],
@@ -1669,7 +1669,7 @@ async function doGenerate() {
       : MODULE_PROMPTS[mod](topic, lvl, std, turns).user;
 
     // Pass onProgress to update bar as streaming arrives
-    const tokenBudget = mod === 'sprechen' ? (S.duration === 'long' ? 5000 : S.duration === 'medium' ? 3500 : 2500) : 2500;
+    const tokenBudget = mod === 'sprechen' ? (S.duration === 'long' ? 7000 : S.duration === 'medium' ? 5000 : 3000) : 2500;
     const res = await callAPI(sys, user, tokenBudget, (partial) => {
       // Animate progress bar as tokens stream in
       const pct = Math.min(90, Math.round((partial.length / (tokenBudget * 3)) * 90));
