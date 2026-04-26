@@ -2305,14 +2305,17 @@ function getCurrentLevel() {
 /* ══════════════════════════════════════
    WORD OF THE DAY
 ══════════════════════════════════════ */
-async function loadWOTD() {
-  const today = new Date().toDateString();
-  if (S.wotd && S.wotd.date === today) return renderWOTD();
+async function loadWOTD(force) {
+  // Use ISO date YYYY-MM-DD — timezone-safe and unambiguous
+  const today = new Date().toISOString().slice(0,10);
+  if (!force && S.wotd && S.wotd.date === today) return renderWOTD();
+  // Show loading state
+  const el = document.getElementById('wotd-section');
+  if (el) el.innerHTML = '<div class="wotd-card" style="text-align:center;padding:24px;"><div style="font-size:24px;">⏳</div><div style="font-size:13px;color:var(--txt3);margin-top:8px;">Loading Word of the Day…</div></div>';
   try {
     const res = await callAPI(
-      'You are a German vocabulary expert. Return ONLY valid JSON, no markdown.',
-      `Generate a Word of the Day for German learners (B1 level). Make it interesting and useful for TELC/Goethe exam.
-JSON: {"word":"das Fernweh","article":"das","ipa":"[ˈfɛʁnveː]","translation":"wanderlust / longing for distant places","partOfSpeech":"noun","exampleDe":"Mich packt das Fernweh jeden Frühling.","exampleEn":"I get wanderlust every spring.","culturalFact":"This uniquely German word captures the feeling of longing for travel — English has no single word for it.","synonyms":["die Reiselust","der Wandertrieb"]}`,
+      'You are a German vocabulary expert. Return ONLY valid JSON, no markdown. Never repeat the same word twice if given context.',
+      'Generate a fresh Word of the Day for German B1 learners useful for TELC/Goethe exam. Pick a word genuinely useful in exam contexts. Today is ' + today + '. Return JSON: {"word":"die Nachhaltigkeit","article":"die","ipa":"[naːxˈhaltɪçkaɪt]","translation":"sustainability","partOfSpeech":"noun","exampleDe":"Nachhaltigkeit ist ein wichtiges Thema in der Politik.","exampleEn":"Sustainability is an important topic in politics.","culturalFact":"This word frequently appears in German B1 exams in environment and society topics.","synonyms":["die Umweltverträglichkeit","der Umweltschutz"]}',
       600
     );
     const txt = res.content[0].text;
@@ -2321,7 +2324,7 @@ JSON: {"word":"das Fernweh","article":"das","ipa":"[ˈfɛʁnveː]","translation"
     save();
     renderWOTD();
     awardXP('wotd');
-  } catch(e) { console.error('WOTD error',e); }
+  } catch(e) { console.error('WOTD error',e); renderWOTD(); }
 }
 
 function renderWOTD() {
@@ -2337,7 +2340,10 @@ function renderWOTD() {
       <div style="font-size:12px;color:var(--txt2);font-style:italic;margin-bottom:6px;">"${w.exampleDe}"</div>
       <div style="font-size:11px;color:var(--txt3);">${w.exampleEn}</div>
       ${w.culturalFact?`<div class="wotd-fact">💡 ${w.culturalFact}</div>`:''}
-      <button onclick="event.stopPropagation();addWOTDToCards()" style="margin-top:10px;background:#6457ff20;border:1px solid #6457ff40;color:var(--accent2);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;width:100%;">➕ Add to Flashcards</button>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button onclick="event.stopPropagation();addWOTDToCards()" style="flex:1;background:#6457ff20;border:1px solid #6457ff40;color:var(--accent2);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;">➕ Add to Cards</button>
+        <button onclick="event.stopPropagation();loadWOTD(true)" style="background:#22d3a415;border:1px solid #22d3a440;color:var(--max);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;">🔄 New Word</button>
+      </div>
     </div>`;
 }
 
@@ -3270,6 +3276,12 @@ function toggleTheme() {
 ══════════════════════════════════════ */
 window.addEventListener('load',()=>{
   load();
+  // Clear stale WOTD so it regenerates on new day
+  const todayISO = new Date().toISOString().slice(0,10);
+  if (S.wotd && S.wotd.date !== todayISO) {
+    S.wotd = null;
+    localStorage.removeItem('sp3_wotd');
+  }
   renderHome();
   document.getElementById('global-nav').style.display='block';
   document.getElementById('nt-home').classList.add('on');
@@ -3286,6 +3298,24 @@ window.addEventListener('load',()=>{
   // Init daily streak
   const today = new Date().toDateString();
   if (S.lastActive !== today) { awardXP('daily_login'); }
+
+  // Midnight auto-refresh: schedule WOTD regeneration at next midnight
+  function scheduleMidnightRefresh() {
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setHours(24, 0, 0, 0); // next midnight
+    const msUntilMidnight = midnight - now;
+    setTimeout(() => {
+      // Clear stored WOTD so it regenerates
+      S.wotd = null;
+      localStorage.removeItem('sp3_wotd');
+      // Reload WOTD if user is on home screen
+      loadWOTD();
+      // Schedule next midnight
+      scheduleMidnightRefresh();
+    }, msUntilMidnight);
+  }
+  scheduleMidnightRefresh();
 });
 </script>
 </body>
