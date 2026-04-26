@@ -478,7 +478,7 @@ body.light-mode .hb-panel { background: #fff; }
 ════════════════════════════════════════ -->
 <div id="s-home" class="screen active">
   <div class="safe-top px-3 pb-3" style="background:linear-gradient(180deg,#111111,var(--bg));">
-    <div class="d-flex justify-content-between align-items-center"><div class="logo">Sprechen</div><button onclick="toggleTheme()" id="theme-btn" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:6px 12px;font-size:18px;cursor:pointer;">🌙</button></div>
+    <div class="d-flex justify-content-between align-items-center"><div class="logo">Sprechen</div><div class="d-flex gap-2"><button onclick="openHB()" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:6px 12px;font-size:18px;cursor:pointer;">⚙️</button><button onclick="toggleTheme()" id="theme-btn" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:6px 12px;font-size:18px;cursor:pointer;">🌙</button></div></div>
     <div class="logo-tag">German Exam Prep · TELC &amp; Goethe</div>
   </div>
 
@@ -1038,6 +1038,22 @@ body.light-mode .hb-panel { background: #fff; }
       <div class="hb-pill on" id="hbt-show" onclick="setTransHB(true)"><div class="hb-pill-ico">🇬🇧</div><div class="hb-pill-lbl">Show English</div></div>
       <div class="hb-pill" id="hbt-hide" onclick="setTransHB(false)"><div class="hb-pill-ico">🇩🇪</div><div class="hb-pill-lbl">German Only</div></div>
     </div>
+    <div class="sec-lbl mb-2">AI Provider</div>
+    <div class="d-flex gap-2 mb-4">
+      <div class="hb-pill" id="ai-auto" onclick="setAIProvider('auto')">
+        <div class="hb-pill-ico">🔀</div>
+        <div class="hb-pill-lbl">Auto</div>
+      </div>
+      <div class="hb-pill" id="ai-claude" onclick="setAIProvider('claude')">
+        <div class="hb-pill-ico">⚡</div>
+        <div class="hb-pill-lbl">Claude</div>
+      </div>
+      <div class="hb-pill" id="ai-openai" onclick="setAIProvider('openai')">
+        <div class="hb-pill-ico">🤖</div>
+        <div class="hb-pill-lbl">GPT-4o</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--txt3);margin-top:-12px;margin-bottom:16px;line-height:1.6;" id="ai-provider-desc">Auto: Claude first, GPT-4o as backup if Claude is unavailable.</div>
     <button class="btn w-100 py-3 rounded-3" style="background:var(--surf2);border:1px solid var(--bdr2);color:var(--txt2);font-weight:600;" onclick="closeHB()">Done</button>
   </div>
 </div>
@@ -1786,6 +1802,7 @@ function exitPod(){stopTTS();S.play.on=false;navTo('home');}
 function openHB(){
   ['both','subtitle','script'].forEach(m=>document.getElementById('hbm-'+m).classList.toggle('on',m===S.play.viewMode));
   [0.5,.75,1,1.25,1.5].forEach((s,i)=>document.getElementById('hbsp-'+i).classList.toggle('on',s===S.play.speed));
+  syncAIProviderUI();
   document.getElementById('hbt-show').classList.toggle('on',S.play.showTrans);
   document.getElementById('hbt-hide').classList.toggle('on',!S.play.showTrans);
   document.getElementById('hb-ov').classList.add('open');
@@ -2253,7 +2270,8 @@ function renderWL(deck){
    API
 ══════════════════════════════════════ */
 async function callAPI(system,prompt,max_tokens=1000){
-  const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,max_tokens,system,messages:[{role:'user',content:prompt}]})});
+  const provider=localStorage.getItem('sp3_ai_provider')||'auto';
+  const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','x-ai-provider':provider},body:JSON.stringify({model:MODEL,max_tokens,system,messages:[{role:'user',content:prompt}]})});
   if(!res.ok)throw new Error('API '+res.status);
   const data=await res.json();
   showAIBadge(data._provider);
@@ -2268,6 +2286,31 @@ function showAIBadge(provider){
   else if(provider==='openai'){el.textContent='🤖 GPT-4o';el.classList.add('openai');}
   else{el.textContent='⚠ AI Offline';el.classList.add('error');}
   clearTimeout(_badgeTm);_badgeTm=setTimeout(()=>{el.className='';},4000);
+}
+
+function setAIProvider(v){
+  localStorage.setItem('sp3_ai_provider',v);
+  // Update pill UI
+  ['auto','claude','openai'].forEach(p=>{
+    const el=document.getElementById('ai-'+p);
+    if(el) el.classList.toggle('on', p===v);
+  });
+  // Update description
+  const desc=document.getElementById('ai-provider-desc');
+  if(desc){
+    const msgs={
+      auto:'Auto: Claude first, GPT-4o as backup if Claude is unavailable.',
+      claude:'Claude only: Always use Anthropic Claude. No fallback.',
+      openai:'GPT-4o only: Always use OpenAI GPT-4o. No fallback.'
+    };
+    desc.textContent=msgs[v]||msgs.auto;
+  }
+  toast(v==='auto'?'🔀 Auto fallback enabled':v==='claude'?'⚡ Claude selected':'🤖 GPT-4o selected');
+}
+
+function syncAIProviderUI(){
+  const v=localStorage.getItem('sp3_ai_provider')||'auto';
+  setAIProvider(v);
 }
 
 
@@ -3317,6 +3360,7 @@ window.addEventListener('load',()=>{
   // Init daily streak
   const today = new Date().toDateString();
   if (S.lastActive !== today) { awardXP('daily_login'); }
+  syncAIProviderUI();
 
   // Midnight auto-refresh: schedule WOTD regeneration at next midnight
   function scheduleMidnightRefresh() {
