@@ -3224,11 +3224,11 @@ async function loadWOTD(force) {
   try {
     const res = await callAPI(
       'You are a German vocabulary expert. Return ONLY valid JSON, no markdown. Never repeat the same word twice if given context.',
-      'Generate a fresh Word of the Day for German B1 learners useful for TELC/Goethe exam. Pick a word genuinely useful in exam contexts. Today is ' + today + '. Return JSON: {"word":"die Nachhaltigkeit","article":"die","ipa":"[naːxˈhaltɪçkaɪt]","translation":"sustainability","partOfSpeech":"noun","exampleDe":"Nachhaltigkeit ist ein wichtiges Thema in der Politik.","exampleEn":"Sustainability is an important topic in politics.","culturalFact":"This word frequently appears in German B1 exams in environment and society topics.","synonyms":["die Umweltverträglichkeit","der Umweltschutz"]}',
-      600
+      'Generate a ' + (force ? 'completely different' : 'fresh') + ' Word of the Day for German ' + (S.level||'B1') + ' learners useful for TELC/Goethe exam. Pick a word genuinely useful in exam contexts — NOT die Nachhaltigkeit or common overused examples. Today is ' + today + '. Return ONLY JSON: {"word":"die Gelegenheit","article":"die","ipa":"[ɡəˈleːɡənhaɪt]","translation":"opportunity","partOfSpeech":"noun","exampleDe":"Das ist eine gute Gelegenheit, Deutsch zu üben.","exampleEn":"That is a good opportunity to practice German.","culturalFact":"This word appears frequently in B1 speaking and writing tasks.","synonyms":["die Chance","die Möglichkeit"]}',
+      800
     );
-    const txt = res.content[0].text;
-    const parsed = JSON.parse(txt.replace(/```json|```/g,'').trim());
+    if (!res.content || !res.content[0]) throw new Error('Empty response');
+    const parsed = JSON.parse(extractJSON(res.content[0].text));
     S.wotd = {...parsed, date: today};
     save();
     renderWOTD();
