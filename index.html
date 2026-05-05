@@ -1437,11 +1437,11 @@ let _dbAvailable = false, _dbChecked = false;
 async function checkDB() {
   if (_dbChecked) return _dbAvailable;
   try {
-    const r = await fetch(DB_URL + '/ping', { signal: AbortSignal.timeout(800) });
+    const r = await fetch(DB_URL + '/ping', { signal: AbortSignal.timeout(2000) });
     _dbAvailable = r.ok;
   } catch(e) { _dbAvailable = false; }
   _dbChecked = true;
-  console.log('[Storage]', _dbAvailable ? 'SQLite server active' : 'Using localStorage');
+  console.log('[Storage]', _dbAvailable ? '✅ SQLite server active' : '⚠ Using localStorage only');
   return _dbAvailable;
 }
 
@@ -1460,12 +1460,17 @@ async function dbBulkSet(obj) {
 }
 
 async function loadFromDB() {
-  if (!await checkDB()) return false;
+  // Reset check so we always try fresh on boot
+  _dbChecked = false;
+  _dbAvailable = false;
+  if (!await checkDB()) {
+    console.log('[Storage] Server not available, using localStorage');
+    return false;
+  }
   try {
-    const r = await fetch(DB_URL + '/store', { signal: AbortSignal.timeout(2000) });
+    const r = await fetch(DB_URL + '/store', { signal: AbortSignal.timeout(3000) });
     if (!r.ok) return false;
     const all = await r.json();
-    // Only sync keys that have data — never overwrite with empty values
     let count = 0;
     Object.entries(all).forEach(([k,v]) => {
       if (v && v !== 'null' && v !== '""' && v !== '[]' && v !== '{}') {
@@ -1473,9 +1478,12 @@ async function loadFromDB() {
         count++;
       }
     });
-    console.log('[Storage] Synced', count, 'keys from SQLite → localStorage');
+    console.log('[Storage] Synced', count, 'keys from server → localStorage');
     return count > 0;
-  } catch(e) { return false; }
+  } catch(e) {
+    console.error('[Storage] Sync failed:', e.message);
+    return false;
+  }
 }
 
 async function dbAutoBackup() {
@@ -4937,15 +4945,18 @@ window.addEventListener('load', async ()=>{
   overlay.innerHTML = '<div style="font-size:32px;">🎙</div><div style="font-size:16px;font-weight:800;color:#d97757;">Sprechen</div><div style="font-size:12px;color:#888;margin-top:4px;">Loading your data…</div>';
   document.body.appendChild(overlay);
 
-  // Sync from SQLite server first — populates localStorage with saved data
+  // Sync from server — fills localStorage with all saved data
   const dbSynced = await loadFromDB();
-  // Then load from localStorage (which now has server data if sync worked)
-  load();
-  if (dbSynced) {
-    console.log('[Boot] Loaded from SQLite server successfully');
-  }
 
-  // Remove overlay
+  // Update overlay message to show sync result
+  const _msgEl = overlay.querySelector('div:last-child');
+  if (_msgEl) _msgEl.textContent = dbSynced ? '✅ Data synced from server' : 'Loading from device…';
+
+  // Load S state from localStorage (now has server data if sync worked)
+  load();
+
+  // Brief pause so user sees status
+  await new Promise(r => setTimeout(r, 500));
   overlay.style.opacity = '0';
   overlay.style.transition = 'opacity 0.3s';
   setTimeout(() => overlay.remove(), 350);
