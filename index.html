@@ -3318,7 +3318,7 @@ function renderCountdown() {
     return;
   }
   const days = Math.max(0, Math.ceil((new Date(S.examDate) - new Date()) / 86400000));
-  const totalDays = Math.ceil((new Date(S.examDate) - new Date(S.examDate)).getTime()); // rough
+  const totalDays = Math.max(1, Math.ceil((new Date(S.examDate) - new Date()) / 86400000));
   const pct = Math.max(5, Math.min(95, ((90 - days) / 90) * 100));
   el.innerHTML = `
     <div class="countdown-card" onclick="document.getElementById('exam-date-edit').click()">
@@ -4895,17 +4895,11 @@ function importData() {
         if (!confirm('Restore backup from ' + (backup.exportedAt||'unknown date') + '? This will replace all current data.')) return;
         // Write to localStorage
         Object.entries(backup.data).forEach(([k, v]) => localStorage.setItem(k, v));
-        // Write to server immediately so it survives next refresh
+        // Write to server in background
         dbBulkSet(backup.data).catch(()=>{});
-        // Apply immediately - reload S state and re-render
-        load();
-        applyFontSize();
-        const theme = localStorage.getItem('sp3_theme');
-        if (theme === 'light') document.body.classList.add('light-mode');
-        else document.body.classList.remove('light-mode');
-        navTo('home');
-        closeHB();
-        toast('✅ Backup restored!');
+        toast('✅ Backup restored! Reloading…');
+        // Reload page after short delay — cleanest way to apply all data
+        setTimeout(() => window.location.reload(), 1200);
       } catch(e) {
         toast('Import failed: ' + e.message);
       }
