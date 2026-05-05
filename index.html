@@ -1465,9 +1465,16 @@ async function loadFromDB() {
     const r = await fetch(DB_URL + '/store', { signal: AbortSignal.timeout(2000) });
     if (!r.ok) return false;
     const all = await r.json();
-    Object.entries(all).forEach(([k,v]) => localStorage.setItem(k, v));
-    console.log('[Storage] Synced', Object.keys(all).length, 'keys from SQLite → localStorage');
-    return true;
+    // Only sync keys that have data — never overwrite with empty values
+    let count = 0;
+    Object.entries(all).forEach(([k,v]) => {
+      if (v && v !== 'null' && v !== '""' && v !== '[]' && v !== '{}') {
+        localStorage.setItem(k, v);
+        count++;
+      }
+    });
+    console.log('[Storage] Synced', count, 'keys from SQLite → localStorage');
+    return count > 0;
   } catch(e) { return false; }
 }
 
@@ -2151,8 +2158,15 @@ function save() {
       'sp3_journal': JSON.stringify(S.journal),
       'sp3_xp':      JSON.stringify({xp:S.xp,xpLevel:S.xpLevel,streakDays:S.streakDays,lastActive:S.lastActive}),
       'sp3_examdate': S.examDate||'',
-      'sp3_wotd':    JSON.stringify(S.wotd),
+      'sp3_wotd':    S.wotd ? JSON.stringify(S.wotd) : '',
       'sp3_story':   JSON.stringify(S.story.episodes),
+      'sp3_ai_provider': localStorage.getItem('sp3_ai_provider')||'auto',
+      'sp3_theme':   localStorage.getItem('sp3_theme')||'',
+      'sp3_fontsize_px': localStorage.getItem('sp3_fontsize_px')||'15',
+      'sp3_dd_done': localStorage.getItem('sp3_dd_done')||'[]',
+      'sp3_curriculum_dd': localStorage.getItem('sp3_curriculum_dd')||'{}',
+      'sp3_curriculum_tl': localStorage.getItem('sp3_curriculum_tl')||'{}',
+      'sp3_curriculum_lg': localStorage.getItem('sp3_curriculum_lg')||'{}',
     };
     // Write localStorage synchronously (instant)
     Object.entries(data).forEach(([k,v]) => localStorage.setItem(k, v));
@@ -4911,9 +4925,14 @@ function toggleTheme() {
    BOOT
 ══════════════════════════════════════ */
 window.addEventListener('load', async ()=>{
-  // Sync from SQLite first if server is running
-  await loadFromDB();
+  // Sync from SQLite server first — populates localStorage with saved data
+  const dbSynced = await loadFromDB();
+  // Then load from localStorage (which now has server data if sync worked)
   load();
+  // If DB synced successfully, show indicator
+  if (dbSynced) {
+    console.log('[Boot] Loaded from SQLite server successfully');
+  }
   applyFontSize();
   // Restore last screen after refresh
   const lastScreen = localStorage.getItem('sp3_last_screen') || 'home';
