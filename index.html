@@ -31,7 +31,7 @@
   --horen: #cf8e6d;
 }
 *,*::before,*::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; background: var(--bg) !important; color: var(--txt) !important; font-family: var(--font) !important; font-size: var(--base-font); overflow: hidden; -webkit-font-smoothing: antialiased; }
+html, body { height: 100%; background: var(--bg) !important; color: var(--txt) !important; font-family: var(--font) !important; font-size: var(--base-font); overflow: hidden; -webkit-font-smoothing: antialiased; overscroll-behavior: none; overscroll-behavior-y: none; }
 
 /* ── SCREEN SYSTEM ── */
 .screen { display: none; position: fixed; inset: 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; background: var(--bg); z-index: 1; }
@@ -4892,10 +4892,20 @@ function importData() {
       try {
         const backup = JSON.parse(ev.target.result);
         if (!backup.data || !backup.version) throw new Error('Invalid backup file');
-        if (!confirm('Restore backup from ' + (backup.exportedAt||'unknown date') + '?\n\nThis will REPLACE all current data. Cannot be undone.')) return;
+        if (!confirm('Restore backup from ' + (backup.exportedAt||'unknown date') + '? This will replace all current data.')) return;
+        // Write to localStorage
         Object.entries(backup.data).forEach(([k, v]) => localStorage.setItem(k, v));
-        toast('✅ Backup restored! Reloading…');
-        setTimeout(() => window.location.reload(), 1500);
+        // Write to server immediately so it survives next refresh
+        dbBulkSet(backup.data).catch(()=>{});
+        // Apply immediately - reload S state and re-render
+        load();
+        applyFontSize();
+        const theme = localStorage.getItem('sp3_theme');
+        if (theme === 'light') document.body.classList.add('light-mode');
+        else document.body.classList.remove('light-mode');
+        navTo('home');
+        closeHB();
+        toast('✅ Backup restored!');
       } catch(e) {
         toast('Import failed: ' + e.message);
       }
