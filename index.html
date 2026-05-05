@@ -3244,6 +3244,8 @@ async function loadWOTD(force) {
     if (!res.content || !res.content[0]) throw new Error('Empty response');
     const parsed = JSON.parse(extractJSON(res.content[0].text));
     S.wotd = {...parsed, date: today};
+    localStorage.setItem('sp3_wotd', JSON.stringify(S.wotd));
+    dbBulkSet({'sp3_wotd': JSON.stringify(S.wotd)}).catch(()=>{});
     save();
     renderWOTD();
     awardXP('wotd');
@@ -3328,6 +3330,9 @@ function renderCountdown() {
 
 function setExamDate(val) {
   S.examDate = val;
+  localStorage.setItem('sp3_examdate', val);
+  // Immediately write to server — don't wait for next save()
+  dbBulkSet({'sp3_examdate': val}).catch(()=>{});
   save();
   renderCountdown();
   toast('Exam date set! 📅');
@@ -4925,14 +4930,25 @@ function toggleTheme() {
    BOOT
 ══════════════════════════════════════ */
 window.addEventListener('load', async ()=>{
+  // Show loading overlay while syncing from server
+  const overlay = document.createElement('div');
+  overlay.id = 'boot-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:var(--bg,#09090f);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;';
+  overlay.innerHTML = '<div style="font-size:32px;">🎙</div><div style="font-size:16px;font-weight:800;color:#d97757;">Sprechen</div><div style="font-size:12px;color:#888;margin-top:4px;">Loading your data…</div>';
+  document.body.appendChild(overlay);
+
   // Sync from SQLite server first — populates localStorage with saved data
   const dbSynced = await loadFromDB();
   // Then load from localStorage (which now has server data if sync worked)
   load();
-  // If DB synced successfully, show indicator
   if (dbSynced) {
     console.log('[Boot] Loaded from SQLite server successfully');
   }
+
+  // Remove overlay
+  overlay.style.opacity = '0';
+  overlay.style.transition = 'opacity 0.3s';
+  setTimeout(() => overlay.remove(), 350);
   applyFontSize();
   // Restore last screen after refresh
   const lastScreen = localStorage.getItem('sp3_last_screen') || 'home';
