@@ -2993,8 +2993,8 @@ function renderFlash(){
   document.getElementById('sr-streak').textContent=S.fc.streak;
 
   // Module filter
-  const mods=['all','sprechen','lesen','schreiben','horen'];
-  const modIcos={all:'All',sprechen:'🎙',lesen:'📖',schreiben:'✍️',horen:'🎧'};
+  const mods=['all','sprechen','lesen','schreiben','horen','chat','journal','story'];
+  const modIcos={all:'All',sprechen:'🎙',lesen:'📖',schreiben:'✍️',horen:'🎧',chat:'💬',journal:'📔',story:'📚'};
   document.getElementById('mod-filter-tabs').innerHTML=mods.map(m=>`<div class="deck-tab ${S.fc.modFilter===m?'on':''}" onclick="selectModFilter('${m}')">${modIcos[m]} ${m==='all'?'All':m.charAt(0).toUpperCase()+m.slice(1)}</div>`).join('');
 
   // Deck tabs
@@ -3373,12 +3373,12 @@ function renderHomeEnhancements() {
 /* ══════════════════════════════════════
    MISTAKE JOURNAL
 ══════════════════════════════════════ */
-function addToJournal(error, correct, note, context) {
+function addToJournal(error, correct, note, context, moduleOverride) {
   S.journal.unshift({
     id: Date.now(),
     error, correct, note, context,
     date: new Date().toLocaleDateString('de-DE'),
-    module: S.activeModule || 'sprechen',
+    module: moduleOverride || S.activeModule || 'sprechen',
   });
   if (S.journal.length > 100) S.journal = S.journal.slice(0, 100);
   save();
@@ -3391,30 +3391,50 @@ function renderJournal() {
     el.innerHTML = `<div class="empty-state"><div class="empty-ico">📔</div><div class="empty-title">No mistakes yet!</div><div class="empty-desc">Grammar errors from speaking tests and writing feedback will appear here automatically.</div></div>`;
     return;
   }
-  el.innerHTML = S.journal.map(j => `
-    <div class="journal-item">
-      <div style="font-size:10px;color:var(--txt3);font-weight:600;margin-bottom:6px;">${j.date} · ${j.module?.toUpperCase()||'SPRECHEN'}</div>
-      ${j.context?`<div style="font-size:12px;color:var(--txt3);margin-bottom:6px;font-style:italic;">Context: "${j.context}"</div>`:''}
-      <div class="ji-error">✗ ${j.error}</div>
-      <div class="ji-correct">✓ ${j.correct}</div>
-      ${j.note?`<div class="ji-note">💡 ${j.note}</div>`:''}
-      <div class="ji-actions">
-        <button onclick="speakTTS('${j.correct.replace(/'/g,"\'")}','Anna',null,this)" style="background:#30d15815;border:1px solid #30d15840;color:var(--good);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex:1;">🔊 Hear Correct</button>
-        <button onclick="addJournalToCards(${j.id})" style="background:#d9775715;border:1px solid #d9775740;color:var(--accent2);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex:1;">🃏 Add to Cards</button>
-        <button onclick="removeJournalItem(${j.id})" style="background:#ff3b3010;border:1px solid #ff3b3030;color:var(--danger);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;">✕</button>
-      </div>
-    </div>`).join('');
+  el.innerHTML = '';
+  S.journal.forEach(j => {
+    const div = document.createElement('div');
+    div.className = 'journal-item';
+    div.innerHTML =
+      '<div style="font-size:10px;color:var(--txt3);font-weight:600;margin-bottom:6px;">' + j.date + ' · ' + (j.module||'sprechen').toUpperCase() + '</div>' +
+      (j.context ? '<div style="font-size:12px;color:var(--txt3);margin-bottom:6px;font-style:italic;">Context: "' + j.context + '"</div>' : '') +
+      '<div class="ji-error">✗ ' + j.error + '</div>' +
+      '<div class="ji-correct">✓ ' + j.correct + '</div>' +
+      (j.note ? '<div class="ji-note">💡 ' + j.note + '</div>' : '') +
+      '<div class="ji-actions">' +
+        '<button class="jn-hear" data-id="' + j.id + '" style="background:#30d15815;border:1px solid #30d15840;color:var(--good);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex:1;">🔊 Hear Correct</button>' +
+        '<button class="jn-add"  data-id="' + j.id + '" style="background:#d9775715;border:1px solid #d9775740;color:var(--accent2);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex:1;">🃏 Add to Cards</button>' +
+        '<button class="jn-del"  data-id="' + j.id + '" style="background:#ff3b3010;border:1px solid #ff3b3030;color:var(--danger);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;">✕</button>' +
+      '</div>';
+    el.appendChild(div);
+  });
+
+  // Event delegation — no inline onclick so no quote issues
+  el.onclick = function(e) {
+    const hear = e.target.closest('.jn-hear');
+    const add  = e.target.closest('.jn-add');
+    const del  = e.target.closest('.jn-del');
+    if (hear) {
+      const jid = hear.dataset.id;
+      const j = S.journal.find(x => String(x.id) === String(jid));
+      if (j) { speakTTS(j.correct, 'Anna', null, hear); }
+      else { toast('Entry not found'); }
+    }
+    if (add) addJournalToCards(add.dataset.id);
+    if (del) removeJournalItem(del.dataset.id);
+  };
 }
 
 function addJournalToCards(id) {
-  const j = S.journal.find(x=>x.id===id);
+  const j = S.journal.find(x=>String(x.id)===String(id));
   if (!j) return;
   if (S.fc.all.find(c=>c.word===j.correct)) { toast('Already in cards!'); return; }
+  const jMod = j.module || S.activeModule || 'chat';
   S.fc.all.push({
     id: Date.now(), word: j.correct, article: null, baseForm: j.correct,
-    translation: `Correct form (was: ${j.error})`, synonyms: [], partOfSpeech: 'phrase',
-    level: S.level, exampleDe: j.correct, exampleEn: j.note||'',
-    grammarNote: j.note||'', module: 'journal',
+    translation: 'Correct form (was: ' + j.error + ')', synonyms: [], partOfSpeech: 'phrase',
+    level: j.level||S.level, exampleDe: j.correct, exampleEn: j.note||'',
+    grammarNote: j.note||'', module: jMod,
     sessionId: 'journal', sessionTitle: 'Mistake Journal',
     sr: {interval:1, easeFactor:2.5, repetitions:0, nextReview: new Date().toISOString(), status:'new', lastQuality:0, totalReviews:0},
     addedAt: new Date().toISOString(),
@@ -3423,7 +3443,7 @@ function addJournalToCards(id) {
 }
 
 function removeJournalItem(id) {
-  S.journal = S.journal.filter(j=>j.id!==id);
+  S.journal = S.journal.filter(j=>String(j.id)!==String(id));
   save(); renderJournal();
 }
 
@@ -4055,7 +4075,7 @@ async function sendChatMsg() {
     S.chat.msgs.push({role:'assistant', speaker: S.chat.partner, text: data.text, translation: data.translation, tip: data.tip||null});
     speakTTS(data.text, S.chat.partner, null);
     awardXP('free_talk');
-    if (data.tip && data.tip.length > 5) addToJournal(text, data.tip, 'Grammar correction from Free Talk', text);
+    if (data.tip && data.tip.length > 5) addToJournal(text, data.tip, 'Grammar correction from Free Talk', text, 'chat');
   } catch(e) {
     S.chat.msgs.push({role:'assistant', speaker: S.chat.partner, text: 'Entschuldigung! Kannst du das nochmal sagen?', translation: 'Sorry! Can you say that again?'});
   }
